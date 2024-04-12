@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpa-recommender-yuqiang
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpa-recommender-yuqiang
+  template:
+    metadata:
+      labels:
+        app: vpa-recommender-yuqiang
+    spec:
+      serviceAccountName: vpa-recommender
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534 # nobody
+      containers:
+      - name: recommender
+        image: docker.io/yuqiang302/vpa-recommender:dev-v1
+        imagePullPolicy: Always
+        args:
+          - --recommender-name=yuqiang
+          - --target-cpu-percentile=0.95
+          - --pod-recommendation-min-memory-mb=1
+          - --cpu-histogram-decay-half-life=5m
+          - --v=4
+        resources:
+          limits:
+            cpu: 200m
+            memory: 1000Mi
+          requests:
+            cpu: 50m
+            memory: 500Mi
+        ports:
+        - name: prometheus
+          containerPort: 8942
+# hard-coded:
+# lowerBoundCPUPercentile = 0.5
+# upperBoundCPUPercentile = 0.95

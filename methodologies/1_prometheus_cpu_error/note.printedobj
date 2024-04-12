@@ -1,0 +1,45 @@
+{
+    TypeMeta: {Kind: APIVersion:} 
+    
+    ObjectMeta: {
+        Name:hamster-77b989d56b-bfc9t 
+        GenerateName: 
+        Namespace:default 
+        SelfLink: 
+        UID: 
+        ResourceVersion: 
+        Generation: 0 
+        CreationTimestamp: 2024-03-25 16: 28: 36 +0000 UTC 
+        DeletionTimestamp:<nil> 
+        DeletionGracePeriodSeconds:<nil> 
+        Labels:map[
+                app:hamster 
+                pod-template-hash: 77b989d56b
+                ] 
+        Annotations:map[] 
+        OwnerReferences: [] 
+        Finalizers: [] 
+        ManagedFields: []
+    } 
+    Timestamp: 2024-03-25 16: 28: 23 +0000 UTC 
+    Window: {Duration: 59.987s} 
+    
+    Containers: [
+        {
+            Name:hamster 
+            Usage:map[
+                cpu: {
+                        i: {value: 176267241 scale: -9} 
+                        d: {Dec:<nil>} 
+                        s: 176267241n 
+                        Format:DecimalSI
+                } memory: {
+                        i: {value: 643072 scale: 0} 
+                        d: {Dec:<nil>} 
+                        s: 628Ki 
+                        Format:BinarySI
+                }
+            ]
+        }
+    ]
+}

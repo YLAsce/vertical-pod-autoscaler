@@ -1,0 +1,101 @@
+# HELP container_cpu_usage_seconds_total [ALPHA] Cumulative cpu time consumed by the container in core-seconds
+# TYPE container_cpu_usage_seconds_total counter
+container_cpu_usage_seconds_total{container="autoscaler",namespace="kube-system",pod="coredns-autoscaler-77bbc46446-v85md"} 473.197681 1712587087543
+container_cpu_usage_seconds_total{container="azure-ip-masq-agent",namespace="kube-system",pod="azure-ip-masq-agent-krqfp"} 89.195949 1712587065193
+container_cpu_usage_seconds_total{container="azuredisk",namespace="kube-system",pod="csi-azuredisk-node-jls84"} 131.348169 1712587085542
+container_cpu_usage_seconds_total{container="azurefile",namespace="kube-system",pod="csi-azurefile-node-xzm84"} 48.032975 1712587092362
+container_cpu_usage_seconds_total{container="cloud-node-manager",namespace="kube-system",pod="cloud-node-manager-tszhs"} 251.293836 1712587090361
+container_cpu_usage_seconds_total{container="coredns",namespace="kube-system",pod="coredns-789789675-8fnnf"} 1829.560883 1712587083926
+container_cpu_usage_seconds_total{container="coredns",namespace="kube-system",pod="coredns-789789675-swk7s"} 1770.876918 1712587088663
+container_cpu_usage_seconds_total{container="jaeger-operator",namespace="observability",pod="jaeger-operator-6b7d5c5589-btb6p"} 9603.885657 1712587091830
+container_cpu_usage_seconds_total{container="konnectivity-agent",namespace="kube-system",pod="konnectivity-agent-9c475b6d8-nktk7"} 5067.752366 1712587085786
+container_cpu_usage_seconds_total{container="konnectivity-agent",namespace="kube-system",pod="konnectivity-agent-9c475b6d8-wjfj2"} 5013.916341 1712587084538
+container_cpu_usage_seconds_total{container="kube-proxy",namespace="kube-system",pod="kube-proxy-jzrqz"} 662.476018 1712587077769
+container_cpu_usage_seconds_total{container="liveness-probe",namespace="kube-system",pod="csi-azuredisk-node-jls84"} 145.104737 1712587088125
+container_cpu_usage_seconds_total{container="liveness-probe",namespace="kube-system",pod="csi-azurefile-node-xzm84"} 56.782087 1712587089897
+container_cpu_usage_seconds_total{container="node-driver-registrar",namespace="kube-system",pod="csi-azuredisk-node-jls84"} 5917.039542 1712587089689
+container_cpu_usage_seconds_total{container="node-driver-registrar",namespace="kube-system",pod="csi-azurefile-node-xzm84"} 2240.289025 1712587088350
+container_cpu_usage_seconds_total{container="nsenter",namespace="default",pod="nsenter-0qmdsc"} 0.067301 1712587090261
+container_cpu_usage_seconds_total{container="recommender",namespace="kube-system",pod="vpa-recommender-frugal-79959cf6f6-4mzgq"} 251.99305 1712587085380
+container_cpu_usage_seconds_total{container="workload",namespace="default",pod="workload-6888888b8-qs5xw"} 9920.202791 1712587089718
+# HELP container_memory_working_set_bytes [ALPHA] Current working set of the container in bytes
+# TYPE container_memory_working_set_bytes gauge
+container_memory_working_set_bytes{container="autoscaler",namespace="kube-system",pod="coredns-autoscaler-77bbc46446-v85md"} 2.1958656e+07 1712587087543
+container_memory_working_set_bytes{container="azure-ip-masq-agent",namespace="kube-system",pod="azure-ip-masq-agent-krqfp"} 1.4548992e+07 1712587065193
+container_memory_working_set_bytes{container="azuredisk",namespace="kube-system",pod="csi-azuredisk-node-jls84"} 1.3131776e+07 1712587085542
+container_memory_working_set_bytes{container="azurefile",namespace="kube-system",pod="csi-azurefile-node-xzm84"} 9.404416e+06 1712587092362
+container_memory_working_set_bytes{container="cloud-node-manager",namespace="kube-system",pod="cloud-node-manager-tszhs"} 2.5501696e+07 1712587090361
+container_memory_working_set_bytes{container="coredns",namespace="kube-system",pod="coredns-789789675-8fnnf"} 4.0308736e+07 1712587083926
+container_memory_working_set_bytes{container="coredns",namespace="kube-system",pod="coredns-789789675-swk7s"} 3.397632e+07 1712587088663
+container_memory_working_set_bytes{container="jaeger-operator",namespace="observability",pod="jaeger-operator-6b7d5c5589-btb6p"} 2.6464256e+07 1712587091830
+container_memory_working_set_bytes{container="konnectivity-agent",namespace="kube-system",pod="konnectivity-agent-9c475b6d8-nktk7"} 2.576384e+07 1712587085786
+container_memory_working_set_bytes{container="konnectivity-agent",namespace="kube-system",pod="konnectivity-agent-9c475b6d8-wjfj2"} 2.981888e+07 1712587084538
+container_memory_working_set_bytes{container="kube-proxy",namespace="kube-system",pod="kube-proxy-jzrqz"} 3.291136e+07 1712587077769
+container_memory_working_set_bytes{container="liveness-probe",namespace="kube-system",pod="csi-azuredisk-node-jls84"} 1.626112e+07 1712587088125
+container_memory_working_set_bytes{container="liveness-probe",namespace="kube-system",pod="csi-azurefile-node-xzm84"} 1.5822848e+07 1712587089897
+container_memory_working_set_bytes{container="node-driver-registrar",namespace="kube-system",pod="csi-azuredisk-node-jls84"} 1.8690048e+07 1712587089689
+container_memory_working_set_bytes{container="node-driver-registrar",namespace="kube-system",pod="csi-azurefile-node-xzm84"} 2.00704e+07 1712587088350
+container_memory_working_set_bytes{container="nsenter",namespace="default",pod="nsenter-0qmdsc"} 1.96608e+06 1712587090261
+container_memory_working_set_bytes{container="recommender",namespace="kube-system",pod="vpa-recommender-frugal-79959cf6f6-4mzgq"} 1.8374656e+07 1712587085380
+container_memory_working_set_bytes{container="workload",namespace="default",pod="workload-6888888b8-qs5xw"} 3.68697344e+08 1712587089718
+# HELP container_start_time_seconds [ALPHA] Start time of the container since unix epoch in seconds
+# TYPE container_start_time_seconds gauge
+container_start_time_seconds{container="autoscaler",namespace="kube-system",pod="coredns-autoscaler-77bbc46446-v85md"} 1.7101472938894534e+09 1710147293889
+container_start_time_seconds{container="azure-ip-masq-agent",namespace="kube-system",pod="azure-ip-masq-agent-krqfp"} 1.711739936788327e+09 1711739936788
+container_start_time_seconds{container="azuredisk",namespace="kube-system",pod="csi-azuredisk-node-jls84"} 1.7103570693533304e+09 1710357069353
+container_start_time_seconds{container="azurefile",namespace="kube-system",pod="csi-azurefile-node-xzm84"} 1.7117399438307247e+09 1711739943830
+container_start_time_seconds{container="cloud-node-manager",namespace="kube-system",pod="cloud-node-manager-tszhs"} 1.7101472302248995e+09 1710147230224
+container_start_time_seconds{container="coredns",namespace="kube-system",pod="coredns-789789675-8fnnf"} 1.7109410904413626e+09 1710941090441
+container_start_time_seconds{container="coredns",namespace="kube-system",pod="coredns-789789675-swk7s"} 1.710941157730269e+09 1710941157730
+container_start_time_seconds{container="jaeger-operator",namespace="observability",pod="jaeger-operator-6b7d5c5589-btb6p"} 1.7109412184553728e+09 1710941218455
+container_start_time_seconds{container="konnectivity-agent",namespace="kube-system",pod="konnectivity-agent-9c475b6d8-nktk7"} 1.710147593368262e+09 1710147593368
+container_start_time_seconds{container="konnectivity-agent",namespace="kube-system",pod="konnectivity-agent-9c475b6d8-wjfj2"} 1.7101475917199533e+09 1710147591719
+container_start_time_seconds{container="kube-proxy",namespace="kube-system",pod="kube-proxy-jzrqz"} 1.7101472344614897e+09 1710147234461
+container_start_time_seconds{container="liveness-probe",namespace="kube-system",pod="csi-azuredisk-node-jls84"} 1.710357068785376e+09 1710357068785
+container_start_time_seconds{container="liveness-probe",namespace="kube-system",pod="csi-azurefile-node-xzm84"} 1.7117399349453554e+09 1711739934945
+container_start_time_seconds{container="node-driver-registrar",namespace="kube-system",pod="csi-azuredisk-node-jls84"} 1.710357069091612e+09 1710357069091
+container_start_time_seconds{container="node-driver-registrar",namespace="kube-system",pod="csi-azurefile-node-xzm84"} 1.711739935219871e+09 1711739935219
+container_start_time_seconds{container="nsenter",namespace="default",pod="nsenter-0qmdsc"} 1.7125836459833872e+09 1712583645983
+container_start_time_seconds{container="recommender",namespace="kube-system",pod="vpa-recommender-frugal-79959cf6f6-4mzgq"} 1.711126003591466e+09 1711126003591
+container_start_time_seconds{container="workload",namespace="default",pod="workload-6888888b8-qs5xw"} 1.712562112898147e+09 1712562112898
+# HELP node_cpu_usage_seconds_total [ALPHA] Cumulative cpu time consumed by the node in core-seconds
+# TYPE node_cpu_usage_seconds_total counter
+node_cpu_usage_seconds_total 1.195453292e+06 1712587086252
+# HELP node_memory_working_set_bytes [ALPHA] Current working set of the node in bytes
+# TYPE node_memory_working_set_bytes gauge
+node_memory_working_set_bytes 3.67990784e+09 1712587086252
+# HELP pod_cpu_usage_seconds_total [ALPHA] Cumulative cpu time consumed by the pod in core-seconds
+# TYPE pod_cpu_usage_seconds_total counter
+pod_cpu_usage_seconds_total{namespace="default",pod="nsenter-0qmdsc"} 0.080001 1712587080702
+pod_cpu_usage_seconds_total{namespace="default",pod="workload-6888888b8-qs5xw"} 9919.466234 1712587088631
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="azure-ip-masq-agent-krqfp"} 89.229998 1712587090634
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="cloud-node-manager-tszhs"} 251.327198 1712587091063
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="coredns-789789675-8fnnf"} 1829.598762 1712587085267
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="coredns-789789675-swk7s"} 1770.90544 1712587084347
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="coredns-autoscaler-77bbc46446-v85md"} 473.226711 1712587076685
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="csi-azuredisk-node-jls84"} 6193.507221 1712587088404
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="csi-azurefile-node-xzm84"} 2345.113225 1712587092257
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="konnectivity-agent-9c475b6d8-nktk7"} 5067.792523 1712587092115
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="konnectivity-agent-9c475b6d8-wjfj2"} 5013.947448 1712587087539
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="kube-proxy-jzrqz"} 662.515671 1712587088511
+pod_cpu_usage_seconds_total{namespace="kube-system",pod="vpa-recommender-frugal-79959cf6f6-4mzgq"} 252.018334 1712587083557
+pod_cpu_usage_seconds_total{namespace="observability",pod="jaeger-operator-6b7d5c5589-btb6p"} 9603.864201 1712587080883
+# HELP pod_memory_working_set_bytes [ALPHA] Current working set of the pod in bytes
+# TYPE pod_memory_working_set_bytes gauge
+pod_memory_working_set_bytes{namespace="default",pod="nsenter-0qmdsc"} 2.17088e+06 1712587080702
+pod_memory_working_set_bytes{namespace="default",pod="workload-6888888b8-qs5xw"} 3.6890624e+08 1712587088631
+pod_memory_working_set_bytes{namespace="kube-system",pod="azure-ip-masq-agent-krqfp"} 1.4774272e+07 1712587090634
+pod_memory_working_set_bytes{namespace="kube-system",pod="cloud-node-manager-tszhs"} 2.5731072e+07 1712587091063
+pod_memory_working_set_bytes{namespace="kube-system",pod="coredns-789789675-8fnnf"} 4.0525824e+07 1712587085267
+pod_memory_working_set_bytes{namespace="kube-system",pod="coredns-789789675-swk7s"} 3.4209792e+07 1712587084347
+pod_memory_working_set_bytes{namespace="kube-system",pod="coredns-autoscaler-77bbc46446-v85md"} 2.2183936e+07 1712587076685
+pod_memory_working_set_bytes{namespace="kube-system",pod="csi-azuredisk-node-jls84"} 4.8316416e+07 1712587088404
+pod_memory_working_set_bytes{namespace="kube-system",pod="csi-azurefile-node-xzm84"} 4.5514752e+07 1712587092257
+pod_memory_working_set_bytes{namespace="kube-system",pod="konnectivity-agent-9c475b6d8-nktk7"} 2.5993216e+07 1712587092115
+pod_memory_working_set_bytes{namespace="kube-system",pod="konnectivity-agent-9c475b6d8-wjfj2"} 3.0048256e+07 1712587087539
+pod_memory_working_set_bytes{namespace="kube-system",pod="kube-proxy-jzrqz"} 3.3181696e+07 1712587088511
+pod_memory_working_set_bytes{namespace="kube-system",pod="vpa-recommender-frugal-79959cf6f6-4mzgq"} 1.8587648e+07 1712587083557
+pod_memory_working_set_bytes{namespace="observability",pod="jaeger-operator-6b7d5c5589-btb6p"} 2.5874432e+07 1712587080883
+# HELP scrape_error [ALPHA] 1 if there was an error while getting container metrics, 0 otherwise
+# TYPE scrape_error gauge
+scrape_error 0

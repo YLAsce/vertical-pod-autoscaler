@@ -1,0 +1,630 @@
+[
+    {
+        "workload-64f58dd7c7-254sb": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.671,
+                    "request": 0.671,
+                    "usage": 0.47940046152480625
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 27923797.333333336
+                }
+            }
+        },
+        "workload-64f58dd7c7-bjdww": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.671,
+                    "request": 0.671,
+                    "usage": 0.6709736085355704
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 52030122.66666667
+                }
+            }
+        },
+        "workload-69fb87d944-vgzf4": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.2,
+                    "request": 0.2,
+                    "usage": 0.07981040644343794
+                },
+                "memory": {
+                    "limit": 13826048.0,
+                    "request": 13826048.0,
+                    "usage": 13826048.0
+                }
+            }
+        },
+        "workload-69fb87d944-vqq5r": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.2,
+                    "request": 0.2,
+                    "usage": 0.08055407043212524
+                },
+                "memory": {
+                    "limit": 13826048.0,
+                    "request": 13826048.0,
+                    "usage": 13965312.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-vgzf4": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.2,
+                    "request": 0.2,
+                    "usage": 0.19713404418947847
+                },
+                "memory": {
+                    "limit": 24445952.0,
+                    "request": 24445952.0,
+                    "usage": 24445952.0
+                }
+            }
+        },
+        "workload-69fb87d944-vqq5r": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.2,
+                    "request": 0.2,
+                    "usage": 0.1491942054387358
+                },
+                "memory": {
+                    "limit": 24445952.0,
+                    "request": 24445952.0,
+                    "usage": 24363008.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-vgzf4": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.2,
+                    "request": 0.2,
+                    "usage": 0.1964387831960541
+                },
+                "memory": {
+                    "limit": 24445952.0,
+                    "request": 24445952.0,
+                    "usage": 24444928.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5407432837601716
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 17451690.666666668
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5551392441787063
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 17496746.666666668
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5826163271989298
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 23932928.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5740627650184484
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 23937024.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5737442767740045
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 23932928.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.528251663222646
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 23937024.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.7160952427951041
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 23932928.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.49358705
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 23937024.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5163337108438532
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 23932928.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5502263451859937
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 23937024.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.4546408249999999
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28164096.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5667800072137268
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 27002197.333333336
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5048737183514473
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28164096.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.6084734976118173
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28188672.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5958749026518059
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28164096.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.46830533066256025
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28188672.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.5959494062940277
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28164096.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.7164614473015933
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28188672.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.7119844467108613
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28164096.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.4817876906252177
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28188672.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.26924860445446885
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24921429.333333332
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.19711475061103256
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24936448.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.26594941431935587
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24965120.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.26199837382587704
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24936448.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.2631683082060828
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24920064.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.2663484531899794
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24936448.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.268237518055642
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24921429.333333332
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.27102330746905107
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24937813.333333332
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.2118564359244447
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24952832.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.26394310984626435
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 24936448.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.7149559134436028
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28684288.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.716493989409912
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28729344.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.7158556691243951
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28684288.0
+                }
+            }
+        }
+    },
+    {
+        "workload-69fb87d944-fz2bw": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.7159437571120758
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28729344.0
+                }
+            }
+        },
+        "workload-69fb87d944-wbhn9": {
+            "workload": {
+                "cpu": {
+                    "limit": 0.716,
+                    "request": 0.716,
+                    "usage": 0.4260731249999993
+                },
+                "memory": {
+                    "limit": 63544758.0,
+                    "request": 63544758.0,
+                    "usage": 28684288.0
+                }
+            }
+        }
+    }
+]

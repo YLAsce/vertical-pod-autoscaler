@@ -1,0 +1,55 @@
+研究recommendation是如何应用于pod上的，只能往大了增，不能忘小了减？？
+kubectl get vpa
+https://medium.com/infrastructure-adventures/vertical-pod-autoscaler-deep-dive-limitations-and-real-world-examples-9195f8422724
+修改频率是多少？
+如何接prometheus数据？是否成功了？
+工作流程是怎样的？
+https://linuxera.org/cpu-memory-management-kubernetes-cgroupsv2/
+updater 搜索// 详细说明
+
+
+
+recommender有cold start问题： 识别新添加的vpa？
+
+
+ps aux | grep 'stress-ng-cpu' | grep -v 'grep' | awk '{print $2}' | 
+while read -r pid; do echo $pid; done
+
+
+
+不以privileged启动，就是read only：cgroup on /sys/fs/cgroup type cgroup2 (ro,nosuid,nodev,noexec,relatime)
+https://github.com/kubernetes/kubernetes/issues/121190
+
+
+stress-ng用的是什么技术？
+go语言的那个表现怎么样？
+决定了可不可以用内部实现的方法写
+如果不行 考虑cgroup从previleged限制来解决
+
+cat /proc/self/cgroup
+0::/kubepods.slice/kubepods-pod09898505_ecdc_41d2_bb01_5050ddf2f026.slice/cri-containerd-db8270c08660844e1ca917b45aa4c2ee811989b120414c2f756df1b734a81a6d.scope
+
+cat /proc/self/cgroup | sed 's/[^/]*//'
+
+
+问memory消耗不同的问题
+
+
+k get --raw /apis/metrics.k8s.io/v1beta1/pods
+k get --raw /api/v1/nodes/aks-mlintra-35076703-vmss000000/proxy/metrics/cadvisor
+k get --raw /api/v1/nodes/aks-mlintra-35076703-vmss000000/proxy/stats/summary > kubelet.json 
+k get --raw /api/v1/nodes/aks-mlintra-35076703-vmss000000/proxy/metrics/resource > kubelet.prom
+
+https://kubernetes.io/docs/tasks/debug/debug-cluster/resource-metrics-pipeline/ 这个实际上收集的是这个玩意
+https://cloud.tencent.com/developer/article/2180278 完整路径,这个文档很重要！！！
+
+
+结论：rate函数的问题：
+https://segmentfault.com/a/1190000040595000
+假设有两个点，如果开始到第一个点 ，最后一个点到结束< 间隔，那么没问题。
+如果> 间隔，那么大约是2倍的间隔内变化 / 总采样时长。
+所以如果间隔太小，数据就会变小很多，如果间隔大，那么正常，所以小于等于
+
+
+
+https://keda.sh/ 另一个autoscaling框架，研究一下用的方法
