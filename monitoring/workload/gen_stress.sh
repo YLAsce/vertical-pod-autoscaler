@@ -1,8 +1,8 @@
 #!/bin/bash
 
-while true; do
-    sleep 100
-done
+# while true; do
+#     sleep 100
+# done
 
 data_file="trace.data"
 
