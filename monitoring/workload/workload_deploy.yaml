@@ -13,11 +13,11 @@ spec:
     containerPolicies:
       - containerName: '*'
         minAllowed:
-          cpu: 100m
+          cpu: 10m
           memory: 1Mi
         maxAllowed:
           cpu: 1000m
-          memory: 500Mi
+          memory: 600Mi
         controlledResources: ["cpu", "memory"]
 ---
 apiVersion: apps/v1
@@ -38,7 +38,7 @@ spec:
         runAsUser: 0
       containers:
         - name: workload
-          image: docker.io/yuqiang302/workload:dev-ubuntu-aws-test
+          image: docker.io/yuqiang302/workload:dev-ubuntu-aws-v2
           securityContext:
             privileged: true
           resources:
@@ -46,6 +46,6 @@ spec:
               cpu: 800m
               memory: 600Mi
             limits:
-              cpu: 1000m
-              memory: 800Mi
+              cpu: 880m
+              memory: 660Mi
 
