@@ -1,7 +1,7 @@
 .PHONY: all
 all: docker-build docker-push uptag
 
-TAG?=dev-ubuntu-aws-test
+TAG?=dev-ubuntu-aws-v2
 REGISTRY?=yuqiang302
 COMPONENT=workload
 
