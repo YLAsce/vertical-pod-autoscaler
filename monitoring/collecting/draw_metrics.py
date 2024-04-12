@@ -3,7 +3,7 @@ import pprint
 import matplotlib.pyplot as plt
 
 frequency = 1 # 1min
-data_points = 40
+data_points = 120
 
 with open('metrics_{}_{}.json'.format(frequency, data_points), 'r') as file:
     data = json.load(file)

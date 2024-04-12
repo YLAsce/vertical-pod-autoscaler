@@ -210,6 +210,7 @@ func (a *AggregateContainerState) addCPUSample(sample *ContainerUsageSample) {
 	// Samples are added with the weight equal to the current request. This means that
 	// whenever the request is increased, the history accumulated so far effectively decays,
 	// which helps react quickly to CPU starvation.
+	// NICO: CPU有个权重？。。。
 	a.AggregateCPUUsage.AddSample(
 		cpuUsageCores, math.Max(cpuRequestCores, minSampleWeight), sample.MeasureStart)
 	if sample.MeasureStart.After(a.LastSampleStart) {
