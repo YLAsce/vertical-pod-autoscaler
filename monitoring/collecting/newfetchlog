@@ -1,0 +1,120 @@
+-------start round------ 1
+{'workload-575b56bfd7-lxs5f': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049978438},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30404608.0}}},
+ 'workload-575b56bfd7-w67b6': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.050236364},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30416896.0}}}}
+-------finish record data------ 1
+-------start round------ 2
+{'workload-575b56bfd7-lxs5f': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049886783},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30404608.0}}},
+ 'workload-575b56bfd7-w67b6': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049865907},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30416896.0}}}}
+-------finish record data------ 2
+-------start round------ 3
+{'workload-575b56bfd7-lxs5f': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049961704},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30404608.0}}},
+ 'workload-575b56bfd7-w67b6': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.05007688},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30416896.0}}}}
+-------finish record data------ 3
+-------start round------ 4
+{'workload-575b56bfd7-lxs5f': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049896403},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30404608.0}}},
+ 'workload-575b56bfd7-w67b6': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.050195696},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30416896.0}}}}
+-------finish record data------ 4
+-------start round------ 5
+{'workload-575b56bfd7-lxs5f': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049677719},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30404608.0}}},
+ 'workload-575b56bfd7-w67b6': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.05006817},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30416896.0}}}}
+-------finish record data------ 5
+-------start round------ 6
+{'workload-575b56bfd7-lxs5f': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049771644},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30404608.0}}},
+ 'workload-575b56bfd7-w67b6': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049854799},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30416896.0}}}}
+-------finish record data------ 6
+-------start round------ 7
+{'workload-575b56bfd7-lxs5f': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049834822},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30404608.0}}},
+ 'workload-575b56bfd7-w67b6': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049986482},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30416896.0}}}}
+-------finish record data------ 7
+-------start round------ 8
+{'workload-575b56bfd7-lxs5f': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.050234288},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30404608.0}}},
+ 'workload-575b56bfd7-w67b6': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.05003255},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30416896.0}}}}
+-------finish record data------ 8
+-------start round------ 9
+{'workload-575b56bfd7-lxs5f': {'workload': {'cpu': {'limit': 0.069,
+                                                    'request': 0.063,
+                                                    'usage': 0.049754884},
+                                            'memory': {'limit': 487090960.0,
+                                                       'request': 442809964.0,
+                                                       'usage': 30404608.0}}},
+ 'workload-575b56bfd7-w67b6': {'workload': {'cpu': {'limit': 

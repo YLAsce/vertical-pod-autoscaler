@@ -1,7 +1,7 @@
 from kubernetes import client, config
 from kubernetes.utils import quantity
-from azure.identity import DefaultAzureCredential
-from azure.mgmt.containerservice import ContainerServiceClient
+# from azure.identity import DefaultAzureCredential
+# from azure.mgmt.containerservice import ContainerServiceClient
 import requests
 import pprint
 import json
@@ -9,15 +9,15 @@ import time
 import copy
 import sys
 
-subscription_id = "cbd332d2-cbb7-4189-bf84-48155e558134"
-prometheus_addr = "108.141.80.121"
+# subscription_id = "cbd332d2-cbb7-4189-bf84-48155e558134"
+prometheus_addr = "195.154.73.222"
 deployment_name = "workload"
 namespace = "default"
 frequency = 1 # 1min
-data_points = 40
+data_points = 120
 
-credentials = DefaultAzureCredential()
-aks_client = ContainerServiceClient(credentials, subscription_id)
+# credentials = DefaultAzureCredential()
+# aks_client = ContainerServiceClient(credentials, subscription_id)
 
 config.load_kube_config()
 apps_api = client.AppsV1Api()
@@ -109,8 +109,11 @@ for i in range(data_points):
         pprint.pprint(data_request_usage)
         arr_data_request_usage.append(data_request_usage)
     except Exception as e:
-        arr_data_request_usage.append(make_zero_data(arr_data_request_usage[-1]))
-        print("Exception at round {}, put data 0: {}".format(i+1, e))
+        if len(arr_data_request_usage) > 0:
+            arr_data_request_usage.append(make_zero_data(arr_data_request_usage[-1]))
+            print("Exception at round {}, put data 0: {}".format(i+1, e))
+        else:
+            print("Exception at round {}, NO DATA APPENDED".format(i+1, e))
 
     print("-------finish record data------", str(i+1))
 
