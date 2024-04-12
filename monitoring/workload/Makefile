@@ -1,7 +1,7 @@
 .PHONY: all
 all: docker-build docker-push uptag
 
-TAG?=dev-ubuntu-awsv1
+TAG?=dev-ubuntu-aws-test
 REGISTRY?=yuqiang302
 COMPONENT=workload
 
@@ -53,4 +53,6 @@ uptag:
 .PHONY: restart
 restart:
 	kubectl delete -f workload_deploy.yaml
+	sleep 15
+	echo 0 | aws s3 cp - s3://mlintra/stress.state
 	kubectl apply -f workload_deploy.yaml

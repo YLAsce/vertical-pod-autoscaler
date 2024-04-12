@@ -1,5 +1,9 @@
 #!/bin/bash
 
+while true; do
+    sleep 100
+done
+
 data_file="trace.data"
 
 cgroup_prefix="/sys/fs/cgroup"
@@ -11,6 +15,8 @@ cgroup_fullpath="${cgroup_prefix}${cgroup_subpath}${cgroup_file}"
 state_file="s3://mlintra/stress.state"
 
 cur_state=$(aws s3 cp ${state_file} -)
+
+echo "======Read State: ${cur_state}"
 
 awk "NR > ${cur_state}" ${data_file} | while IFS= read -r line; do
     start_time=$(date +%s)

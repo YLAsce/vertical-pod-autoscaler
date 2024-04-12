@@ -5,10 +5,14 @@ RUN apt update && \
     apt install -y gcc bc cgroup-tools python3-pip
 
 # AMS object storage
-RUN pip3 install awscli awscli-plugin-endpoint && \
-    aws configure set plugins.endpoint awscli_plugin_endpoint
+RUN pip3 install awscli awscli-plugin-endpoint
+
+RUN aws configure set plugins.endpoint awscli_plugin_endpoint && \
+    aws configure set aws_access_key_id SCW9PYDH2VX3EWYZ0JD7 && \
+    aws configure set aws_secret_access_key d13a460c-dc4c-43e5-abf9-b0bfb24e4b40
+
 COPY aws_config ~/.aws/config
-COPY aws_credentials ~/.aws/credentials
+# COPY aws_credentials ~/.aws/credentials
 # cpulimit cgroup-tools
 
 COPY gen_stress.sh /
