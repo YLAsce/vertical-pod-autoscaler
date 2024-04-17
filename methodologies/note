@@ -51,5 +51,5 @@ https://segmentfault.com/a/1190000040595000
 所以如果间隔太小，数据就会变小很多，如果间隔大，那么正常，所以小于等于
 
 
-
-https://keda.sh/ 另一个autoscaling框架，研究一下用的方法
+kubernetes 1.30改进了什么？改进的是horizontal的
+https://keda.sh/ 另一个autoscaling框架，研究一下用的方法。也是Rule Based.....

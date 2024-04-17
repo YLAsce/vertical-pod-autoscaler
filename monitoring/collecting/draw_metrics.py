@@ -3,13 +3,13 @@ import pprint
 import matplotlib.pyplot as plt
 
 frequency = 1 # 1min
-data_points = 120
+data_points = 480
 
 with open('metrics_{}_{}.json'.format(frequency, data_points), 'r') as file:
     data = json.load(file)
 
 
-pprint.pprint(data)
+# pprint.pprint(data)
 
 timestamps = [i*frequency for i in range(data_points)]
 pod_name = ''
@@ -44,9 +44,9 @@ ax1.set_title('CPU Resource')
 ax1.set_xlabel('Time (minutes)')
 ax1.set_ylabel('Resource')
 ax1.grid(True)
-ax1.hlines(0.7, 0, timestamps[-1], colors='black', linestyles='dashed')
-ax1.hlines(0.1, 0, timestamps[-1], colors='black', linestyles='dashed')
-#ax1.legend()
+# ax1.hlines(0.7, 0, timestamps[-1], colors='black', linestyles='dashed')
+# ax1.hlines(0.1, 0, timestamps[-1], colors='black', linestyles='dashed')
+ax1.legend()
 
 
 # 在第二个子图上绘制内存曲线
@@ -57,9 +57,9 @@ ax2.set_title('Memory Resource')
 ax2.set_xlabel('Time (minutes)')
 ax2.set_ylabel('Resource')
 ax2.grid(True)
-ax2.hlines(367001600, 0, timestamps[-1], colors='black', linestyles='dashed')
-ax2.hlines(52428800, 0, timestamps[-1], colors='black', linestyles='dashed')
-#ax2.legend()
+# ax2.hlines(367001600, 0, timestamps[-1], colors='black', linestyles='dashed')
+# ax2.hlines(52428800, 0, timestamps[-1], colors='black', linestyles='dashed')
+ax2.legend()
 
 # 调整子图布局
 plt.tight_layout()

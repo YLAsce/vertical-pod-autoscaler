@@ -33,6 +33,9 @@ type HistogramOptions interface {
 	// Returns the start of the bucket with a given index. If the index is
 	// outside the [0..NumBuckets() - 1] range, the result is undefined.
 	GetBucketStart(bucket int) float64
+
+	// Returns the end of the bucket with a given index.
+	GetBucketEnd(bucket int) float64
 	// Returns the minimum weight for a bucket to be considered non-empty.
 	Epsilon() float64
 }
@@ -105,6 +108,13 @@ func (o *linearHistogramOptions) GetBucketStart(bucket int) float64 {
 	return float64(bucket) * o.bucketSize
 }
 
+func (o *linearHistogramOptions) GetBucketEnd(bucket int) float64 {
+	if bucket < 0 || bucket >= o.numBuckets {
+		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, o.numBuckets-1))
+	}
+	return float64(bucket+1) * o.bucketSize
+}
+
 func (o *linearHistogramOptions) Epsilon() float64 {
 	return o.epsilon
 }
@@ -139,6 +149,14 @@ func (o *exponentialHistogramOptions) GetBucketStart(bucket int) float64 {
 		return 0.0
 	}
 	return o.firstBucketSize * (math.Pow(o.ratio, float64(bucket)) - 1) / (o.ratio - 1)
+}
+
+func (o *exponentialHistogramOptions) GetBucketEnd(bucket int) float64 {
+	if bucket < 0 || bucket >= o.numBuckets {
+		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, o.numBuckets-1))
+	}
+
+	return o.firstBucketSize * (math.Pow(o.ratio, float64(bucket+1)) - 1) / (o.ratio - 1)
 }
 
 func (o *exponentialHistogramOptions) Epsilon() float64 {

@@ -1,6 +1,6 @@
-all: build
+all: docker-build docker-push
 
-TAG?=dev-v1
+TAG?=dev-v2
 REGISTRY?=yuqiang302
 FLAGS=
 TEST_ENVVAR=LD_FLAGS=-s GO111MODULE=on
@@ -11,7 +11,7 @@ FULL_COMPONENT=vpa-${COMPONENT}
 # localhost registries need --insecure for some docker commands.
 INSECURE=$(subst localhost,--insecure,$(findstring localhost,$(REGISTRY)))
 
-ALL_ARCHITECTURES?=amd64 arm arm64 ppc64le s390x
+ALL_ARCHITECTURES?=amd64 # arm arm64 ppc64le s390x
 export DOCKER_CLI_EXPERIMENTAL=enabled
 
 build: clean
@@ -90,3 +90,9 @@ format:
 	test -z "$$(find . -path ./vendor -prune -type f -o -name '*.go' -exec gofmt -s -w {} + | tee /dev/stderr)"
 
 .PHONY: all build test-unit clean format release
+
+.PHONY: restart
+restart:
+	kubectl delete -f ../../deploy/recommender-deployment-yuqiang.yaml
+	sed -i '' '23s/.*/        image: docker.io/${REGISTRY}/${FULL_COMPONENT}:${TAG}/' ../../deploy/recommender-deployment-yuqiang.yaml
+	kubectl apply -f ../../deploy/recommender-deployment-yuqiang.yaml
