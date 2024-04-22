@@ -32,7 +32,7 @@ func GetContainerNameToAggregateStateMap(vpa *model.Vpa) model.ContainerNameToAg
 		klog.V(4).Infof("[NICO]aggregatedContainerName: %+v:", containerName)
 		klog.V(4).Infof("[NICO]aggregatedContainerCPUHistogram: %+v:", aggregatedContainerState.AggregateCPUUsage.String())
 		containerResourcePolicy := api_utils.GetContainerResourcePolicy(containerName, vpa.ResourcePolicy)
-		klog.V(4).Infof("[NICO]aggregatedContainerResourcePolicy: %+v:", containerResourcePolicy)
+		// klog.V(4).Infof("[NICO]aggregatedContainerResourcePolicy: %+v:", containerResourcePolicy)
 		autoscalingDisabled := containerResourcePolicy != nil && containerResourcePolicy.Mode != nil &&
 			*containerResourcePolicy.Mode == vpa_types.ContainerScalingModeOff
 		if !autoscalingDisabled {

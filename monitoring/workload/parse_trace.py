@@ -3,7 +3,7 @@ import math
 
 start = 0
 stop = 50 * math.pi
-num_samples = 1000
+num_samples = 120
 
 
 # x_values = [start + (stop - start) / (num_samples - 1) * i for i in range(num_samples)]

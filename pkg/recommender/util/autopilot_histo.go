@@ -9,6 +9,8 @@ import (
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
 )
 
+var valueDelta = 1e-11
+
 type AutopilotHisto interface {
 	// Returns an approximation of the given percentile of the distribution.
 	// Note: the argument passed to Percentile() is a number between
@@ -31,8 +33,11 @@ type AutopilotHisto interface {
 	// of the exact same type.
 	Merge(other AutopilotHisto)
 
-	// Returns true if the histogram has been aggregated in windows at least once.
-	HasAggregatedAtLeastOnce() bool
+	// Return the number of aggregations made.
+	AggregateNums() int
+
+	// Has at least 1 aggration which is not 0
+	HasValidAggregation() bool
 
 	// Aggregate histogram in time window statistics
 	Aggregate(operationTime time.Time)
@@ -66,6 +71,7 @@ func NewAutopilotHisto(options HistogramOptions, halfLife time.Duration, n int, 
 
 		lastAggregationTime: time.Time{},
 		aggregationDuration: defaultAggregationDuration,
+		aggregateNums:       0,
 
 		currentBucketWeight:                make([]int, options.NumBuckets()),
 		cumulativeWeightedAverageUpper:     0.0,
@@ -87,6 +93,7 @@ type autopilotHisto struct {
 
 	lastAggregationTime time.Time
 	aggregationDuration time.Duration
+	aggregateNums       int
 
 	currentBucketWeight                []int
 	cumulativeWeightedAverageUpper     float64
@@ -110,12 +117,15 @@ func (ah *autopilotHisto) calExponentialDecayingWeight(t time.Duration) float64 
 
 func (ah *autopilotHisto) currentAverageUsage() float64 {
 	upper := 0.0
-	lower := 0.0
+	lower := 0
 	for j := 0; j < ah.options.NumBuckets(); j++ {
 		upper += ah.options.GetBucketEnd(j) * float64(ah.currentBucketWeight[j])
-		lower += float64(ah.currentBucketWeight[j])
+		lower += ah.currentBucketWeight[j]
 	}
-	return upper / lower
+	if lower == 0 {
+		return 0.0
+	}
+	return upper / float64(lower)
 }
 
 func (ah *autopilotHisto) AddSample(value float64) {
@@ -139,7 +149,7 @@ func (ah *autopilotHisto) Merge(other AutopilotHisto) {
 	}
 
 	// Merge aggragation data
-	if !ah.HasAggregatedAtLeastOnce() {
+	if ah.AggregateNums() == 0 {
 		// If Not aggragated, direct copy
 		ah.lastAggregationTime = o.lastAggregationTime
 		ah.aggregationDuration = o.aggregationDuration
@@ -174,7 +184,7 @@ func (ah *autopilotHisto) Merge(other AutopilotHisto) {
 }
 
 func (ah *autopilotHisto) Percentile(percentile float64) float64 {
-	if !ah.HasAggregatedAtLeastOnce() {
+	if ah.AggregateNums() == 0 {
 		return 0.0
 	}
 	partialSum := 0.0
@@ -201,14 +211,21 @@ func (ah *autopilotHisto) Max() float64 {
 	return maxB
 }
 
-func (ah *autopilotHisto) HasAggregatedAtLeastOnce() bool {
-	return ah.lastAggregationTime != time.Time{}
+func (ah *autopilotHisto) AggregateNums() int {
+	return ah.aggregateNums
+}
+
+func (ah *autopilotHisto) HasValidAggregation() bool {
+	return ah.Max() > valueDelta
 }
 
 func (ah *autopilotHisto) Aggregate(operationTime time.Time) {
 	// Process the time
-	ah.aggregationDuration = operationTime.Sub(ah.lastAggregationTime)
+	if ah.AggregateNums() >= 1 {
+		ah.aggregationDuration = operationTime.Sub(ah.lastAggregationTime)
+	}
 	ah.lastAggregationTime = operationTime
+	ah.aggregateNums++
 
 	// Process Max
 	maxBucket := ah.options.NumBuckets() - 1
@@ -233,8 +250,8 @@ func (ah *autopilotHisto) Aggregate(operationTime time.Time) {
 	ah.cumulativeAdjustedUsageWeightTotal = 0.0
 	for i := 0; i < ah.options.NumBuckets(); i++ {
 		ah.cumulativeAdjustedUsage[i] *= ah.calExponentialDecayingWeight(ah.aggregationDuration)
-		ah.cumulativeAdjustedUsage[i] += float64(ah.currentBucketWeight[i])
-		ah.cumulativeAdjustedUsageWeightTotal += ah.calExponentialDecayingWeight(time.Duration(0)) * ah.cumulativeAdjustedUsage[i] * ah.options.GetBucketEnd(i)
+		ah.cumulativeAdjustedUsage[i] += ah.calExponentialDecayingWeight(time.Duration(0)) * float64(ah.currentBucketWeight[i]) * ah.options.GetBucketEnd(i)
+		ah.cumulativeAdjustedUsageWeightTotal += ah.cumulativeAdjustedUsage[i]
 	}
 
 	// Clear current bucket, ready for the samples in next window ...
@@ -245,6 +262,7 @@ func (ah *autopilotHisto) Aggregate(operationTime time.Time) {
 
 func (ah *autopilotHisto) String() string {
 	lines := []string{
+		"",
 		"+++++++++++++++++++++++++++",
 		fmt.Sprintf("Time: Halflife: %v, N: %v, LastAggregation: %v, Aggregation duration: %v", ah.halfLife, ah.lastSamplesN, ah.lastAggregationTime, ah.aggregationDuration),
 		fmt.Sprintf("Current buckets: %+v", ah.currentBucketWeight),

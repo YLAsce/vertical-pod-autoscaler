@@ -47,16 +47,16 @@ type ContainerUsageSample struct {
 type ContainerState struct {
 	// Current request.
 	Request Resources
-	// Start of the latest CPU usage sample that was aggregated.
-	LastCPUSampleStart time.Time
+	// Start of the latest CPU usage sample that was aggregated. Discard in Autopilot
+	// LastCPUSampleStart time.Time
 	// Max memory usage observed in the current aggregation interval.
 	memoryPeak ResourceAmount
 	// Max memory usage estimated from an OOM event in the current aggregation interval.
 	oomPeak ResourceAmount
 	// End time of the current memory aggregation interval (not inclusive).
 	WindowEnd time.Time
-	// Start of the latest memory usage sample that was aggregated.
-	lastMemorySampleStart time.Time
+	// Start of the latest memory usage sample that was aggregated. Discard in Autopilot
+	// lastMemorySampleStart time.Time
 	// Aggregation to add usage samples to.
 	aggregator ContainerStateAggregator
 }
@@ -64,11 +64,11 @@ type ContainerState struct {
 // NewContainerState returns a new ContainerState.
 func NewContainerState(request Resources, aggregator ContainerStateAggregator) *ContainerState {
 	return &ContainerState{
-		Request:               request,
-		LastCPUSampleStart:    time.Time{},
-		WindowEnd:             time.Time{},
-		lastMemorySampleStart: time.Time{},
-		aggregator:            aggregator,
+		Request: request,
+		// LastCPUSampleStart:    time.Time{},
+		WindowEnd: time.Time{},
+		// lastMemorySampleStart: time.Time{},
+		aggregator: aggregator,
 	}
 }
 
@@ -78,12 +78,13 @@ func (sample *ContainerUsageSample) isValid(expectedResource ResourceName) bool 
 
 func (container *ContainerState) addCPUSample(sample *ContainerUsageSample) bool {
 	// Order should not matter for the histogram, other than deduplication.
-	if !sample.isValid(ResourceCPU) || !sample.MeasureStart.After(container.LastCPUSampleStart) {
-		return false // Discard invalid, duplicate or out-of-order samples.
+	if !sample.isValid(ResourceCPU) {
+		return false // Discard invalid, In Autopilot Keep duplicate or out-of-order samples here.
 	}
 	container.observeQualityMetrics(sample.Usage, false, corev1.ResourceCPU)
 	container.aggregator.AddSample(sample)
-	container.LastCPUSampleStart = sample.MeasureStart
+	// Discard time sequence...
+	// container.LastCPUSampleStart = sample.MeasureStart
 	return true
 }
 
@@ -126,60 +127,71 @@ func (container *ContainerState) GetMaxMemoryPeak() ResourceAmount {
 	return ResourceAmountMax(container.memoryPeak, container.oomPeak)
 }
 
-func (container *ContainerState) addMemorySample(sample *ContainerUsageSample, isOOM bool) bool {
-	ts := sample.MeasureStart
-	// We always process OOM samples.
-	if !sample.isValid(ResourceMemory) ||
-		(!isOOM && ts.Before(container.lastMemorySampleStart)) {
-		return false // Discard invalid or outdated samples.
-	}
-	container.lastMemorySampleStart = ts
-	if container.WindowEnd.IsZero() { // This is the first sample.
-		container.WindowEnd = ts
-	}
+func (container *ContainerState) HistogramAggregate(now time.Time) {
+	container.aggregator.HistogramAggregate(now)
+}
 
-	// Each container aggregates one peak per aggregation interval. If the timestamp of the
-	// current sample is earlier than the end of the current interval (WindowEnd) and is larger
-	// than the current peak, the peak is updated in the aggregation by subtracting the old value
-	// and adding the new value.
-	addNewPeak := false
-	if ts.Before(container.WindowEnd) {
-		oldMaxMem := container.GetMaxMemoryPeak()
-		if oldMaxMem != 0 && sample.Usage > oldMaxMem {
-			// Remove the old peak.
-			oldPeak := ContainerUsageSample{
-				MeasureStart: container.WindowEnd,
-				Usage:        oldMaxMem,
-				Request:      sample.Request,
-				Resource:     ResourceMemory,
-			}
-			container.aggregator.SubtractSample(&oldPeak)
-			addNewPeak = true
-		}
-	} else {
-		// Shift the memory aggregation window to the next interval.
-		memoryAggregationInterval := GetAggregationsConfig().MemoryAggregationInterval
-		shift := ts.Sub(container.WindowEnd).Truncate(memoryAggregationInterval) + memoryAggregationInterval
-		container.WindowEnd = container.WindowEnd.Add(shift)
-		container.memoryPeak = 0
-		container.oomPeak = 0
-		addNewPeak = true
+func (container *ContainerState) addMemorySample(sample *ContainerUsageSample, isOOM bool) bool {
+	if !sample.isValid(ResourceMemory) {
+		return false // Discard invalid, In Autopilot Keep duplicate or out-of-order samples here.
 	}
 	container.observeQualityMetrics(sample.Usage, isOOM, corev1.ResourceMemory)
-	if addNewPeak {
-		newPeak := ContainerUsageSample{
-			MeasureStart: container.WindowEnd,
-			Usage:        sample.Usage,
-			Request:      sample.Request,
-			Resource:     ResourceMemory,
-		}
-		container.aggregator.AddSample(&newPeak)
-		if isOOM {
-			container.oomPeak = sample.Usage
-		} else {
-			container.memoryPeak = sample.Usage
-		}
-	}
+	container.aggregator.AddSample(sample)
+
+	// In Autopilot Does not process OOM...
+	// ts := sample.MeasureStart
+	// // We always process OOM samples.
+	// if !sample.isValid(ResourceMemory) ||
+	// 	(!isOOM && ts.Before(container.lastMemorySampleStart)) {
+	// 	return false // Discard invalid or outdated samples.
+	// }
+	// container.lastMemorySampleStart = ts
+	// if container.WindowEnd.IsZero() { // This is the first sample.
+	// 	container.WindowEnd = ts
+	// }
+
+	// // Each container aggregates one peak per aggregation interval. If the timestamp of the
+	// // current sample is earlier than the end of the current interval (WindowEnd) and is larger
+	// // than the current peak, the peak is updated in the aggregation by subtracting the old value
+	// // and adding the new value.
+	// addNewPeak := false
+	// if ts.Before(container.WindowEnd) {
+	// 	oldMaxMem := container.GetMaxMemoryPeak()
+	// 	if oldMaxMem != 0 && sample.Usage > oldMaxMem {
+	// 		// Remove the old peak.
+	// 		oldPeak := ContainerUsageSample{
+	// 			MeasureStart: container.WindowEnd,
+	// 			Usage:        oldMaxMem,
+	// 			Request:      sample.Request,
+	// 			Resource:     ResourceMemory,
+	// 		}
+	// 		container.aggregator.SubtractSample(&oldPeak)
+	// 		addNewPeak = true
+	// 	}
+	// } else {
+	// 	// Shift the memory aggregation window to the next interval.
+	// 	memoryAggregationInterval := GetAggregationsConfig().MemoryAggregationInterval
+	// 	shift := ts.Sub(container.WindowEnd).Truncate(memoryAggregationInterval) + memoryAggregationInterval
+	// 	container.WindowEnd = container.WindowEnd.Add(shift)
+	// 	container.memoryPeak = 0
+	// 	container.oomPeak = 0
+	// 	addNewPeak = true
+	// }
+	// container.observeQualityMetrics(sample.Usage, isOOM, corev1.ResourceMemory)
+	// if addNewPeak {
+	// 	newPeak := ContainerUsageSample{
+	// 		MeasureStart: container.WindowEnd,
+	// 		Usage:        sample.Usage,
+	// 		Request:      sample.Request,
+	// 		Resource:     ResourceMemory,
+	// 	}
+	// 	container.aggregator.AddSample(&newPeak)
+	// 	if isOOM {
+	// 		container.oomPeak = sample.Usage
+	// 	} else {
+	// 		container.memoryPeak = sample.Usage
+	// 	}
+	// }
 	return true
 }
 

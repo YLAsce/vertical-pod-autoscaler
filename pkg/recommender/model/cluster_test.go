@@ -29,7 +29,7 @@ import (
 	"k8s.io/klog/v2"
 
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
-	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
+	controllerfetcher "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/utils/test"
 )
 
@@ -82,6 +82,7 @@ func makeTestUsageSample() *ContainerUsageSampleWithKey {
 		testContainerID}
 }
 
+// Discard in Autopilot
 func TestClusterAddSample(t *testing.T) {
 	// Create a pod with a single container.
 	cluster := NewClusterState(testGcPeriod)
@@ -92,8 +93,8 @@ func TestClusterAddSample(t *testing.T) {
 	assert.NoError(t, cluster.AddSample(makeTestUsageSample()))
 
 	// Verify that the sample was aggregated into the container stats.
-	containerStats := cluster.Pods[testPodID].Containers["container-1"]
-	assert.Equal(t, testTimestamp, containerStats.LastCPUSampleStart)
+	// containerStats := cluster.Pods[testPodID].Containers["container-1"]
+	// assert.Equal(t, testTimestamp, containerStats.LastCPUSampleStart)
 }
 
 func TestClusterGCAggregateContainerStateDeletesOld(t *testing.T) {
@@ -311,7 +312,7 @@ func TestClusterRecordOOM(t *testing.T) {
 
 	// Verify that OOM was aggregated into the aggregated stats.
 	aggregation := cluster.findOrCreateAggregateContainerState(testContainerID)
-	assert.NotEmpty(t, aggregation.AggregateMemoryPeaks)
+	assert.NotEmpty(t, aggregation.AggregateMemoryUsage)
 }
 
 // Verifies that AddSample and AddOrUpdateContainer methods return a proper

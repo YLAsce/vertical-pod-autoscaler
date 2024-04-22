@@ -27,6 +27,7 @@ import (
 var (
 	// Minimum precision of histogram values (relative).
 	valueEpsilon = 1e-15
+	// valueDelta   = 1e-11 Move to source code
 	// Minimum precision of histogram weights (absolute).
 	weightEpsilon = 1e-15
 	// Arbitrary timestamp.

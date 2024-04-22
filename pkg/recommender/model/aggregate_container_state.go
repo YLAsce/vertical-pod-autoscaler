@@ -37,13 +37,13 @@ package model
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/util"
+	"k8s.io/klog/v2"
 )
 
 // ContainerNameToAggregateStateMap maps a container name to AggregateContainerState
@@ -81,6 +81,9 @@ type ContainerStateAggregator interface {
 	// GetUpdateMode returns the update mode of VPA controlling this aggregator,
 	// nil if aggregator is not autoscaled.
 	GetUpdateMode() *vpa_types.UpdateMode
+
+	// Autopilot histogram window aggregate 5min
+	HistogramAggregate(now time.Time)
 }
 
 // AggregateContainerState holds input signals aggregated from a set of containers.
@@ -90,10 +93,10 @@ type ContainerStateAggregator interface {
 // Implements ContainerStateAggregator interface.
 type AggregateContainerState struct {
 	// AggregateCPUUsage is a distribution of all CPU samples.
-	AggregateCPUUsage util.Histogram
+	AggregateCPUUsage util.AutopilotHisto
 	// AggregateMemoryPeaks is a distribution of memory peaks from all containers:
 	// each container should add one peak per memory aggregation interval (e.g. once every 24h).
-	AggregateMemoryPeaks util.Histogram
+	AggregateMemoryUsage util.AutopilotHisto
 	// Note: first/last sample timestamps as well as the sample count are based only on CPU samples.
 	FirstSampleStart  time.Time
 	LastSampleStart   time.Time
@@ -110,6 +113,11 @@ type AggregateContainerState struct {
 	UpdateMode          *vpa_types.UpdateMode
 	ScalingMode         *vpa_types.ContainerScalingMode
 	ControlledResources *[]ResourceName
+}
+
+func (a *AggregateContainerState) HistogramAggregate(now time.Time) {
+	a.AggregateCPUUsage.Aggregate(now)
+	a.AggregateMemoryUsage.Aggregate(now)
 }
 
 // GetLastRecommendation returns last recorded recommendation.
@@ -156,7 +164,7 @@ func (a *AggregateContainerState) MarkNotAutoscaled() {
 // MergeContainerState merges two AggregateContainerStates.
 func (a *AggregateContainerState) MergeContainerState(other *AggregateContainerState) {
 	a.AggregateCPUUsage.Merge(other.AggregateCPUUsage)
-	a.AggregateMemoryPeaks.Merge(other.AggregateMemoryPeaks)
+	a.AggregateMemoryUsage.Merge(other.AggregateMemoryUsage)
 
 	if a.FirstSampleStart.IsZero() ||
 		(!other.FirstSampleStart.IsZero() && other.FirstSampleStart.Before(a.FirstSampleStart)) {
@@ -172,8 +180,8 @@ func (a *AggregateContainerState) MergeContainerState(other *AggregateContainerS
 func NewAggregateContainerState() *AggregateContainerState {
 	config := GetAggregationsConfig()
 	return &AggregateContainerState{
-		AggregateCPUUsage:    util.NewDecayingHistogram(config.CPUHistogramOptions, config.CPUHistogramDecayHalfLife),
-		AggregateMemoryPeaks: util.NewDecayingHistogram(config.MemoryHistogramOptions, config.MemoryHistogramDecayHalfLife),
+		AggregateCPUUsage:    util.NewAutopilotHisto(config.CPUHistogramOptions, config.CPUHistogramDecayHalfLife, config.CPULastSamplesN, config.CPUDefaultAggregationDuration),
+		AggregateMemoryUsage: util.NewAutopilotHisto(config.MemoryHistogramOptions, config.MemoryHistogramDecayHalfLife, config.MemoryLastSamplesN, config.MemoryDefaultAggregationDuration),
 		CreationTime:         time.Now(),
 	}
 }
@@ -184,7 +192,7 @@ func (a *AggregateContainerState) AddSample(sample *ContainerUsageSample) {
 	case ResourceCPU:
 		a.addCPUSample(sample)
 	case ResourceMemory:
-		a.AggregateMemoryPeaks.AddSample(BytesFromMemoryAmount(sample.Usage), 1.0, sample.MeasureStart)
+		a.AggregateMemoryUsage.AddSample(BytesFromMemoryAmount(sample.Usage))
 	default:
 		panic(fmt.Sprintf("AddSample doesn't support resource '%s'", sample.Resource))
 	}
@@ -195,10 +203,11 @@ func (a *AggregateContainerState) AddSample(sample *ContainerUsageSample) {
 // AddSample() in the past.
 // Only memory samples can be subtracted at the moment. Support for CPU could be
 // added if necessary.
+// Discarded in Autopilot
 func (a *AggregateContainerState) SubtractSample(sample *ContainerUsageSample) {
 	switch sample.Resource {
 	case ResourceMemory:
-		a.AggregateMemoryPeaks.SubtractSample(BytesFromMemoryAmount(sample.Usage), 1.0, sample.MeasureStart)
+		a.AggregateMemoryUsage.SubtractSample(BytesFromMemoryAmount(sample.Usage))
 	default:
 		panic(fmt.Sprintf("SubtractSample doesn't support resource '%s'", sample.Resource))
 	}
@@ -206,13 +215,8 @@ func (a *AggregateContainerState) SubtractSample(sample *ContainerUsageSample) {
 
 func (a *AggregateContainerState) addCPUSample(sample *ContainerUsageSample) {
 	cpuUsageCores := CoresFromCPUAmount(sample.Usage)
-	cpuRequestCores := CoresFromCPUAmount(sample.Request)
-	// Samples are added with the weight equal to the current request. This means that
-	// whenever the request is increased, the history accumulated so far effectively decays,
-	// which helps react quickly to CPU starvation.
-	// NICO: CPU有个权重？。。。
-	a.AggregateCPUUsage.AddSample(
-		cpuUsageCores, math.Max(cpuRequestCores, minSampleWeight), sample.MeasureStart)
+	a.AggregateCPUUsage.AddSample(cpuUsageCores)
+
 	if sample.MeasureStart.After(a.LastSampleStart) {
 		a.LastSampleStart = sample.MeasureStart
 	}
@@ -224,8 +228,9 @@ func (a *AggregateContainerState) addCPUSample(sample *ContainerUsageSample) {
 
 // SaveToCheckpoint serializes AggregateContainerState as VerticalPodAutoscalerCheckpointStatus.
 // The serialization may result in loss of precission of the histograms.
+// TODO Not implemented in Autopilot
 func (a *AggregateContainerState) SaveToCheckpoint() (*vpa_types.VerticalPodAutoscalerCheckpointStatus, error) {
-	memory, err := a.AggregateMemoryPeaks.SaveToChekpoint()
+	memory, err := a.AggregateMemoryUsage.SaveToChekpoint()
 	if err != nil {
 		return nil, err
 	}
@@ -246,6 +251,7 @@ func (a *AggregateContainerState) SaveToCheckpoint() (*vpa_types.VerticalPodAuto
 
 // LoadFromCheckpoint deserializes data from VerticalPodAutoscalerCheckpointStatus
 // into the AggregateContainerState.
+// TODO Not implemented in Autopilot
 func (a *AggregateContainerState) LoadFromCheckpoint(checkpoint *vpa_types.VerticalPodAutoscalerCheckpointStatus) error {
 	if checkpoint.Version != SupportedCheckpointVersion {
 		return fmt.Errorf("unsupported checkpoint version %s", checkpoint.Version)
@@ -253,7 +259,7 @@ func (a *AggregateContainerState) LoadFromCheckpoint(checkpoint *vpa_types.Verti
 	a.TotalSamplesCount = checkpoint.TotalSamplesCount
 	a.FirstSampleStart = checkpoint.FirstSampleStart.Time
 	a.LastSampleStart = checkpoint.LastSampleStart.Time
-	err := a.AggregateMemoryPeaks.LoadFromCheckpoint(&checkpoint.MemoryHistogram)
+	err := a.AggregateMemoryUsage.LoadFromCheckpoint(&checkpoint.MemoryHistogram)
 	if err != nil {
 		return err
 	}
@@ -298,6 +304,9 @@ func AggregateStateByContainerName(aggregateContainerStateMap aggregateContainer
 	for aggregationKey, aggregation := range aggregateContainerStateMap {
 		containerName := aggregationKey.ContainerName()
 		aggregateContainerState, isInitialized := containerNameToAggregateStateMap[containerName]
+		if containerName == "workload" {
+			klog.V(4).Infof("NICONICO Merge workload %s", aggregation.AggregateMemoryUsage.String())
+		}
 		if !isInitialized {
 			aggregateContainerState = NewAggregateContainerState()
 			containerNameToAggregateStateMap[containerName] = aggregateContainerState
@@ -319,6 +328,11 @@ type ContainerStateAggregatorProxy struct {
 // pointing to the cluster state.
 func NewContainerStateAggregatorProxy(cluster *ClusterState, containerID ContainerID) ContainerStateAggregator {
 	return &ContainerStateAggregatorProxy{containerID, cluster}
+}
+
+func (p *ContainerStateAggregatorProxy) HistogramAggregate(now time.Time) {
+	aggregator := p.cluster.findOrCreateAggregateContainerState(p.containerID)
+	aggregator.HistogramAggregate(now)
 }
 
 // AddSample adds a container sample to the aggregator.

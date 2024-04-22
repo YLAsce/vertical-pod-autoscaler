@@ -42,6 +42,9 @@ var (
 type Recommender interface {
 	// RunOnce performs one iteration of recommender duties followed by update of recommendations in VPA objects.
 	RunOnce()
+	// New API
+	CollectOnce()
+	SetupAndRecommendOnce()
 	// GetClusterState returns ClusterState used by Recommender
 	GetClusterState() *model.ClusterState
 	// GetClusterStateFeeder returns ClusterStateFeeder used by Recommender
@@ -86,7 +89,6 @@ func (r *recommender) UpdateVPAs() {
 			Namespace: observedVpa.Namespace,
 			VpaName:   observedVpa.Name,
 		}
-		klog.V(4).Infof("[NICO]VPA observed key: %+v:", key)
 		vpa, found := r.clusterState.Vpas[key]
 		if !found {
 			continue
@@ -150,6 +152,48 @@ func (r *recommender) MaintainCheckpoints(ctx context.Context, minCheckpointsPer
 			r.clusterStateFeeder.GarbageCollectCheckpoints()
 		}
 	}
+}
+
+// 1 second
+func (r *recommender) CollectOnce() {
+	r.clusterStateFeeder.LoadRealTimeMetrics()
+}
+
+// 5 minute
+func (r *recommender) SetupAndRecommendOnce() {
+	//自己也提供一个prometheus数据源
+	timer := metrics_recommender.NewExecutionTimer()
+	defer timer.ObserveTotal()
+
+	// 管理远程请求
+	ctx := context.Background()
+	//默认1分钟写checkpoint
+	ctx, cancelFunc := context.WithDeadline(ctx, time.Now().Add(*checkpointsWriteTimeout))
+	defer cancelFunc()
+
+	klog.V(3).Infof("Recommender Run")
+
+	r.clusterStateFeeder.LoadVPAs()
+	timer.ObserveStep("LoadVPAs")
+
+	r.clusterStateFeeder.LoadPods()
+	timer.ObserveStep("LoadPods")
+
+	// Autopilot Histogram aggragate
+	r.clusterStateFeeder.HistogramAggregate(time.Now())
+	timer.ObserveStep("HistogramAggregate")
+	klog.V(3).Infof("ClusterState is tracking %v PodStates and %v VPAs", len(r.clusterState.Pods), len(r.clusterState.Vpas))
+
+	// 最终结果是container级别的recommendation
+	r.UpdateVPAs()
+	timer.ObserveStep("UpdateVPAs")
+
+	r.MaintainCheckpoints(ctx, *minCheckpointsPerRun)
+	timer.ObserveStep("MaintainCheckpoints")
+
+	r.clusterState.RateLimitedGarbageCollectAggregateCollectionStates(time.Now(), r.controllerFetcher)
+	timer.ObserveStep("GarbageCollect")
+	klog.V(3).Infof("ClusterState is tracking %d aggregated container states", r.clusterState.StateMapSize())
 }
 
 func (r *recommender) RunOnce() {

@@ -18,37 +18,44 @@ cur_state=$(aws s3 cp ${state_file} -)
 
 echo "======Read State: ${cur_state}"
 
-awk "NR > ${cur_state}" ${data_file} | while IFS= read -r line; do
-    start_time=$(date +%s)
+data_file_lines=$(wc -l < "${data_file}")
+start_line=$((cur_state % data_file_lines))
 
-    duration=$(echo "$line" | awk '{print $1}')
-    cpu_usage=$(echo "$line" | awk '{print $2}')
-    memory_usage=$(echo "$line" | awk '{print $3}')
+while true; do
+    echo "start from ${start_line}"
+    awk "NR > ${start_line}" ${data_file} | while IFS= read -r line; do
+        start_time=$(date +%s)
 
-    # # integer upper bound of cpu usage
-    # cpu_upper_bound=$(echo "$cpu_usage" | awk -F'.' '{print $1}')
-    # ((cpu_upper_bound++))
-    # cpu_percentile=$(echo "scale=0; $cpu_usage * 100 / $cpu_upper_bound" | bc)
+        duration=$(echo "$line" | awk '{print $1}')
+        cpu_usage=$(echo "$line" | awk '{print $2}')
+        memory_usage=$(echo "$line" | awk '{print $3}')
 
-    # CPU percentile
-    cpu_percentile=$(echo "$cpu_usage * 100000" | bc | cut -d. -f1)
+        # # integer upper bound of cpu usage
+        # cpu_upper_bound=$(echo "$cpu_usage" | awk -F'.' '{print $1}')
+        # ((cpu_upper_bound++))
+        # cpu_percentile=$(echo "scale=0; $cpu_usage * 100 / $cpu_upper_bound" | bc)
 
-    echo "===Current CPU Usage * 100000: ${cpu_percentile} | Mem Usage: ${memory_usage} | CPU file path: ${cgroup_fullpath}"
+        # CPU percentile
+        cpu_percentile=$(echo "$cpu_usage * 100000" | bc | cut -d. -f1)
 
-    echo ${cpu_percentile} > ${cgroup_fullpath}
-    # stress-ng --cpu ${cpu_upper_bound} --cpu-load ${cpu_percentile} --cpu-method loop --vm 1 --vm-bytes ${memory_usage} --vm-keep --timeout ${duration}s
-    # wait
-    ./stress_worker ${duration} ${memory_usage}
-    
-    #ps aux | grep 'stress_worker' | grep -v 'grep' | awk '{print $2}' | while read -r pid; do cpulimit -p $pid -l ${cpu_percentile}; done
-    wait
+        echo "===Current CPU Usage * 100000: ${cpu_percentile} | Mem Usage: ${memory_usage} | CPU file path: ${cgroup_fullpath}"
 
-    end_time=$(date +%s)
-    duration_actual=$((end_time - start_time))
+        echo ${cpu_percentile} > ${cgroup_fullpath}
+        # stress-ng --cpu ${cpu_upper_bound} --cpu-load ${cpu_percentile} --cpu-method loop --vm 1 --vm-bytes ${memory_usage} --vm-keep --timeout ${duration}s
+        # wait
+        ./stress_worker ${duration} ${memory_usage}
+        
+        #ps aux | grep 'stress_worker' | grep -v 'grep' | awk '{print $2}' | while read -r pid; do cpulimit -p $pid -l ${cpu_percentile}; done
+        wait
 
-    cur_state=$((cur_state + 1))
-    echo ${cur_state} | aws s3 cp - ${state_file}
+        end_time=$(date +%s)
+        duration_actual=$((end_time - start_time))
 
-    echo "===FINISHED! | Time expected: ${duration} used: ${duration_actual}."
-    echo
+        cur_state=$((cur_state + 1))
+        echo ${cur_state} | aws s3 cp - ${state_file}
+
+        echo "===FINISHED! | Time expected: ${duration} used: ${duration_actual} cur_state: ${cur_state}."
+        echo
+    done
+    start_line=0
 done

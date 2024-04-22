@@ -37,19 +37,19 @@ type HistogramOptions interface {
 	// Returns the end of the bucket with a given index.
 	GetBucketEnd(bucket int) float64
 	// Returns the minimum weight for a bucket to be considered non-empty.
-	Epsilon() float64
+	Epsilon() float64 // Epsilon is unused in Autopilot...
 }
 
 // NewLinearHistogramOptions returns HistogramOptions describing a histogram
 // with a given number of fixed-size buckets, with the first bucket start at 0.0
-// and the last bucket start larger or equal to maxValue.
+// and the last bucket END larger or equal to maxValue.
 // Requires maxValue > 0, bucketSize > 0, epsilon > 0.
 func NewLinearHistogramOptions(
 	maxValue float64, bucketSize float64, epsilon float64) (HistogramOptions, error) {
 	if maxValue <= 0.0 || bucketSize <= 0.0 || epsilon <= 0.0 {
 		return nil, errors.New("maxValue and bucketSize must both be positive")
 	}
-	numBuckets := int(math.Ceil(maxValue/bucketSize)) + 1
+	numBuckets := int(math.Ceil(maxValue / bucketSize))
 	return &linearHistogramOptions{numBuckets, bucketSize, epsilon}, nil
 }
 
@@ -76,7 +76,7 @@ func NewExponentialHistogramOptions(
 type linearHistogramOptions struct {
 	numBuckets int
 	bucketSize float64
-	epsilon    float64
+	epsilon    float64 // Epsilon is unused in Autopilot...
 }
 
 type exponentialHistogramOptions struct {

@@ -4,7 +4,7 @@ metadata:
   name: workload-vpa
 spec:
   recommenders: 
-    - name: yuqiang
+    - name: autopilot
   targetRef:
     apiVersion: "apps/v1"
     kind: Deployment
@@ -19,6 +19,8 @@ spec:
           cpu: 1000m
           memory: 600Mi
         controlledResources: ["cpu", "memory"]
+  # updatePolicy:
+  #   updateMode: "Off"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -38,7 +40,7 @@ spec:
         runAsUser: 0
       containers:
         - name: workload
-          image: docker.io/yuqiang302/workload:dev-ubuntu-aws-v4
+          image: docker.io/yuqiang302/workload:dev-ubuntu-aws-v5
           securityContext:
             privileged: true
           resources:

@@ -25,7 +25,7 @@ import (
 	"k8s.io/klog/v2"
 
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
-	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
+	controllerfetcher "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
 	vpa_utils "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/utils/vpa"
 )
 
@@ -210,6 +210,9 @@ func (cluster *ClusterState) AddOrUpdateContainer(containerID ContainerID, reque
 // object. Requires the container as well as the parent pod to be added to the
 // ClusterState first. Otherwise an error is returned.
 func (cluster *ClusterState) AddSample(sample *ContainerUsageSampleWithKey) error {
+	if sample.Container.ContainerName == "workload" {
+		klog.V(4).Infof("NICO ADD SAMPLE in %+v", *sample)
+	}
 	pod, podExists := cluster.Pods[sample.Container.PodID]
 	if !podExists {
 		return NewKeyError(sample.Container.PodID)
@@ -221,7 +224,18 @@ func (cluster *ClusterState) AddSample(sample *ContainerUsageSampleWithKey) erro
 	if !containerState.AddSample(&sample.ContainerUsageSample) {
 		return fmt.Errorf("sample discarded (invalid or out of order)")
 	}
+	if sample.Container.ContainerName == "workload" {
+		klog.V(4).Infof("NICO ADD SAMPLE after %s: %v", sample.Container.ContainerName, sample.Usage)
+	}
 	return nil
+}
+
+func (cluster *ClusterState) HistogramAggregate(now time.Time) {
+	for _, pod := range cluster.Pods {
+		for _, container := range pod.Containers {
+			container.HistogramAggregate(now)
+		}
+	}
 }
 
 // RecordOOM adds info regarding OOM event in the model as an artificial memory sample.

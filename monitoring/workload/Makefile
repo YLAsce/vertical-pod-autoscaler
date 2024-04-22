@@ -1,7 +1,7 @@
 .PHONY: all
 all: docker-build docker-push uptag
 
-TAG?=dev-ubuntu-aws-v4
+TAG?=dev-ubuntu-aws-v5
 REGISTRY?=yuqiang302
 COMPONENT=workload
 
@@ -47,7 +47,7 @@ push-multi-arch:
 
 .PHONY: uptag
 uptag:
-	sed -i '' '41s/.*/          image: docker.io\/${REGISTRY}\/${COMPONENT}:${TAG}/' workload_deploy.yaml
+	sed -i '' '43s/.*/          image: docker.io\/${REGISTRY}\/${COMPONENT}:${TAG}/' workload_deploy.yaml
 
 
 .PHONY: restart
@@ -56,3 +56,7 @@ restart:
 	sleep 15
 	echo 0 | aws s3 cp - s3://mlintra/stress.state
 	kubectl apply -f workload_deploy.yaml
+
+.PHONY: reset
+reset:
+	echo 0 | aws s3 cp - s3://mlintra/stress.state

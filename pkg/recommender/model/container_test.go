@@ -49,18 +49,18 @@ func newUsageSample(timestamp time.Time, usage int64, resource ResourceName) *Co
 }
 
 type ContainerTest struct {
-	mockCPUHistogram        *util.MockHistogram
-	mockMemoryHistogram     *util.MockHistogram
+	mockCPUHistogram        *util.MockAutopilotHisto
+	mockMemoryHistogram     *util.MockAutopilotHisto
 	aggregateContainerState *AggregateContainerState
 	container               *ContainerState
 }
 
 func newContainerTest() ContainerTest {
-	mockCPUHistogram := new(util.MockHistogram)
-	mockMemoryHistogram := new(util.MockHistogram)
+	mockCPUHistogram := new(util.MockAutopilotHisto)
+	mockMemoryHistogram := new(util.MockAutopilotHisto)
 	aggregateContainerState := &AggregateContainerState{
 		AggregateCPUUsage:    mockCPUHistogram,
-		AggregateMemoryPeaks: mockMemoryHistogram,
+		AggregateMemoryUsage: mockMemoryHistogram,
 	}
 	container := &ContainerState{
 		Request:    TestRequest,
@@ -78,6 +78,8 @@ func newContainerTest() ContainerTest {
 // valid samples the CPU measures are aggregated in the CPU histogram and
 // the memory measures are aggregated in the memory peaks sliding window.
 // Verifies that invalid samples (out-of-order or negative usage) are ignored.
+
+// Discarded in Autopilot!!! Wrong result
 func TestAggregateContainerUsageSamples(t *testing.T) {
 	test := newContainerTest()
 	c := test.container

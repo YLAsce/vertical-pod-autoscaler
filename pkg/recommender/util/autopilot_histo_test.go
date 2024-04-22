@@ -3,143 +3,90 @@ package util
 import (
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func Test_autopilotHisto_Average(t *testing.T) {
-	type fields struct {
-		options                            HistogramOptions
-		halfLife                           time.Duration
-		lastSamplesN                       int
-		cumulativeWeightedAverageLower     float64
-		lastAggregationTime                time.Time
-		aggregationDuration                time.Duration
-		currentBucketWeight                []int
-		cumulativeWeightedAverageUpper     float64
-		cumulativeAdjustedUsage            []float64
-		cumulativeAdjustedUsageWeightTotal float64
-		cumulativeMaxWindow                []float64
-		cumulativeMaxHeadPosition          int
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   float64
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ah := &autopilotHisto{
-				options:                            tt.fields.options,
-				halfLife:                           tt.fields.halfLife,
-				lastSamplesN:                       tt.fields.lastSamplesN,
-				cumulativeWeightedAverageLower:     tt.fields.cumulativeWeightedAverageLower,
-				lastAggregationTime:                tt.fields.lastAggregationTime,
-				aggregationDuration:                tt.fields.aggregationDuration,
-				currentBucketWeight:                tt.fields.currentBucketWeight,
-				cumulativeWeightedAverageUpper:     tt.fields.cumulativeWeightedAverageUpper,
-				cumulativeAdjustedUsage:            tt.fields.cumulativeAdjustedUsage,
-				cumulativeAdjustedUsageWeightTotal: tt.fields.cumulativeAdjustedUsageWeightTotal,
-				cumulativeMaxWindow:                tt.fields.cumulativeMaxWindow,
-				cumulativeMaxHeadPosition:          tt.fields.cumulativeMaxHeadPosition,
-			}
-			if got := ah.Average(); got != tt.want {
-				t.Errorf("autopilotHisto.Average() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+func Test_autopilotHisto_Basic(t *testing.T) {
+	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	assert.Nil(t, err)
+	ah := NewAutopilotHisto(options, time.Minute, 1, time.Minute)
+	ah.AddSample(0.5)
+	assert.InDelta(t, 0, ah.Max(), valueDelta)
+	assert.InDelta(t, 0, ah.Average(), valueDelta)
+	assert.InDelta(t, 0, ah.Percentile(0.5), valueDelta)
+
+	ah.Aggregate(startTime)
+	ah.AddSample(0.69)
+	ah.AddSample(0.49)
+	// t.Log(ah.String())
+	assert.InDelta(t, 0.6, ah.Max(), valueDelta)
+	assert.InDelta(t, 0.4, ah.Average(), valueDelta)
+	assert.InDelta(t, 0.6, ah.Percentile(0.5), valueDelta)
+
+	ah.Aggregate(startTime.Add(2 * time.Minute))
+	// t.Log(ah.String())
+	assert.InDelta(t, 0.7, ah.Max(), valueDelta)
+	assert.InDelta(t, 0.6, ah.Average(), valueDelta)
+	assert.InDelta(t, 0.7, ah.Percentile(0.5), valueDelta)
 }
 
-func Test_autopilotHisto_Max(t *testing.T) {
-	type fields struct {
-		options                            HistogramOptions
-		halfLife                           time.Duration
-		lastSamplesN                       int
-		cumulativeWeightedAverageLower     float64
-		lastAggregationTime                time.Time
-		aggregationDuration                time.Duration
-		currentBucketWeight                []int
-		cumulativeWeightedAverageUpper     float64
-		cumulativeAdjustedUsage            []float64
-		cumulativeAdjustedUsageWeightTotal float64
-		cumulativeMaxWindow                []float64
-		cumulativeMaxHeadPosition          int
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   float64
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ah := &autopilotHisto{
-				options:                            tt.fields.options,
-				halfLife:                           tt.fields.halfLife,
-				lastSamplesN:                       tt.fields.lastSamplesN,
-				cumulativeWeightedAverageLower:     tt.fields.cumulativeWeightedAverageLower,
-				lastAggregationTime:                tt.fields.lastAggregationTime,
-				aggregationDuration:                tt.fields.aggregationDuration,
-				currentBucketWeight:                tt.fields.currentBucketWeight,
-				cumulativeWeightedAverageUpper:     tt.fields.cumulativeWeightedAverageUpper,
-				cumulativeAdjustedUsage:            tt.fields.cumulativeAdjustedUsage,
-				cumulativeAdjustedUsageWeightTotal: tt.fields.cumulativeAdjustedUsageWeightTotal,
-				cumulativeMaxWindow:                tt.fields.cumulativeMaxWindow,
-				cumulativeMaxHeadPosition:          tt.fields.cumulativeMaxHeadPosition,
-			}
-			if got := ah.Max(); got != tt.want {
-				t.Errorf("autopilotHisto.Max() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+func Test_autopilotHisto_Begin(t *testing.T) {
+	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	assert.Nil(t, err)
+	ah := NewAutopilotHisto(options, time.Minute, 1, time.Minute)
+	ah.Aggregate(startTime)
+	// t.Log(ah.String())
+	assert.InDelta(t, 0, ah.Max(), valueDelta)
+	assert.InDelta(t, 0, ah.Average(), valueDelta)
+	assert.InDelta(t, 0.1, ah.Percentile(0.0), valueDelta) // The end of the minimum bucket,not 0!!!
 }
 
-func Test_autopilotHisto_Percentile(t *testing.T) {
-	type fields struct {
-		options                            HistogramOptions
-		halfLife                           time.Duration
-		lastSamplesN                       int
-		cumulativeWeightedAverageLower     float64
-		lastAggregationTime                time.Time
-		aggregationDuration                time.Duration
-		currentBucketWeight                []int
-		cumulativeWeightedAverageUpper     float64
-		cumulativeAdjustedUsage            []float64
-		cumulativeAdjustedUsageWeightTotal float64
-		cumulativeMaxWindow                []float64
-		cumulativeMaxHeadPosition          int
-	}
-	type args struct {
-		percentile float64
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   float64
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			ah := &autopilotHisto{
-				options:                            tt.fields.options,
-				halfLife:                           tt.fields.halfLife,
-				lastSamplesN:                       tt.fields.lastSamplesN,
-				cumulativeWeightedAverageLower:     tt.fields.cumulativeWeightedAverageLower,
-				lastAggregationTime:                tt.fields.lastAggregationTime,
-				aggregationDuration:                tt.fields.aggregationDuration,
-				currentBucketWeight:                tt.fields.currentBucketWeight,
-				cumulativeWeightedAverageUpper:     tt.fields.cumulativeWeightedAverageUpper,
-				cumulativeAdjustedUsage:            tt.fields.cumulativeAdjustedUsage,
-				cumulativeAdjustedUsageWeightTotal: tt.fields.cumulativeAdjustedUsageWeightTotal,
-				cumulativeMaxWindow:                tt.fields.cumulativeMaxWindow,
-				cumulativeMaxHeadPosition:          tt.fields.cumulativeMaxHeadPosition,
-			}
-			if got := ah.Percentile(tt.args.percentile); got != tt.want {
-				t.Errorf("autopilotHisto.Percentile() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+func Test_autopilotHisto_Max_Window(t *testing.T) {
+	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	assert.Nil(t, err)
+	ah := NewAutopilotHisto(options, time.Minute, 2, time.Minute)
+	ah.AddSample(0.69)
+	ah.AddSample(0.49)
+
+	ah.Aggregate(startTime)
+	ah.AddSample(0.5)
+	// t.Log(ah.String())
+	assert.InDelta(t, 0.7, ah.Max(), valueDelta)
+
+	ah.Aggregate(startTime.Add(2 * time.Minute))
+	ah.AddSample(0.4)
+	// t.Log(ah.String())
+	assert.InDelta(t, 0.7, ah.Max(), valueDelta)
+
+	ah.Aggregate(startTime.Add(4 * time.Minute))
+	// t.Log(ah.String())
+	assert.InDelta(t, 0.6, ah.Max(), valueDelta)
+}
+
+func Test_autopilotHisto_Merge(t *testing.T) {
+	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	assert.Nil(t, err)
+	ah1 := NewAutopilotHisto(options, time.Minute, 2, time.Minute)
+	ah1.AddSample(0.69)
+	ah1.AddSample(0.49)
+
+	ah1.Aggregate(startTime)
+	ah1.AddSample(0.5)
+	// t.Log(ah1.String())
+
+	ahEmpty := NewAutopilotHisto(options, time.Minute, 2, time.Minute)
+	ahEmpty.Merge(ah1)
+	// t.Log(ahEmpty.String())
+	assert.InDelta(t, 0.7, ahEmpty.Max(), valueDelta)
+
+	ah3 := NewAutopilotHisto(options, time.Minute, 2, time.Minute)
+	ah3.AddSample(0.19)
+	ah3.AddSample(0.39)
+	ah3.Aggregate(startTime)
+	ah3.AddSample(0.39)
+	ah1.Merge(ah3)
+	// t.Log(ah3.String())
+	// t.Log(ah1.String())
+	assert.InDelta(t, 0.7, ahEmpty.Max(), valueDelta)
 }

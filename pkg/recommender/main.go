@@ -48,7 +48,8 @@ import (
 
 var (
 	recommenderName        = flag.String("recommender-name", input.DefaultRecommenderName, "Set the recommender name. Recommender will generate recommendations for VPAs that configure the same recommender name. If the recommender name is left as default it will also generate recommendations that don't explicitly specify recommender. You shouldn't run two recommenders with the same name in a cluster.")
-	metricsFetcherInterval = flag.Duration("recommender-interval", 1*time.Minute, `How often metrics should be fetched`)
+	metricsFetcherInterval = flag.Duration("metrics-interval", 1*time.Second, `How often metrics should be fetched`)
+	recommenderInterval    = flag.Duration("recommender-interval", 5*time.Minute, `How often recommender should run, prefer integer times of fetching interval`)
 	checkpointsGCInterval  = flag.Duration("checkpoints-gc-interval", 10*time.Minute, `How often orphaned checkpoints should be garbage collected`)
 	prometheusAddress      = flag.String("prometheus-address", "", `Where to reach for Prometheus metrics`)
 	prometheusJobName      = flag.String("prometheus-cadvisor-job-name", "kubernetes-cadvisor", `Name of the prometheus job name which scrapes the cAdvisor metrics`)
@@ -83,10 +84,19 @@ var (
 var (
 	memoryAggregationInterval      = flag.Duration("memory-aggregation-interval", model.DefaultMemoryAggregationInterval, `The length of a single interval, for which the peak memory usage is computed. Memory usage peaks are aggregated in multiples of this interval. In other words there is one memory usage sample per interval (the maximum usage over that interval)`)
 	memoryAggregationIntervalCount = flag.Int64("memory-aggregation-interval-count", model.DefaultMemoryAggregationIntervalCount, `The number of consecutive memory-aggregation-intervals which make up the MemoryAggregationWindowLength which in turn is the period for memory usage aggregation by VPA. In other words, MemoryAggregationWindowLength = memory-aggregation-interval * memory-aggregation-interval-count.`)
-	memoryHistogramDecayHalfLife   = flag.Duration("memory-histogram-decay-half-life", model.DefaultMemoryHistogramDecayHalfLife, `The amount of time it takes a historical memory usage sample to lose half of its weight. In other words, a fresh usage sample is twice as 'important' as one with age equal to the half life period.`)
-	cpuHistogramDecayHalfLife      = flag.Duration("cpu-histogram-decay-half-life", model.DefaultCPUHistogramDecayHalfLife, `The amount of time it takes a historical CPU usage sample to lose half of its weight.`)
 	oomBumpUpRatio                 = flag.Float64("oom-bump-up-ratio", model.DefaultOOMBumpUpRatio, `The memory bump up ratio when OOM occurred, default is 1.2.`)
 	oomMinBumpUp                   = flag.Float64("oom-min-bump-up-bytes", model.DefaultOOMMinBumpUp, `The minimal increase of memory when OOM occurred in bytes, default is 100 * 1024 * 1024`)
+
+	// Autopilot Rule-based
+	memoryHistogramDecayHalfLife = flag.Duration("ap-memory-histogram-decay-half-life", model.DefaultMemoryHistogramDecayHalfLife, `The amount of time it takes a historical memory usage sample to lose half of its weight. In other words, a fresh usage sample is twice as 'important' as one with age equal to the half life period.`)
+	cpuHistogramDecayHalfLife    = flag.Duration("ap-cpu-histogram-decay-half-life", model.DefaultCPUHistogramDecayHalfLife, `The amount of time it takes a historical CPU usage sample to lose half of its weight.`)
+	// cpuDefaultAggregationDuration = memoryDefaultAggregationDuration = recommenderInterval
+	cpuLastSamplesN           = flag.Int("ap-cpu-histogram-n", model.DefaultLastSamplesN, `N last CPU samples in Autopilot paper`)
+	memoryLastSamplesN        = flag.Int("ap-memory-histogram-n", model.DefaultLastSamplesN, `N last memory samples in Autopilot paper`)
+	cpuHistogramMaxValue      = flag.Float64("ap-cpu-histogram-max", model.DefaultCPUHistogramMaxValue, `CPU End of the last bucket >= this value`)
+	cpuHistogramBucketSize    = flag.Float64("ap-cpu-histogram-bucket", model.DefaultCPUHistogramBucketSize, `CPU per bucket size`)
+	memoryHistogramMaxValue   = flag.Float64("ap-memory-histogram-max", model.DefaultMemoryHistogramMaxValue, `Mem End of the last bucket >= this value`)
+	memoryHistogramBucketSize = flag.Float64("ap-memory-histogram-bucket", model.DefaultMemoryHistogramBucketSize, `Mem per bucket size`)
 )
 
 // Post processors flags
@@ -118,7 +128,13 @@ func main() {
 	controllerFetcher := controllerfetcher.NewControllerFetcher(config, kubeClient, factory, scaleCacheEntryFreshnessTime, scaleCacheEntryLifetime, scaleCacheEntryJitterFactor)
 	podLister, oomObserver := input.NewPodListerAndOOMObserver(kubeClient, *vpaObjectNamespace)
 
-	model.InitializeAggregationsConfig(model.NewAggregationsConfig(*memoryAggregationInterval, *memoryAggregationIntervalCount, *memoryHistogramDecayHalfLife, *cpuHistogramDecayHalfLife, *oomBumpUpRatio, *oomMinBumpUp))
+	model.InitializeAggregationsConfig(model.NewAggregationsConfig(*memoryAggregationInterval,
+		*memoryAggregationIntervalCount,
+		*memoryHistogramDecayHalfLife, *cpuHistogramDecayHalfLife,
+		*oomBumpUpRatio, *oomMinBumpUp,
+		*recommenderInterval, *recommenderInterval,
+		*cpuLastSamplesN, *memoryLastSamplesN,
+		*cpuHistogramMaxValue, *cpuHistogramBucketSize, *memoryHistogramMaxValue, *memoryHistogramBucketSize))
 
 	healthCheck := metrics.NewHealthCheck(*metricsFetcherInterval*5, true)
 	metrics.Initialize(*address, healthCheck)
@@ -173,7 +189,7 @@ func main() {
 		ControllerFetcher:            controllerFetcher,
 		CheckpointWriter:             checkpoint.NewCheckpointWriter(clusterState, vpa_clientset.NewForConfigOrDie(config).AutoscalingV1()),
 		VpaClient:                    vpa_clientset.NewForConfigOrDie(config).AutoscalingV1(),
-		PodResourceRecommender:       logic.CreatePodResourceRecommender(),
+		PodResourceRecommender:       logic.CreatePodResourceRecommender(*cpuHistogramMaxValue, *memoryHistogramMaxValue, *recommenderInterval, *cpuLastSamplesN, *memoryLastSamplesN),
 		RecommendationPostProcessors: postProcessors,
 		CheckpointsGCInterval:        *checkpointsGCInterval,
 		UseCheckpoints:               useCheckpoints,
@@ -212,11 +228,17 @@ func main() {
 		}
 		recommender.GetClusterStateFeeder().InitFromHistoryProvider(provider)
 	}
-
-	// 正式运行，1分钟一次
+	// There should be one recommend in how many collects
+	recommenderRoundLength := int(int64(*recommenderInterval) / int64(*metricsFetcherInterval))
+	// collector frequency
 	ticker := time.Tick(*metricsFetcherInterval)
+	counter := 0
 	for range ticker {
-		recommender.RunOnce()
+		if counter == 0 { // The very beginning of a recommender round
+			recommender.SetupAndRecommendOnce()
+		}
+		counter = (counter + 1) % recommenderRoundLength
+		recommender.CollectOnce()
 		healthCheck.UpdateLastActivity()
 	}
 }

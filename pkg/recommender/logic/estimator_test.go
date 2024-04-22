@@ -38,15 +38,15 @@ var (
 func TestPercentileEstimator(t *testing.T) {
 	config := model.GetAggregationsConfig()
 	// Create a sample CPU histogram.
-	cpuHistogram := util.NewHistogram(config.CPUHistogramOptions)
-	cpuHistogram.AddSample(1.0, 1.0, anyTime)
-	cpuHistogram.AddSample(2.0, 1.0, anyTime)
-	cpuHistogram.AddSample(3.0, 1.0, anyTime)
+	cpuHistogram := util.NewAutopilotHisto(config.CPUHistogramOptions, config.CPUHistogramDecayHalfLife, config.CPULastSamplesN, config.CPUDefaultAggregationDuration)
+	cpuHistogram.AddSample(1.0)
+	cpuHistogram.AddSample(2.0)
+	cpuHistogram.AddSample(3.0)
 	// Create a sample memory histogram.
-	memoryPeaksHistogram := util.NewHistogram(config.MemoryHistogramOptions)
-	memoryPeaksHistogram.AddSample(1e9, 1.0, anyTime)
-	memoryPeaksHistogram.AddSample(2e9, 1.0, anyTime)
-	memoryPeaksHistogram.AddSample(3e9, 1.0, anyTime)
+	memoryPeaksHistogram := util.NewAutopilotHisto(config.MemoryHistogramOptions, config.MemoryHistogramDecayHalfLife, config.MemoryLastSamplesN, config.MemoryDefaultAggregationDuration)
+	memoryPeaksHistogram.AddSample(1e9)
+	memoryPeaksHistogram.AddSample(2e9)
+	memoryPeaksHistogram.AddSample(3e9)
 	// Create an estimator.
 	CPUPercentile := 0.2
 	MemoryPercentile := 0.5
@@ -55,7 +55,7 @@ func TestPercentileEstimator(t *testing.T) {
 	resourceEstimation := estimator.GetResourceEstimation(
 		&model.AggregateContainerState{
 			AggregateCPUUsage:    cpuHistogram,
-			AggregateMemoryPeaks: memoryPeaksHistogram,
+			AggregateMemoryUsage: memoryPeaksHistogram,
 		})
 	maxRelativeError := 0.05 // Allow 5% relative error to account for histogram rounding.
 	assert.InEpsilon(t, 1.0, model.CoresFromCPUAmount(resourceEstimation[model.ResourceCPU]), maxRelativeError)

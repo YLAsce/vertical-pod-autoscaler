@@ -100,7 +100,7 @@ func (e *percentileEstimator) GetResourceEstimation(s *model.AggregateContainerS
 		model.ResourceCPU: model.CPUAmountFromCores(
 			s.AggregateCPUUsage.Percentile(e.cpuPercentile)),
 		model.ResourceMemory: model.MemoryAmountFromBytes(
-			s.AggregateMemoryPeaks.Percentile(e.memoryPercentile)),
+			s.AggregateCPUUsage.Percentile(e.memoryPercentile)),
 	}
 }
 

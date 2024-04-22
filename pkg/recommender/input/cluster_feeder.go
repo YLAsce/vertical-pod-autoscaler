@@ -70,6 +70,9 @@ type ClusterStateFeeder interface {
 	// LoadRealTimeMetrics updates clusterState with current usage metrics of containers.
 	LoadRealTimeMetrics()
 
+	// Trigger the aggregate window. Used in Autopilot
+	HistogramAggregate(now time.Time)
+
 	// GarbageCollectCheckpoints removes historical checkpoints that don't have a matching VPA.
 	GarbageCollectCheckpoints()
 }
@@ -440,19 +443,25 @@ func (feeder *clusterStateFeeder) LoadRealTimeMetrics() {
 		}
 	}
 	klog.V(3).Infof("ClusterSpec fed with #%v ContainerUsageSamples for #%v containers. Dropped #%v samples.", sampleCount, len(containersMetrics), droppedSampleCount)
-Loop:
-	for {
-		select {
-		case oomInfo := <-feeder.oomChan:
-			klog.V(3).Infof("OOM detected %+v", oomInfo)
-			if err = feeder.clusterState.RecordOOM(oomInfo.ContainerID, oomInfo.Timestamp, oomInfo.Memory); err != nil {
-				klog.Warningf("Failed to record OOM %+v. Reason: %+v", oomInfo, err)
-			}
-		default:
-			break Loop
-		}
-	}
+
+	// Currently do not record OOM in Autopilot
+	// Loop:
+	// 	for {
+	// 		select {
+	// 		case oomInfo := <-feeder.oomChan:
+	// 			klog.V(3).Infof("OOM detected %+v", oomInfo)
+	// 			if err = feeder.clusterState.RecordOOM(oomInfo.ContainerID, oomInfo.Timestamp, oomInfo.Memory); err != nil {
+	// 				klog.Warningf("Failed to record OOM %+v. Reason: %+v", oomInfo, err)
+	// 			}
+	// 		default:
+	// 			break Loop
+	// 		}
+	// 	}
 	metrics_recommender.RecordAggregateContainerStatesCount(feeder.clusterState.StateMapSize())
+}
+
+func (feeder *clusterStateFeeder) HistogramAggregate(now time.Time) {
+	feeder.clusterState.HistogramAggregate(now)
 }
 
 func (feeder *clusterStateFeeder) matchesVPA(pod *spec.BasicPodSpec) bool {
