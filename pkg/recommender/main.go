@@ -235,10 +235,15 @@ func main() {
 	counter := 0
 	for range ticker {
 		if counter == 0 { // The very beginning of a recommender round
-			recommender.SetupAndRecommendOnce()
+			recommender.SetupOnce()
 		}
-		counter = (counter + 1) % recommenderRoundLength
+
 		recommender.CollectOnce()
+
+		if counter == recommenderRoundLength-1 { // The very end of a recommender round
+			recommender.RecommendOnce()
+		}
 		healthCheck.UpdateLastActivity()
+		counter = (counter + 1) % recommenderRoundLength
 	}
 }

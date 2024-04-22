@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:dev-v5
+        image: docker.io/yuqiang302/vpa-recommender:dev-v5-fix1
         imagePullPolicy: Always
         args:
           - --recommender-name=autopilot

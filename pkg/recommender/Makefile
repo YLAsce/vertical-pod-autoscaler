@@ -1,6 +1,6 @@
 all: docker-build docker-push replace
 
-TAG?=dev-v5
+TAG?=dev-v5-fix1
 REGISTRY?=yuqiang302
 FLAGS=
 TEST_ENVVAR=LD_FLAGS=-s GO111MODULE=on

@@ -44,7 +44,8 @@ type Recommender interface {
 	RunOnce()
 	// New API
 	CollectOnce()
-	SetupAndRecommendOnce()
+	SetupOnce()
+	RecommendOnce()
 	// GetClusterState returns ClusterState used by Recommender
 	GetClusterState() *model.ClusterState
 	// GetClusterStateFeeder returns ClusterStateFeeder used by Recommender
@@ -160,7 +161,7 @@ func (r *recommender) CollectOnce() {
 }
 
 // 5 minute
-func (r *recommender) SetupAndRecommendOnce() {
+func (r *recommender) SetupOnce() {
 	//自己也提供一个prometheus数据源
 	timer := metrics_recommender.NewExecutionTimer()
 	defer timer.ObserveTotal()
@@ -178,6 +179,18 @@ func (r *recommender) SetupAndRecommendOnce() {
 
 	r.clusterStateFeeder.LoadPods()
 	timer.ObserveStep("LoadPods")
+}
+
+func (r *recommender) RecommendOnce() {
+	//自己也提供一个prometheus数据源
+	timer := metrics_recommender.NewExecutionTimer()
+	defer timer.ObserveTotal()
+
+	// 管理远程请求
+	ctx := context.Background()
+	//默认1分钟写checkpoint
+	ctx, cancelFunc := context.WithDeadline(ctx, time.Now().Add(*checkpointsWriteTimeout))
+	defer cancelFunc()
 
 	// Autopilot Histogram aggragate
 	r.clusterStateFeeder.HistogramAggregate(time.Now())
