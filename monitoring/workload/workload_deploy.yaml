@@ -40,7 +40,7 @@ spec:
         runAsUser: 0
       containers:
         - name: workload
-          image: docker.io/yuqiang302/workload:dev-ubuntu-aws-v5
+          image: docker.io/yuqiang302/workload:dev-ubuntu-aws-v6
           securityContext:
             privileged: true
           resources:

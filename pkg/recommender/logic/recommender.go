@@ -91,6 +91,7 @@ func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggre
 	// In Autopilot, recommender can refuse to give result, this can avoid code start problem
 	for containerName, aggregatedContainerState := range containerNameToAggregateStateMap {
 		estimation, err := r.estimateContainerResources(aggregatedContainerState)
+		// klog.V(4).Infof("NICONICO ESTIMATE %s %+v", aggregatedContainerState.AggregateMemoryUsage.String(), estimation)
 		if err != nil {
 			klog.V(3).Infof("Cannot give valid pod recommendation. Reason: %s", err.Error())
 		} else {

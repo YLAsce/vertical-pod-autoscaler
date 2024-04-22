@@ -164,7 +164,9 @@ func (a *AggregateContainerState) MarkNotAutoscaled() {
 // MergeContainerState merges two AggregateContainerStates.
 func (a *AggregateContainerState) MergeContainerState(other *AggregateContainerState) {
 	a.AggregateCPUUsage.Merge(other.AggregateCPUUsage)
+	// klog.V(4).Infof("NICONICO MergeMerge1 %s %s", a.AggregateCPUUsage.String(), other.AggregateCPUUsage.String())
 	a.AggregateMemoryUsage.Merge(other.AggregateMemoryUsage)
+	// klog.V(4).Infof("NICONICO MergeMerge2 %s", a.AggregateCPUUsage.String())
 
 	if a.FirstSampleStart.IsZero() ||
 		(!other.FirstSampleStart.IsZero() && other.FirstSampleStart.Before(a.FirstSampleStart)) {

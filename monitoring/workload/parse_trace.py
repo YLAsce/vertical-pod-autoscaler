@@ -17,7 +17,7 @@ for i in range(num_samples):
    else:
        y_values.append(0.8)
 
-timestamp = [120 for _ in range(num_samples)]
+timestamp = [180 for _ in range(num_samples)]
 
 with open('trace.data', 'w') as f:
     for i in range(num_samples):

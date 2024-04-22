@@ -153,6 +153,7 @@ func (ah *autopilotHisto) Merge(other AutopilotHisto) {
 		// If Not aggragated, direct copy
 		ah.lastAggregationTime = o.lastAggregationTime
 		ah.aggregationDuration = o.aggregationDuration
+		ah.aggregateNums = o.aggregateNums
 
 		ah.cumulativeWeightedAverageUpper = o.cumulativeWeightedAverageUpper
 		ah.cumulativeAdjustedUsage = o.cumulativeAdjustedUsage

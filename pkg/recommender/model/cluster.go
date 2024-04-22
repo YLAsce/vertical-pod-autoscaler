@@ -210,9 +210,9 @@ func (cluster *ClusterState) AddOrUpdateContainer(containerID ContainerID, reque
 // object. Requires the container as well as the parent pod to be added to the
 // ClusterState first. Otherwise an error is returned.
 func (cluster *ClusterState) AddSample(sample *ContainerUsageSampleWithKey) error {
-	if sample.Container.ContainerName == "workload" {
-		klog.V(4).Infof("NICO ADD SAMPLE in %+v", *sample)
-	}
+	// if sample.Container.ContainerName == "workload" {
+	// 	klog.V(4).Infof("NICO ADD SAMPLE in %+v", *sample)
+	// }
 	pod, podExists := cluster.Pods[sample.Container.PodID]
 	if !podExists {
 		return NewKeyError(sample.Container.PodID)
@@ -224,9 +224,9 @@ func (cluster *ClusterState) AddSample(sample *ContainerUsageSampleWithKey) erro
 	if !containerState.AddSample(&sample.ContainerUsageSample) {
 		return fmt.Errorf("sample discarded (invalid or out of order)")
 	}
-	if sample.Container.ContainerName == "workload" {
-		klog.V(4).Infof("NICO ADD SAMPLE after %s: %v", sample.Container.ContainerName, sample.Usage)
-	}
+	// if sample.Container.ContainerName == "workload" {
+	// 	klog.V(4).Infof("NICO ADD SAMPLE after %s: %v", sample.Container.ContainerName, sample.Usage)
+	// }
 	return nil
 }
 
