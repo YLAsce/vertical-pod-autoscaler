@@ -11,10 +11,10 @@ import sys
 
 # subscription_id = "cbd332d2-cbb7-4189-bf84-48155e558134"
 prometheus_addr = "195.154.73.222"
-deployment_name = "workload"
+deployment_name = "workload-cpu-only"
 namespace = "default"
 frequency = 1 # 1min
-data_points = 480
+data_points = 240
 
 # credentials = DefaultAzureCredential()
 # aks_client = ContainerServiceClient(credentials, subscription_id)
@@ -123,5 +123,5 @@ for i in range(data_points):
 
 json_data = json.dumps(arr_data_request_usage)
 
-with open('metrics_{}_{}.json'.format(frequency, data_points), 'w') as file:
+with open('data/metrics_{}_{}.json'.format(frequency, data_points), 'w') as file:
     file.write(json_data)
