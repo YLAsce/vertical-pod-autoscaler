@@ -113,7 +113,7 @@ for i in range(data_points):
             arr_data_request_usage.append(make_zero_data(arr_data_request_usage[-1]))
             print("Exception at round {}, put data 0: {}".format(i+1, e))
         else:
-            print("Exception at round {}, NO DATA APPENDED".format(i+1, e))
+            print("Exception at round {}, NO DATA APPENDED {}".format(i+1, e))
 
     print("-------finish record data------", str(i+1))
 
