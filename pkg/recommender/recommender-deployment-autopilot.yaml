@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:dev-v6
+        image: docker.io/yuqiang302/vpa-recommender:dev-v7
         imagePullPolicy: Always
         args:
           - --recommender-name=autopilot
@@ -35,7 +35,7 @@ spec:
           - --ap-cpu-histogram-n=5
           - --ap-memory-histogram-n=5
           - --ap-cpu-recommend-policy=sp_95
-          - --ap-memory-recommend-policy=spike
+          - --ap-memory-recommend-policy=max
           - --v=4
         resources:
           limits:

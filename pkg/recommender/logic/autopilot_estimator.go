@@ -19,7 +19,7 @@ const (
 )
 
 type AutopilotResourceEstimator interface {
-	GetResourceEstimation(s *model.AggregateContainerState) (model.Resources, error)
+	GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error)
 }
 
 type autopilotEstimator struct {
@@ -53,7 +53,7 @@ func NewAutopilotEstimator(cpuRecommendPolicy string, memoryRecommendPolicy stri
 	}
 }
 
-func (e *autopilotEstimator) GetResourceEstimation(s *model.AggregateContainerState) (model.Resources, error) {
+func (e *autopilotEstimator) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
 	rawCPUResult, err1 := e.cpuEstimator.GetRawEstimation(s.AggregateCPUUsage)
 	rawMemoryResult, err2 := e.memoryEstimator.GetRawEstimation(s.AggregateMemoryUsage)
 	return model.Resources{
@@ -83,8 +83,8 @@ func calMarginedValue(curValue, histogramMaxValue model.ResourceAmount) model.Re
 	return model.ScaleResource(curValue, scale)
 }
 
-func (e *autopilotSafetyMarginEstimator) GetResourceEstimation(s *model.AggregateContainerState) (model.Resources, error) {
-	originalResources, err := e.baseEstimator.GetResourceEstimation(s)
+func (e *autopilotSafetyMarginEstimator) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
+	originalResources, err := e.baseEstimator.GetResourceEstimation(containerName, s)
 
 	return model.Resources{
 		model.ResourceCPU:    calMarginedValue(originalResources[model.ResourceCPU], e.cpuHistogramMaxValue),
@@ -92,40 +92,56 @@ func (e *autopilotSafetyMarginEstimator) GetResourceEstimation(s *model.Aggregat
 	}, err
 }
 
+type bufferBody struct {
+	bufferCPU    []model.ResourceAmount
+	bufferMemory []model.ResourceAmount
+	bufPtr       int64
+}
+
 type autopilotFluctuationReducer struct {
 	bufSize       int64
-	bufferCPU     []model.ResourceAmount
-	bufPtr        int64
-	bufferMemory  []model.ResourceAmount
+	buffer        map[string]bufferBody
 	baseEstimator AutopilotResourceEstimator
 }
 
 func WithAutopilotFluctuationReducer(recommenderInterval time.Duration, baseEstimator AutopilotResourceEstimator) AutopilotResourceEstimator {
 	bufSize := fluctuationReducerDuration.Nanoseconds() / recommenderInterval.Nanoseconds()
 	return &autopilotFluctuationReducer{
-		bufSize:       bufSize,
-		bufferCPU:     make([]model.ResourceAmount, bufSize),
-		bufferMemory:  make([]model.ResourceAmount, bufSize),
-		bufPtr:        0,
+		bufSize: bufSize,
+		buffer:  make(map[string]bufferBody),
+		// bufferMemory:  make([]model.ResourceAmount, bufSize),
+		// bufPtr:        0,
 		baseEstimator: baseEstimator,
 	}
 }
 
-func (e *autopilotFluctuationReducer) GetResourceEstimation(s *model.AggregateContainerState) (model.Resources, error) {
-	originalResources, err := e.baseEstimator.GetResourceEstimation(s)
+func (e *autopilotFluctuationReducer) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
+	originalResources, err := e.baseEstimator.GetResourceEstimation(containerName, s)
 
 	// Only data without error is authorized into the buffer
 	if err != nil {
-		e.bufferCPU[e.bufPtr] = originalResources[model.ResourceCPU]
-		e.bufferMemory[e.bufPtr] = originalResources[model.ResourceMemory]
-		e.bufPtr = (e.bufPtr + 1) % e.bufSize
+		b, exist := e.buffer[containerName]
+
+		if !exist {
+			e.buffer[containerName] = bufferBody{
+				bufferCPU:    make([]model.ResourceAmount, e.bufSize),
+				bufferMemory: make([]model.ResourceAmount, e.bufSize),
+				bufPtr:       0,
+			}
+			b = e.buffer[containerName]
+		}
+		b.bufferCPU[b.bufPtr] = originalResources[model.ResourceCPU]
+		b.bufferMemory[b.bufPtr] = originalResources[model.ResourceMemory]
+		b.bufPtr = (b.bufPtr + 1) % e.bufSize
 	}
 
 	maxCPU := model.ResourceAmount(0)
 	maxMem := model.ResourceAmount(0)
-	for i := 0; i < int(e.bufSize); i++ {
-		maxCPU = model.ResourceAmountMax(maxCPU, e.bufferCPU[i])
-		maxMem = model.ResourceAmountMax(maxMem, e.bufferMemory[i])
+	if b, exist := e.buffer[containerName]; exist {
+		for i := 0; i < int(e.bufSize); i++ {
+			maxCPU = model.ResourceAmountMax(maxCPU, b.bufferCPU[i])
+			maxMem = model.ResourceAmountMax(maxMem, b.bufferMemory[i])
+		}
 	}
 
 	var err0 error = nil

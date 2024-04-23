@@ -28,8 +28,8 @@ import (
 
 var (
 	// safetyMarginFraction = flag.Float64("recommendation-margin-fraction", 0.15, `Fraction of usage added as the safety margin to the recommended request`)
-	podMinCPUMillicores = flag.Float64("pod-recommendation-min-cpu-millicores", 25, `Minimum CPU recommendation for a pod`)
-	podMinMemoryMb      = flag.Float64("pod-recommendation-min-memory-mb", 250, `Minimum memory recommendation for a pod`)
+	// podMinCPUMillicores = flag.Float64("pod-recommendation-min-cpu-millicores", 25, `Minimum CPU recommendation for a pod`)
+	// podMinMemoryMb      = flag.Float64("pod-recommendation-min-memory-mb", 250, `Minimum memory recommendation for a pod`)
 	// targetCPUPercentile  = flag.Float64("target-cpu-percentile", 0.9, "CPU usage percentile that will be used as a base for CPU target recommendation. Doesn't affect CPU lower bound, CPU upper bound nor memory recommendations.")
 	cpuRecommendPolicy = flag.String("ap-cpu-recommend-policy", "avg", "choice among`: 'avg', 'max', 'sp_xx' where xx is the percentile, 'spike' which is max(sp_60 , 0.5*max)")
 	memRecommendPolicy = flag.String("ap-memory-recommend-policy", "avg", "choice among`: 'avg', 'max', 'sp_xx' where xx is the percentile, 'spike' which is max(sp_60 , 0.5*max)")
@@ -90,7 +90,7 @@ func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggre
 
 	// In Autopilot, recommender can refuse to give result, this can avoid code start problem
 	for containerName, aggregatedContainerState := range containerNameToAggregateStateMap {
-		estimation, err := r.estimateContainerResources(aggregatedContainerState)
+		estimation, err := r.estimateContainerResources(containerName, aggregatedContainerState)
 		// klog.V(4).Infof("NICONICO ESTIMATE %s %+v", aggregatedContainerState.AggregateMemoryUsage.String(), estimation)
 		if err != nil {
 			klog.V(3).Infof("Cannot give valid pod recommendation. Reason: %s", err.Error())
@@ -102,13 +102,13 @@ func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggre
 }
 
 // Takes AggregateContainerState and returns a container recommendation.
-func (r *podResourceRecommender) estimateContainerResources(s *model.AggregateContainerState) (RecommendedContainerResources, error) {
+func (r *podResourceRecommender) estimateContainerResources(containerName string, s *model.AggregateContainerState) (RecommendedContainerResources, error) {
 	// return RecommendedContainerResources{
 	// 	FilterControlledResources(r.targetEstimator.GetResourceEstimation(s), s.GetControlledResources()),
 	// 	FilterControlledResources(r.lowerBoundEstimator.GetResourceEstimation(s), s.GetControlledResources()),
 	// 	FilterControlledResources(r.upperBoundEstimator.GetResourceEstimation(s), s.GetControlledResources()),
 	// }
-	estimation, err := r.targetEstimator.GetResourceEstimation(s)
+	estimation, err := r.targetEstimator.GetResourceEstimation(containerName, s)
 	res := FilterControlledResources(estimation, s.GetControlledResources())
 	// The same target, lower bound and upper bound
 	return RecommendedContainerResources{

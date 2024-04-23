@@ -49,19 +49,13 @@ push-multi-arch:
 uptag:
 	sed -i '' '43s/.*/          image: docker.io\/${REGISTRY}\/${COMPONENT}:${TAG}/' workload_deploy.yaml
 
-.PHONY: restart
-restart: stop start
 
-.PHONY: stop
-stop:
+.PHONY: restart
+restart:
 	kubectl delete -f workload_deploy.yaml
 	sleep 15
-
-.PHONY: start
-start:
 	echo 0 | aws s3 cp - s3://mlintra/stress.state
 	kubectl apply -f workload_deploy.yaml
-
 
 .PHONY: reset
 reset:

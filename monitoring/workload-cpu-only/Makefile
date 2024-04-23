@@ -1,9 +1,9 @@
 .PHONY: all
-all: docker-build docker-push uptag
+all: uptagpre docker-build docker-push uptag
 
-TAG?=dev-ubuntu-aws-v7
+TAG?=dev-v2
 REGISTRY?=yuqiang302
-COMPONENT=workload
+COMPONENT=workload-cpu-only
 
 ALL_ARCHITECTURES?=amd64  # add arm32v7 arm64v8 but extra string processing needed
 
@@ -48,6 +48,12 @@ push-multi-arch:
 .PHONY: uptag
 uptag:
 	sed -i '' '43s/.*/          image: docker.io\/${REGISTRY}\/${COMPONENT}:${TAG}/' workload_deploy.yaml
+	sed -i '' '4s/.*/  name: ${COMPONENT}-vpa/' workload_deploy.yaml
+
+.PHONY: uptagpre
+uptagpre:
+	sed -i '' '2s/.*/component="${COMPONENT}"/' gen_stress.sh
+
 
 .PHONY: restart
 restart: stop start
@@ -59,10 +65,9 @@ stop:
 
 .PHONY: start
 start:
-	echo 0 | aws s3 cp - s3://mlintra/stress.state
+	echo 0 | aws s3 cp - s3://mlintra/${COMPONENT}.state
 	kubectl apply -f workload_deploy.yaml
-
 
 .PHONY: reset
 reset:
-	echo 0 | aws s3 cp - s3://mlintra/stress.state
+	echo 0 | aws s3 cp - s3://mlintra/${COMPONENT}.state

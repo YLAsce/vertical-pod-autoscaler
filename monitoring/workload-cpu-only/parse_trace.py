@@ -17,11 +17,11 @@ for i in range(num_samples):
    else:
        y_values.append(0.8)
 
-timestamp = [180 for _ in range(num_samples)]
+timestamp = [60 for _ in range(num_samples)]
 
 with open('trace.data', 'w') as f:
     for i in range(num_samples):
-        f.write('{} {} {}\n'.format(timestamp[i], y_values[i], int(104857600 * (5*y_values[i]))) ) # 25MB to 400MB
+        f.write('{} {} {}\n'.format(timestamp[i], y_values[i], int(104857600 * 4)) ) # 25MB to 400MB
 
 
 
