@@ -10,6 +10,7 @@ object Main {
     val onCloud = if (args(1) == "cloud") true else false
     
     val taskName = args(0)
+    val allocId = args(2)
     // Execute task according to the input task id
     taskName match {
       case "task1" => Task1DistributionOfCPU.execute(onCloud)
@@ -21,7 +22,7 @@ object Main {
       case "task7" => Task7CorrelationHighConsumEviction.execute(onCloud)
       case "task8" => Task8TaskConsumCPUAndMem.execute(onCloud)
       case "task9" => Task9CorrFlowTimeAndConsum.execute(onCloud)
-      case "task10" => Task10ProcData2019.execute(onCloud)
+      case "task10" => Task10ProcData2019.execute(onCloud, allocId)
       // Task not exist
       case _ =>
         println(s"[ERROR] Unknown task ID: $taskName")

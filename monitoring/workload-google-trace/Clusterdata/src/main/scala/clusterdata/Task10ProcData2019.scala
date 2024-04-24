@@ -5,7 +5,7 @@ import org.apache.spark.sql.functions._
 import java.nio.file.{Files, Paths, FileVisitOption}
 
 object Task10ProcData2019 {
-    def execute(onCloud: Boolean) {
+    def execute(onCloud: Boolean, allocId: String) {
         // Initialize SparkSession
         var skb = SparkSession.builder().appName("PD")
         if(!onCloud) {
@@ -21,19 +21,35 @@ object Task10ProcData2019 {
         var taskUsageDF : DataFrame = sk.emptyDataFrame
         
         if(onCloud) {
-            println("ERROR")
+            taskUsageDF = sk.read.option("compression", "gzip").json("gs://clusterdata_2019_a/instance_usage-000000000000.json.gz")
         } else {
             taskUsageDF = sk.read.option("compression", "gzip").json("./data/instance_usage-000000000000.json.gz")
+            //taskUsageDF = sk.read.option("compression", "gzip").json("gs://clusterdata_2019_a/instance_usage-000000000000.json.gz")
         }
         
         taskUsageDF.printSchema()
-
+        val resultDF = taskUsageDF.filter("alloc_collection_id == '%s'".format(allocId))
+                            .select(
+                                col("start_time").cast("Long"),
+                                col("end_time").cast("Long"),
+                                col("alloc_instance_index"),
+                                col("average_usage.cpus"),
+                                col("average_usage.memory")
+                                )
+                            .orderBy("start_time")
         // 根据 alloc_collection_id 和 alloc_instance_index 进行分组，并构造每一组的 JSON 结构
-        val resultDF = taskUsageDF.groupBy("alloc_collection_id", "alloc_instance_index").agg(
-            collect_list(struct("start_time", "end_time", "average_usage")).as("usage_list")
-        )
+        // val resultDF = taskUsageDF.groupBy("alloc_collection_id", "alloc_instance_index").agg(
+        //     collect_list(struct("start_time", "end_time", "average_usage")).as("usage_list")
+        // )
 
         resultDF.show()
+        if(onCloud) {
+            resultDF.write.json("gs://clusterdata_autopilot/%s_output.json".format(allocId))
+        } else {
+            resultDF.write.json("./data/%s_output.json".format(allocId))
+            //taskUsageDF = sk.read.option("compression", "gzip").json("gs://clusterdata_2019_a/instance_usage-000000000000.json.gz")
+        }
+        
         // Shut down SparkSession
         sk.stop()
     }

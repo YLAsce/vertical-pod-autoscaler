@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpa-recommender-ml
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpa-recommender-ml
+  template:
+    metadata:
+      labels:
+        app: vpa-recommender-ml
+    spec:
+      serviceAccountName: vpa-recommender
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534 # nobody
+      containers:
+      - name: recommender
+        image: docker.io/yuqiang302/vpa-recommender:dev-v8
+        imagePullPolicy: Always
+        args:
+          - --recommender-name=ml
+          - --recommender-interval=5m
+          - --metrics-interval=1s
+          - --ap-cpu-histogram-decay-half-life=12h
+          - --ap-memory-histogram-decay-half-life=48h
+          - --ap-cpu-histogram-bucket=0.005
+          - --ap-memory-histogram-bucket=2500000.0
+          - --ap-cpu-histogram-max=2.0
+          - --ap-memory-histogram-max=1000000000.0
+          - --ap-cpu-histogram-n=5
+          - --ap-memory-histogram-n=5
+          - --ap-cpu-recommend-policy=sp_95
+          - --ap-memory-recommend-policy=max
+          - --v=4
+        resources:
+          limits:
+            cpu: 200m
+            memory: 1000Mi
+          requests:
+            cpu: 80m
+            memory: 500Mi
+        ports:
+        - name: prometheus
+          containerPort: 8942
+# hard-coded:
+# lowerBoundCPUPercentile = 0.5
+# upperBoundCPUPercentile = 0.95

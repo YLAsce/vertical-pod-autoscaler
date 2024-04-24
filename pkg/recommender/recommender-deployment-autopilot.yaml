@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:dev-v7
+        image: docker.io/yuqiang302/vpa-recommender:dev-v8-log
         imagePullPolicy: Always
         args:
           - --recommender-name=autopilot
@@ -39,11 +39,11 @@ spec:
           - --v=4
         resources:
           limits:
-            cpu: 200m
-            memory: 1000Mi
-          requests:
-            cpu: 80m
+            cpu: 120m
             memory: 500Mi
+          requests:
+            cpu: 60m
+            memory: 100Mi
         ports:
         - name: prometheus
           containerPort: 8942

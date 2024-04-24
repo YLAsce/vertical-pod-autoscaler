@@ -230,18 +230,21 @@ func main() {
 	}
 	// There should be one recommend in how many collects
 	recommenderRoundLength := int(int64(*recommenderInterval) / int64(*metricsFetcherInterval))
+	klog.V(3).Infof("recommenderRoundLength: %v", recommenderRoundLength)
 	// collector frequency
 	ticker := time.Tick(*metricsFetcherInterval)
 	counter := 0
 	for range ticker {
 		if counter == 0 { // The very beginning of a recommender round
 			recommender.SetupOnce()
+			klog.V(3).Info("Setup Finished.")
 		}
 
 		recommender.CollectOnce()
 
 		if counter == recommenderRoundLength-1 { // The very end of a recommender round
 			recommender.RecommendOnce()
+			klog.V(3).Info("Recommend Finished.")
 		}
 		healthCheck.UpdateLastActivity()
 		counter = (counter + 1) % recommenderRoundLength
