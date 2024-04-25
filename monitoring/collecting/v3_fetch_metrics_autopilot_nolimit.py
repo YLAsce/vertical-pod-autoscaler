@@ -11,7 +11,7 @@ import sys
 
 # subscription_id = "cbd332d2-cbb7-4189-bf84-48155e558134"
 prometheus_addr = "195.154.73.222"
-deployment_name = "workload-cpu-only"
+deployment_name = "workload-autopilot-nolimit"
 namespace = "default"
 frequency = 1 # 1min
 data_points = 300
@@ -75,7 +75,7 @@ def collect_request_usage(deployment_name, namespace, frequency):
             container_request_usage_info['cpu']['request'] = float(quantity.parse_quantity(containerinfo['requests']['cpu']))
             container_request_usage_info['cpu']['usage'] = float(quantity.parse_quantity(cpu_usage))
 
-            container_request_usage_info['memory']['limit'] = float(quantity.parse_quantity(containerinfo['limits']['memory']))
+            # container_request_usage_info['memory']['limit'] = float(quantity.parse_quantity(containerinfo['limits']['memory']))
             container_request_usage_info['memory']['request'] = float(quantity.parse_quantity(containerinfo['requests']['memory']))
             container_request_usage_info['memory']['usage'] = float(quantity.parse_quantity(memory_usage))
 
@@ -101,27 +101,25 @@ def make_zero_data(prev_data):
     return cur_data
 
 # MAIN
-arr_data_request_usage = []
+dataline = {}
+
 for i in range(data_points):
     print("-------start round------", str(i+1))
     try:
         data_request_usage = collect_request_usage(deployment_name, namespace, frequency)
         pprint.pprint(data_request_usage)
-        arr_data_request_usage.append(data_request_usage)
+        dataline = data_request_usage
     except Exception as e:
-        if len(arr_data_request_usage) > 0:
-            arr_data_request_usage.append(make_zero_data(arr_data_request_usage[-1]))
+        if len(dataline) > 0:
+            dataline = make_zero_data(dataline)
             print("Exception at round {}, put data 0: {}".format(i+1, e))
         else:
             print("Exception at round {}, NO DATA APPENDED {}".format(i+1, e))
 
+    json_data = json.dumps(dataline) + "\n"
+    with open('data/metrics_autopilot_nolimit_{}_{}.jsonline'.format(frequency, data_points), 'a') as file:
+        file.write(json_data)
     print("-------finish record data------", str(i+1))
 
     if i != data_points-1:
         time.sleep(60*frequency)
-
-
-json_data = json.dumps(arr_data_request_usage)
-
-with open('data/metrics_{}_{}.json'.format(frequency, data_points), 'w') as file:
-    file.write(json_data)
