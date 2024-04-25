@@ -20,14 +20,14 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:dev-v8-log
+        image: docker.io/yuqiang302/vpa-recommender:dev-v10
         imagePullPolicy: Always
         args:
           - --recommender-name=autopilot
           - --recommender-interval=5m
           - --metrics-interval=1s
-          - --ap-cpu-histogram-decay-half-life=12h
-          - --ap-memory-histogram-decay-half-life=48h
+          - --ap-cpu-histogram-decay-half-life=15m
+          - --ap-memory-histogram-decay-half-life=15m
           - --ap-cpu-histogram-bucket=0.005
           - --ap-memory-histogram-bucket=2500000.0
           - --ap-cpu-histogram-max=2.0
@@ -36,6 +36,7 @@ spec:
           - --ap-memory-histogram-n=5
           - --ap-cpu-recommend-policy=sp_95
           - --ap-memory-recommend-policy=max
+          - --ap-fluctuation-reducer-duration=15m
           - --v=4
         resources:
           limits:

@@ -12,7 +12,7 @@ num_samples = 120
 y_values = []
 
 for i in range(num_samples):
-   if i % 120 < 60:
+   if i % 60 < 30:
        y_values.append(0.1)
    else:
        y_values.append(0.8)

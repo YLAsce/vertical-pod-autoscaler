@@ -9,13 +9,14 @@ import (
 
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/model"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/util"
+	"k8s.io/klog/v2"
 )
 
 const (
-	spikePercentileValue               = 60
-	minSafetyMargin            float64 = 0.1
-	maxSafetyMargin            float64 = 0.15
-	fluctuationReducerDuration         = time.Hour
+	spikePercentileValue                      = 60
+	minSafetyMargin                   float64 = 0.1
+	maxSafetyMargin                   float64 = 0.15
+	defaultFluctuationReducerDuration         = time.Hour
 )
 
 type AutopilotResourceEstimator interface {
@@ -85,7 +86,7 @@ func calMarginedValue(curValue, histogramMaxValue model.ResourceAmount) model.Re
 
 func (e *autopilotSafetyMarginEstimator) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
 	originalResources, err := e.baseEstimator.GetResourceEstimation(containerName, s)
-
+	// klog.V(4).Infof("NICONICO Resource input in Margin: %+v", originalResources)
 	return model.Resources{
 		model.ResourceCPU:    calMarginedValue(originalResources[model.ResourceCPU], e.cpuHistogramMaxValue),
 		model.ResourceMemory: calMarginedValue(originalResources[model.ResourceMemory], e.memoryHistogramMaxValue),
@@ -104,7 +105,7 @@ type autopilotFluctuationReducer struct {
 	baseEstimator AutopilotResourceEstimator
 }
 
-func WithAutopilotFluctuationReducer(recommenderInterval time.Duration, baseEstimator AutopilotResourceEstimator) AutopilotResourceEstimator {
+func WithAutopilotFluctuationReducer(fluctuationReducerDuration, recommenderInterval time.Duration, baseEstimator AutopilotResourceEstimator) AutopilotResourceEstimator {
 	bufSize := fluctuationReducerDuration.Nanoseconds() / recommenderInterval.Nanoseconds()
 	return &autopilotFluctuationReducer{
 		bufSize: bufSize,
@@ -117,9 +118,10 @@ func WithAutopilotFluctuationReducer(recommenderInterval time.Duration, baseEsti
 
 func (e *autopilotFluctuationReducer) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
 	originalResources, err := e.baseEstimator.GetResourceEstimation(containerName, s)
-
+	klog.V(4).Infof("NICONICO Resource input in Fluctuation: %+v", originalResources)
+	klog.V(4).Infof("NICONICO Resource status in Fluctuation: %+v", e.buffer)
 	// Only data without error is authorized into the buffer
-	if err != nil {
+	if err == nil {
 		b, exist := e.buffer[containerName]
 
 		if !exist {
@@ -133,6 +135,8 @@ func (e *autopilotFluctuationReducer) GetResourceEstimation(containerName string
 		b.bufferCPU[b.bufPtr] = originalResources[model.ResourceCPU]
 		b.bufferMemory[b.bufPtr] = originalResources[model.ResourceMemory]
 		b.bufPtr = (b.bufPtr + 1) % e.bufSize
+	} else {
+		klog.V(3).Infof("Error input fluctuation originalResources: %s", err.Error())
 	}
 
 	maxCPU := model.ResourceAmount(0)
@@ -149,6 +153,7 @@ func (e *autopilotFluctuationReducer) GetResourceEstimation(containerName string
 		err0 = errors.New("No Available CPU or Memory data in past 1h buffer. This may because of coldstart, need to wait for enough samples...")
 	}
 
+	klog.V(4).Infof("NICONICO Resource output Fluctuation: %v %v", maxCPU, maxMem)
 	return model.Resources{
 		model.ResourceCPU:    maxCPU,
 		model.ResourceMemory: maxMem,

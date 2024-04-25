@@ -31,8 +31,9 @@ var (
 	// podMinCPUMillicores = flag.Float64("pod-recommendation-min-cpu-millicores", 25, `Minimum CPU recommendation for a pod`)
 	// podMinMemoryMb      = flag.Float64("pod-recommendation-min-memory-mb", 250, `Minimum memory recommendation for a pod`)
 	// targetCPUPercentile  = flag.Float64("target-cpu-percentile", 0.9, "CPU usage percentile that will be used as a base for CPU target recommendation. Doesn't affect CPU lower bound, CPU upper bound nor memory recommendations.")
-	cpuRecommendPolicy = flag.String("ap-cpu-recommend-policy", "avg", "choice among`: 'avg', 'max', 'sp_xx' where xx is the percentile, 'spike' which is max(sp_60 , 0.5*max)")
-	memRecommendPolicy = flag.String("ap-memory-recommend-policy", "avg", "choice among`: 'avg', 'max', 'sp_xx' where xx is the percentile, 'spike' which is max(sp_60 , 0.5*max)")
+	cpuRecommendPolicy         = flag.String("ap-cpu-recommend-policy", "avg", "choice among`: 'avg', 'max', 'sp_xx' where xx is the percentile, 'spike' which is max(sp_60 , 0.5*max)")
+	memRecommendPolicy         = flag.String("ap-memory-recommend-policy", "avg", "choice among`: 'avg', 'max', 'sp_xx' where xx is the percentile, 'spike' which is max(sp_60 , 0.5*max)")
+	fluctuationReducerDuration = flag.Duration("ap-fluctuation-reducer-duration", defaultFluctuationReducerDuration, "Period for fluctuation reducer, to choose the max value of recommendation in this period.")
 )
 
 // PodResourceRecommender computes resource recommendation for a Vpa object.
@@ -132,7 +133,7 @@ func FilterControlledResources(estimation model.Resources, controlledResources [
 func CreatePodResourceRecommender(cpuHistogramMaxValue, memoryHistogramMaxValue float64, recommenderInterval time.Duration, cpuLastSamplesN, memoryLastSamplesN int) PodResourceRecommender {
 	targetEstimator := NewAutopilotEstimator(*cpuRecommendPolicy, *memRecommendPolicy, cpuLastSamplesN, memoryLastSamplesN)
 	targetEstimator = WithAutopilotSafetyMargin(cpuHistogramMaxValue, memoryHistogramMaxValue, targetEstimator)
-	targetEstimator = WithAutopilotFluctuationReducer(recommenderInterval, targetEstimator)
+	targetEstimator = WithAutopilotFluctuationReducer(*fluctuationReducerDuration, recommenderInterval, targetEstimator)
 	return &podResourceRecommender{targetEstimator}
 }
 

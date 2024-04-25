@@ -33,6 +33,9 @@ object Task10ProcData2019 {
                                 col("start_time").cast("Long"),
                                 col("end_time").cast("Long"),
                                 col("alloc_instance_index"),
+                                col("collection_id"),
+                                col("instance_index"),
+                                col("machine_id"),
                                 col("average_usage.cpus"),
                                 col("average_usage.memory")
                                 )

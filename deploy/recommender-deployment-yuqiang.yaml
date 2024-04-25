@@ -20,13 +20,15 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:dev-v3
+        # image: docker.io/yuqiang302/vpa-recommender:dev-v3
+        image: registry.k8s.io/autoscaling/vpa-recommender:1.0.0
         imagePullPolicy: Always
         args:
           - --recommender-name=yuqiang
           - --target-cpu-percentile=0.95
           - --pod-recommendation-min-memory-mb=1
-          - --cpu-histogram-decay-half-life=5m
+          - --cpu-histogram-decay-half-life=15m
+          - --memory-histogram-decay-half-life=15m
           - --v=4
         resources:
           limits:

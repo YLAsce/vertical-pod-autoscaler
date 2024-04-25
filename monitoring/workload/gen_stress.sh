@@ -1,5 +1,5 @@
 #!/bin/bash
-
+component=$1
 # while true; do
 #     sleep 100
 # done
@@ -12,7 +12,8 @@ cgroup_subpath=$(cat /proc/self/cgroup | sed 's/[^/]*//')
 cgroup_fullpath="${cgroup_prefix}${cgroup_subpath}${cgroup_file}"
 # cgroup_stresspath="${cgroup_prefix}${cgroup_subpath}/stress"
 
-state_file="s3://mlintra/stress.state"
+state_file="s3://mlintra/${component}.state"
+echo "state file is: ${state_file}"
 
 cur_state=$(aws s3 cp ${state_file} -)
 

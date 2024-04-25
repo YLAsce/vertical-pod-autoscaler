@@ -22,4 +22,4 @@ COPY stress_worker.c /
 WORKDIR /
 RUN gcc stress_worker.c -o stress_worker
 
-CMD ["bash", "gen_stress.sh"]
+# CMD ["bash", "gen_stress.sh"]
