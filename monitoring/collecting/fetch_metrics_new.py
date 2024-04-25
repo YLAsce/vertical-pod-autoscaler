@@ -14,7 +14,7 @@ prometheus_addr = "195.154.73.222"
 deployment_name = "workload-cpu-only"
 namespace = "default"
 frequency = 1 # 1min
-data_points = 240
+data_points = 300
 
 # credentials = DefaultAzureCredential()
 # aks_client = ContainerServiceClient(credentials, subscription_id)
