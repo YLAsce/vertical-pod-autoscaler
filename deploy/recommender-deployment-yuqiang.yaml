@@ -25,10 +25,10 @@ spec:
         imagePullPolicy: Always
         args:
           - --recommender-name=yuqiang
-          - --target-cpu-percentile=0.95
+          - --target-cpu-percentile=0.90
           - --pod-recommendation-min-memory-mb=1
-          - --cpu-histogram-decay-half-life=15m
-          - --memory-histogram-decay-half-life=15m
+          - --cpu-histogram-decay-half-life=5m
+          - --memory-histogram-decay-half-life=5m
           - --v=4
         resources:
           limits:

@@ -1,14 +1,14 @@
 apiVersion: "autoscaling.k8s.io/v1"
 kind: VerticalPodAutoscaler
 metadata:
-  name: workload-yuqiang-vpa
+  name: workload-autopilot-nolimit-vpa
 spec:
   recommenders: 
-    - name: yuqiang
+    - name: autopilot
   targetRef:
     apiVersion: "apps/v1"
     kind: Deployment
-    name: workload-yuqiang
+    name: workload-autopilot-nolimit
   resourcePolicy:
     containerPolicies:
       - containerName: '*'
@@ -25,23 +25,23 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: workload-yuqiang
+  name: workload-autopilot-nolimit
 spec:
   selector:
     matchLabels:
-      app: workload-yuqiang
+      app: workload-autopilot-nolimit
   replicas: 2
   template:
     metadata:
       labels:
-        app: workload-yuqiang
+        app: workload-autopilot-nolimit
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: workload-yuqiang
+        - name: workload-autopilot-nolimit
           image: docker.io/yuqiang302/workload:dev-v11
-          command: ["./stress_generator", "workload-yuqiang"]
+          command: ["./stress_generator", "workload-autopilot-nolimit"]
           securityContext:
             privileged: true
           resources:
@@ -50,5 +50,5 @@ spec:
               memory: 600Mi
             limits:
               cpu: 880m
-              memory: 660Mi
+              # memory: 660Mi
 

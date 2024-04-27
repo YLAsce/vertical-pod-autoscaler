@@ -26,17 +26,17 @@ spec:
           - --recommender-name=autopilot
           - --recommender-interval=5m
           - --metrics-interval=1s
-          - --ap-cpu-histogram-decay-half-life=15m
-          - --ap-memory-histogram-decay-half-life=15m
+          - --ap-cpu-histogram-decay-half-life=5m
+          - --ap-memory-histogram-decay-half-life=5m
           - --ap-cpu-histogram-bucket=0.005
           - --ap-memory-histogram-bucket=2500000.0
           - --ap-cpu-histogram-max=2.0
           - --ap-memory-histogram-max=1000000000.0
           - --ap-cpu-histogram-n=5
           - --ap-memory-histogram-n=5
-          - --ap-cpu-recommend-policy=sp_95
+          - --ap-cpu-recommend-policy=sp_90
           - --ap-memory-recommend-policy=max
-          - --ap-fluctuation-reducer-duration=15m
+          - --ap-fluctuation-reducer-duration=10m
           - --v=4
         resources:
           limits:
