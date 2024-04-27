@@ -44,7 +44,7 @@ while true; do
         echo ${cpu_percentile} > ${cgroup_fullpath}
         # stress-ng --cpu ${cpu_upper_bound} --cpu-load ${cpu_percentile} --cpu-method loop --vm 1 --vm-bytes ${memory_usage} --vm-keep --timeout ${duration}s
         # wait
-        ./stress_worker ${duration} ${memory_usage}
+        ./stress_generator ${duration} ${memory_usage}
         
         #ps aux | grep 'stress_worker' | grep -v 'grep' | awk '{print $2}' | while read -r pid; do cpulimit -p $pid -l ${cpu_percentile}; done
         wait

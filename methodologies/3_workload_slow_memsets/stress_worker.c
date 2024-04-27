@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include <time.h>
 
 pthread_t *threads;
 int num_threads;
@@ -29,12 +30,17 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s <seconds> <size_memory_bytes>\n", argv[0]);
         return 1;
     }
-
+    printf("Start.\n");
+    clock_t c1, c2;
+    c1 = clock();
     num_threads = (int)sysconf(_SC_NPROCESSORS_ONLN);
 
     int time_sec = atoi(argv[1]);
     signal(SIGALRM, timeout_handler);
     alarm(time_sec);
+
+    c2 = clock();
+    printf("Alarm set. Time: %f\n", ((double) (c2 - c1)) / CLOCKS_PER_SEC);
 
     char *endptr;
     size_t memory_bytes = strtoul(argv[2], &endptr, 10);
@@ -49,13 +55,19 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Memory allocation failed\n");
         return 1;
     }
+
+    c1 = clock();
+    printf("Mem alloc for threads finish. Time: %f\n", ((double) (c1 - c2)) / CLOCKS_PER_SEC);
+
     for (int i = 0; i < num_threads; ++i) {
         if (pthread_create(&threads[i], NULL, thread_function, NULL) != 0) {
             fprintf(stderr, "Error creating thread %d\n", i);
             return 1;
         }
     }
-    printf("%d All threads created.\n", num_threads);
+
+    c2 = clock();
+    printf("%d threads created. Time: %f\n", num_threads, ((double) (c2 - c1)) / CLOCKS_PER_SEC);
 
 
     // Create Memory usage...
@@ -65,8 +77,13 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Memory allocation filed!!\n");
         exit(1);
     }
+
+    c1 = clock();
+    printf("Created memory %ld bytes. Time: %f\n", memory_bytes, ((double) (c1 - c2)) / CLOCKS_PER_SEC);
     memset(target_mem, 0, memory_bytes);
-    printf("Created memory %ld bytes.\n", memory_bytes);
+
+    c2 = clock();
+    printf("Memset memory %ld bytes. Time: %f\n", memory_bytes, ((double) (c2 - c1)) / CLOCKS_PER_SEC);
 
 
     // sub threads will never terminate...

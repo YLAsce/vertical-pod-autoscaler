@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-test
+spec:
+  selector:
+    matchLabels:
+      app: workload-test
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: workload-test
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: workload-test
+          image: docker.io/yuqiang302/workload:test-11
+          command: ["./stress_generator", "workload-test"]
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 800m
+              memory: 600Mi
+            limits:
+              cpu: 880m
+              memory: 660Mi
+

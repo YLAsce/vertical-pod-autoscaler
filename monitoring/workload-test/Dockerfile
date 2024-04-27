@@ -2,7 +2,7 @@ ARG ARCH
 FROM $ARCH/ubuntu:latest
 
 RUN apt update && \
-    apt install -y gcc python3-pip
+    apt install -y gcc bc cgroup-tools python3-pip
 
 # AMS object storage
 RUN pip3 install awscli awscli-plugin-endpoint --break-system-packages
@@ -15,7 +15,7 @@ COPY aws_config /root/.aws/config
 COPY aws_credentials /root/.aws/credentials
 # cpulimit cgroup-tools
 
-# COPY gen_stress.sh /
+COPY gen_stress.sh /
 COPY trace.data /
 COPY stress_generator.c /
 

@@ -40,8 +40,8 @@ spec:
         runAsUser: 0
       containers:
         - name: workload-autopilot
-          image: docker.io/yuqiang302/workload:dev-ubuntu-aws-v10
-          command: ["bash", "gen_stress.sh", "workload-autopilot"]
+          image: docker.io/yuqiang302/workload:dev-v11
+          command: ["./stress_generator", "workload-autopilot"]
           securityContext:
             privileged: true
           resources:
