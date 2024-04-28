@@ -1,14 +1,14 @@
 apiVersion: "autoscaling.k8s.io/v1"
 kind: VerticalPodAutoscaler
 metadata:
-  name: workload-google-trace-@@@@@-vpa
+  name: workload-google-trace-autopilot-vpa
 spec:
   recommenders: 
-    - name: @@@@@
+    - name: autopilot
   targetRef:
     apiVersion: "apps/v1"
     kind: Deployment
-    name: workload-google-trace-@@@@@
+    name: workload-google-trace-autopilot
   resourcePolicy:
     containerPolicies:
       - containerName: '*'
@@ -25,23 +25,23 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: workload-google-trace-@@@@@
+  name: workload-google-trace-autopilot
 spec:
   selector:
     matchLabels:
-      app: workload-google-trace-@@@@@
+      app: workload-google-trace-autopilot
   replicas: 2
   template:
     metadata:
       labels:
-        app: workload-google-trace-@@@@@
+        app: workload-google-trace-autopilot
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: workload-google-trace-@@@@@
+        - name: workload-google-trace-autopilot
           image: docker.io/yuqiang302/workload-google-trace:dev-v1
-          command: ["./stress_generator", "workload-google-trace-@@@@@"]
+          command: ["./stress_generator", "workload-google-trace-autopilot"]
           securityContext:
             privileged: true
           resources:

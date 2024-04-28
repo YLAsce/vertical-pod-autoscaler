@@ -1,6 +1,6 @@
 all: docker-build docker-push replace
 
-TAG?=dev-v8
+TAG?=dev-init
 REGISTRY?=yuqiang302
 FLAGS=
 TEST_ENVVAR=LD_FLAGS=-s GO111MODULE=on
@@ -93,10 +93,10 @@ format:
 
 .PHONY: replace
 replace:
-	sed -i '' '23s/.*/        image: docker.io\/${REGISTRY}\/${FULL_COMPONENT}:${TAG}/' recommender-deployment-autopilot.yaml
+	sed -i '' '23s/.*/        image: docker.io\/${REGISTRY}\/${FULL_COMPONENT}:${TAG}/' recommender-deployment-ml.yaml
 
 .PHONY: restart
 restart:
-	kubectl delete -f recommender-deployment-autopilot.yaml
+	kubectl delete -f recommender-deployment-ml.yaml
 	sleep 15
-	kubectl apply -f recommender-deployment-autopilot.yaml
+	kubectl apply -f recommender-deployment-ml.yaml

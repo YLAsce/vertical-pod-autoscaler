@@ -48,20 +48,20 @@ push-multi-arch:
 
 .PHONY: uptag
 uptag:
-	sed -i '' '43s/.*/          image: docker.io\/${REGISTRY}\/${COMPONENT}:${TAG}/' *workload_deploy.yaml
+	sed -i '' '43s/.*/          image: docker.io\/${REGISTRY}\/${COMPONENT}:${TAG}/' *workload_google_trace_deploy.yaml
 
 .PHONY: restart
 restart: stop start
 
 .PHONY: stop
 stop:
-	kubectl delete -f vpa_${VPA}_workload_deploy.yaml
+	kubectl delete -f vpa_${VPA}_workload_google_trace_deploy.yaml
 	sleep 15
 
 .PHONY: start
 start:
 	echo 0 | aws s3 cp - s3://mlintra/workload-google-trace-${VPA}.state
-	kubectl apply -f vpa_${VPA}_workload_deploy.yaml
+	kubectl apply -f vpa_${VPA}_workload_google_trace_deploy.yaml
 
 
 .PHONY: reset
