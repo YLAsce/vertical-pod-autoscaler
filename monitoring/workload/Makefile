@@ -66,7 +66,7 @@ start:
 
 .PHONY: reset
 reset:
-	echo 0 | aws s3 cp - s3://mlintra/stress.state
+	echo 0 | aws s3 cp - s3://mlintra/workload-${VPA}.state
 
 .PHONY: confvpa
 confvpa:
