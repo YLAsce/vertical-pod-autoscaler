@@ -130,7 +130,12 @@ func FilterControlledResources(estimation model.Resources, controlledResources [
 }
 
 // CreatePodResourceRecommender take the config info, returns the primary recommender.
-func CreatePodResourceRecommender(cpuHistogramMaxValue, memoryHistogramMaxValue float64, recommenderInterval time.Duration, cpuLastSamplesN, memoryLastSamplesN int) PodResourceRecommender {
+func CreatePodResourceRecommender(cpuHistogramMaxValue, memoryHistogramMaxValue float64, recommenderInterval time.Duration, cpuLastSamplesN, memoryLastSamplesN int, isML bool) PodResourceRecommender {
+	if isML {
+		targetEstimator := NewMLEstimator(cpuLastSamplesN, memoryLastSamplesN)
+		return &podResourceRecommender{targetEstimator}
+	}
+	// Is Rule
 	targetEstimator := NewAutopilotEstimator(*cpuRecommendPolicy, *memRecommendPolicy, cpuLastSamplesN, memoryLastSamplesN)
 	targetEstimator = WithAutopilotSafetyMargin(cpuHistogramMaxValue, memoryHistogramMaxValue, targetEstimator)
 	targetEstimator = WithAutopilotFluctuationReducer(*fluctuationReducerDuration, recommenderInterval, targetEstimator)

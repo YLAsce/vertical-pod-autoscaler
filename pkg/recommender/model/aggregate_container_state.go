@@ -97,6 +97,10 @@ type AggregateContainerState struct {
 	// each container should add one peak per memory aggregation interval (e.g. once every 24h).
 	AggregateMemoryUsage util.AutopilotHisto
 	// Note: first/last sample timestamps as well as the sample count are based only on CPU samples.
+
+	MLRecommenderCPU    *Recommender
+	MLRecommenderMemory *Recommender
+
 	FirstSampleStart  time.Time
 	LastSampleStart   time.Time
 	TotalSamplesCount int
@@ -167,6 +171,9 @@ func (a *AggregateContainerState) MergeContainerState(other *AggregateContainerS
 	a.AggregateMemoryUsage.Merge(other.AggregateMemoryUsage)
 	// klog.V(4).Infof("NICONICO MergeMerge2 %s", a.AggregateCPUUsage.String())
 
+	a.MLRecommenderCPU.Merge(other.MLRecommenderCPU)
+	a.MLRecommenderMemory.Merge(other.MLRecommenderMemory)
+
 	if a.FirstSampleStart.IsZero() ||
 		(!other.FirstSampleStart.IsZero() && other.FirstSampleStart.Before(a.FirstSampleStart)) {
 		a.FirstSampleStart = other.FirstSampleStart
@@ -180,9 +187,13 @@ func (a *AggregateContainerState) MergeContainerState(other *AggregateContainerS
 // NewAggregateContainerState returns a new, empty AggregateContainerState.
 func NewAggregateContainerState() *AggregateContainerState {
 	config := GetAggregationsConfig()
+	agCPU := util.NewAutopilotHisto(config.CPUHistogramOptions, config.CPUHistogramDecayHalfLife, config.CPULastSamplesN, config.CPUDefaultAggregationDuration)
+	agMemory := util.NewAutopilotHisto(config.MemoryHistogramOptions, config.MemoryHistogramDecayHalfLife, config.MemoryLastSamplesN, config.MemoryDefaultAggregationDuration)
 	return &AggregateContainerState{
-		AggregateCPUUsage:    util.NewAutopilotHisto(config.CPUHistogramOptions, config.CPUHistogramDecayHalfLife, config.CPULastSamplesN, config.CPUDefaultAggregationDuration),
-		AggregateMemoryUsage: util.NewAutopilotHisto(config.MemoryHistogramOptions, config.MemoryHistogramDecayHalfLife, config.MemoryLastSamplesN, config.MemoryDefaultAggregationDuration),
+		AggregateCPUUsage:    agCPU,
+		AggregateMemoryUsage: agMemory,
+		MLRecommenderCPU:     NewCPURecommender(agCPU),
+		MLRecommenderMemory:  NewMemoryRecommender(agMemory),
 		CreationTime:         time.Now(),
 	}
 }
@@ -300,6 +311,8 @@ func (a *AggregateContainerState) UpdateFromPolicy(resourcePolicy *vpa_types.Con
 // AggregateStateByContainerName takes a set of AggregateContainerStates and merge them
 // grouping by the container name. The result is a map from the container name to the aggregation
 // from all input containers with the given name.
+// NICO: 原来已经是按照namespace和containerid来创建的了。这里只需要merge不同namespace的同名容器
+// TODO: 直接改成containerid和namespace双key的。
 func AggregateStateByContainerName(aggregateContainerStateMap aggregateContainerStatesMap) ContainerNameToAggregateStateMap {
 	containerNameToAggregateStateMap := make(ContainerNameToAggregateStateMap)
 	for aggregationKey, aggregation := range aggregateContainerStateMap {

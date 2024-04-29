@@ -44,6 +44,36 @@ func (m *MockAutopilotHisto) Max() float64 {
 	return args.Get(0).(float64)
 }
 
+func (m *MockAutopilotHisto) NumSamplesWithValueMoreThan(idL int) int {
+	args := m.Called(idL)
+	return args.Get(0).(int)
+}
+
+func (m *MockAutopilotHisto) NumSamplesWithValueLessThan(idL int) int {
+	args := m.Called(idL)
+	return args.Get(0).(int)
+}
+
+func (m *MockAutopilotHisto) NumSamplesWithValueMoreThanValue(l float64) int {
+	args := m.Called(l)
+	return args.Get(0).(int)
+}
+
+func (m *MockAutopilotHisto) NumSamplesWithValueLessThanValue(l float64) int {
+	args := m.Called(l)
+	return args.Get(0).(int)
+}
+
+func (m *MockAutopilotHisto) GetMaxIdL() int {
+	args := m.Called()
+	return args.Get(0).(int)
+}
+
+func (m *MockAutopilotHisto) GetLValWithId(idL int) float64 {
+	args := m.Called(idL)
+	return args.Get(0).(float64)
+}
+
 // AddSample is a mock implementation of Histogram.AddSample.
 func (m *MockAutopilotHisto) AddSample(value float64) {
 	m.Called(value)

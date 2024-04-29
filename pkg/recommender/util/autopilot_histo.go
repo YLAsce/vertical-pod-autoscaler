@@ -23,6 +23,13 @@ type AutopilotHisto interface {
 
 	Max() float64
 
+	NumSamplesWithValueMoreThan(idL int) int
+	NumSamplesWithValueLessThan(idL int) int
+	NumSamplesWithValueMoreThanValue(l float64) int
+	NumSamplesWithValueLessThanValue(l float64) int
+	GetMaxIdL() int
+	GetLValWithId(idL int) float64
+
 	// Add a sample with a given value, weight = 1.
 	AddSample(value float64)
 
@@ -62,6 +69,10 @@ type AutopilotHisto interface {
 }
 
 func NewAutopilotHisto(options HistogramOptions, halfLife time.Duration, n int, defaultAggregationDuration time.Duration) AutopilotHisto {
+	if options.NumBuckets() < 1 {
+		panic("Number of buckets should be at least 1")
+	}
+
 	a := autopilotHisto{
 		options:      options,
 		halfLife:     halfLife,
@@ -79,6 +90,9 @@ func NewAutopilotHisto(options HistogramOptions, halfLife time.Duration, n int, 
 		cumulativeAdjustedUsageWeightTotal: 0.0,
 		cumulativeMaxWindow:                make([]float64, n), // sliding window, N is small, no need to improve algorithm..
 		cumulativeMaxHeadPosition:          0,
+
+		totalBucketWeightLower:  make([]int, options.NumBuckets()),
+		totalBucketWeightHigher: make([]int, options.NumBuckets()),
 	}
 	a.calCumulativeWeightedAverageLower()
 	return &a
@@ -101,6 +115,9 @@ type autopilotHisto struct {
 	cumulativeAdjustedUsageWeightTotal float64
 	cumulativeMaxWindow                []float64
 	cumulativeMaxHeadPosition          int
+
+	totalBucketWeightLower  []int
+	totalBucketWeightHigher []int
 }
 
 func (ah *autopilotHisto) calCumulativeWeightedAverageLower() {
@@ -160,6 +177,9 @@ func (ah *autopilotHisto) Merge(other AutopilotHisto) {
 		ah.cumulativeAdjustedUsageWeightTotal = o.cumulativeAdjustedUsageWeightTotal
 		ah.cumulativeMaxWindow = o.cumulativeMaxWindow
 		ah.cumulativeMaxHeadPosition = o.cumulativeMaxHeadPosition
+
+		ah.totalBucketWeightHigher = o.totalBucketWeightHigher
+		ah.totalBucketWeightLower = o.totalBucketWeightLower
 		return
 	}
 
@@ -181,6 +201,12 @@ func (ah *autopilotHisto) Merge(other AutopilotHisto) {
 		ah.cumulativeMaxWindow[ahHead] = math.Max(ah.cumulativeMaxWindow[ahHead], o.cumulativeMaxWindow[oHead])
 		ahHead = (ahHead + 1) % ah.lastSamplesN
 		oHead = (oHead + 1) % o.lastSamplesN
+	}
+
+	// Min/Max bucket total info = sum of each
+	for i := 0; i < ah.options.NumBuckets(); i++ {
+		ah.totalBucketWeightHigher[i] = ah.totalBucketWeightHigher[i] + o.totalBucketWeightHigher[i]
+		ah.totalBucketWeightLower[i] = ah.totalBucketWeightLower[i] + o.totalBucketWeightLower[i]
 	}
 }
 
@@ -210,6 +236,60 @@ func (ah *autopilotHisto) Max() float64 {
 		maxB = math.Max(maxB, ah.cumulativeMaxWindow[i])
 	}
 	return maxB
+}
+
+func (ah *autopilotHisto) NumSamplesWithValueMoreThan(idL int) int {
+	if idL == ah.options.NumBuckets()-1 {
+		return 0
+	}
+	return ah.totalBucketWeightHigher[idL+1]
+}
+
+func (ah *autopilotHisto) NumSamplesWithValueLessThan(idL int) int {
+	if idL == 0 {
+		return 0
+	}
+	return ah.totalBucketWeightLower[idL-1]
+}
+
+func (ah *autopilotHisto) NumSamplesWithValueMoreThanValue(l float64) int {
+	// TODO optimize complexity using math calculation...
+	idL := -1
+	for i := 0; i < ah.options.NumBuckets(); i++ {
+		if ah.options.GetBucketEnd(i) > l {
+			idL = i
+			break
+		}
+	}
+
+	if idL == -1 {
+		return 0
+	}
+	return ah.totalBucketWeightHigher[idL]
+}
+
+func (ah *autopilotHisto) NumSamplesWithValueLessThanValue(l float64) int {
+	// TODO optimize complexity using math calculation...
+	idL := -1
+	for i := ah.options.NumBuckets() - 1; i >= 0; i-- {
+		if ah.options.GetBucketEnd(i) < l {
+			idL = i
+			break
+		}
+	}
+
+	if idL == -1 {
+		return 0
+	}
+	return ah.totalBucketWeightLower[idL]
+}
+
+func (ah *autopilotHisto) GetMaxIdL() int {
+	return ah.options.NumBuckets() - 1
+}
+
+func (ah *autopilotHisto) GetLValWithId(idL int) float64 {
+	return ah.options.GetBucketEnd(idL)
 }
 
 func (ah *autopilotHisto) AggregateNums() int {
@@ -256,6 +336,16 @@ func (ah *autopilotHisto) Aggregate(operationTime time.Time) {
 		ah.cumulativeAdjustedUsageWeightTotal += ah.cumulativeAdjustedUsage[i]
 	}
 
+	// Process More than and Less than (and equal to) L info
+	ah.totalBucketWeightLower[0] = ah.currentBucketWeight[0]
+	for i := 1; i < ah.options.NumBuckets(); i++ {
+		ah.totalBucketWeightLower[i] = ah.totalBucketWeightLower[i-1] + ah.currentBucketWeight[i]
+	}
+	ah.totalBucketWeightHigher[ah.options.NumBuckets()-1] = ah.currentBucketWeight[ah.options.NumBuckets()-1]
+	for i := ah.options.NumBuckets() - 2; i >= 0; i-- {
+		ah.totalBucketWeightHigher[i] = ah.totalBucketWeightHigher[i+1] + ah.currentBucketWeight[i]
+	}
+
 	// Clear current bucket, ready for the samples in next window ...
 	for i := 0; i < ah.options.NumBuckets(); i++ {
 		ah.currentBucketWeight[i] = 0
@@ -272,6 +362,8 @@ func (ah *autopilotHisto) String() string {
 		fmt.Sprintf("Max: Window: %+v, HeadPosition: %v", ah.cumulativeMaxWindow, ah.cumulativeMaxHeadPosition),
 		fmt.Sprintf("Average: Upper: %v, Lower: %v", ah.cumulativeWeightedAverageUpper, ah.cumulativeWeightedAverageLower),
 		fmt.Sprintf("Adjusted Usage: Weights: %+v, Total: %v", ah.cumulativeAdjustedUsage, ah.cumulativeAdjustedUsageWeightTotal),
+		fmt.Sprintf("Higher than L info: %+v", ah.totalBucketWeightHigher),
+		fmt.Sprintf("Lower than L info: %+v", ah.totalBucketWeightLower),
 		"---------------------------",
 	}
 	return strings.Join(lines, "\n")

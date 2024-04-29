@@ -97,6 +97,8 @@ var (
 	cpuHistogramBucketSize    = flag.Float64("ap-cpu-histogram-bucket", model.DefaultCPUHistogramBucketSize, `CPU per bucket size`)
 	memoryHistogramMaxValue   = flag.Float64("ap-memory-histogram-max", model.DefaultMemoryHistogramMaxValue, `Mem End of the last bucket >= this value`)
 	memoryHistogramBucketSize = flag.Float64("ap-memory-histogram-bucket", model.DefaultMemoryHistogramBucketSize, `Mem per bucket size`)
+
+	algorithm = flag.String("ap-algorithm", "ml", "Recommend algirithm, currently 'ml' or 'rule'")
 )
 
 // Post processors flags
@@ -189,7 +191,7 @@ func main() {
 		ControllerFetcher:            controllerFetcher,
 		CheckpointWriter:             checkpoint.NewCheckpointWriter(clusterState, vpa_clientset.NewForConfigOrDie(config).AutoscalingV1()),
 		VpaClient:                    vpa_clientset.NewForConfigOrDie(config).AutoscalingV1(),
-		PodResourceRecommender:       logic.CreatePodResourceRecommender(*cpuHistogramMaxValue, *memoryHistogramMaxValue, *recommenderInterval, *cpuLastSamplesN, *memoryLastSamplesN),
+		PodResourceRecommender:       logic.CreatePodResourceRecommender(*cpuHistogramMaxValue, *memoryHistogramMaxValue, *recommenderInterval, *cpuLastSamplesN, *memoryLastSamplesN, *algorithm == "ml"),
 		RecommendationPostProcessors: postProcessors,
 		CheckpointsGCInterval:        *checkpointsGCInterval,
 		UseCheckpoints:               useCheckpoints,
@@ -228,6 +230,7 @@ func main() {
 		}
 		recommender.GetClusterStateFeeder().InitFromHistoryProvider(provider)
 	}
+
 	// There should be one recommend in how many collects
 	recommenderRoundLength := int(int64(*recommenderInterval) / int64(*metricsFetcherInterval))
 	klog.V(3).Infof("recommenderRoundLength: %v", recommenderRoundLength)
