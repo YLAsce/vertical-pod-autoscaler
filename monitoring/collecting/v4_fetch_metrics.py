@@ -11,7 +11,7 @@ import sys
 
 # subscription_id = "cbd332d2-cbb7-4189-bf84-48155e558134"
 prometheus_addr = "195.154.73.222"
-deployment_name = "workload-yuqiang"
+deployment_name = sys.argv[1]
 namespace = "default"
 frequency = 1 # 1min
 data_points = 300
@@ -117,7 +117,7 @@ for i in range(data_points):
             print("Exception at round {}, NO DATA APPENDED {}".format(i+1, e))
 
     json_data = json.dumps(dataline) + "\n"
-    with open('data/metrics_yuqiang_{}_{}.jsonline'.format(frequency, data_points), 'a') as file:
+    with open('data/metrics_{}_{}_{}.jsonline'.format(deployment_name, frequency, data_points), 'a') as file:
         file.write(json_data)
     print("-------finish record data------", str(i+1))
 
