@@ -2,6 +2,7 @@ package model
 
 import (
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/util"
+	"k8s.io/klog/v2"
 )
 
 func NewCPURecommender(backHisto util.AutopilotHisto) *Recommender {
@@ -58,8 +59,10 @@ func deltaResource(x, y ResourceAmount) int {
 }
 
 func (r *Recommender) CalculateOnce() {
-	for _, m := range r.modelPool {
+	for i, m := range r.modelPool {
+		klog.V(4).Infof("NICO ML Model %v before r: dm %v, mm %v, lmId %v, lm %v, cm %v", i, m.dm, m.mm, m.lmId, m.lm, m.cm)
 		m.CalculateOnce()
+		klog.V(4).Infof("NICO ML Model %v finished: dm %v, mm %v, lmId %v, lm %v, cm %v", i, m.dm, m.mm, m.lmId, m.lm, m.cm)
 	}
 
 	minVal := r.modelPool[0].GetCurCm() +
@@ -77,6 +80,8 @@ func (r *Recommender) CalculateOnce() {
 	}
 	r.selectedModelId = minId
 	r.recommendation = r.modelPool[r.selectedModelId].GetCurLm()
+
+	klog.V(4).Infof("NICO ML Recommender finished: Use Model %v", r.selectedModelId)
 }
 
 func (r *Recommender) GetRecommendation() ResourceAmount {

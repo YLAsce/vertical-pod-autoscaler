@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:ml-v1
+        image: docker.io/yuqiang302/vpa-recommender:ml-v1fix1
         imagePullPolicy: Always
         args:
           - --recommender-name=ml
@@ -44,16 +44,16 @@ spec:
           - --ap-ml-cpu-hyperparam-wu=0.6
           - --ap-ml-cpu-hyperparam-wdeltal=0.6
           - --ap-ml-cpu-hyperparam-wdeltam=0.6
-          - --ap-ml-cpu-num-dm=100
-          - --ap-ml-cpu-num-mm=100
+          - --ap-ml-cpu-num-dm=5
+          - --ap-ml-cpu-num-mm=5
           - --ap-ml-cpu-max-mm=1.0
           - --ap-ml-memory-hyperparam-d=0.6
           - --ap-ml-memory-hyperparam-wo=0.6
           - --ap-ml-memory-hyperparam-wu=0.6
           - --ap-ml-memory-hyperparam-wdeltal=0.6
           - --ap-ml-memory-hyperparam-wdeltam=0.6
-          - --ap-ml-memory-num-dm=100
-          - --ap-ml-memory-num-mm=100
+          - --ap-ml-memory-num-dm=5
+          - --ap-ml-memory-num-mm=5
           - --ap-ml-memory-max-mm=500000000.0
         resources:
           limits:
