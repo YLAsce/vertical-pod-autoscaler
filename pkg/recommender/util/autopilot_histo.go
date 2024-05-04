@@ -7,6 +7,14 @@ import (
 	"time"
 
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
+	"k8s.io/klog/v2"
+)
+
+type AutopilotAddSampleMode string
+
+const (
+	AutopilotAddSampleModeDistribution AutopilotAddSampleMode = "distribution"
+	AutopilotAddSampleModeMax          AutopilotAddSampleMode = "max"
 )
 
 var valueDelta = 1e-11
@@ -68,15 +76,16 @@ type AutopilotHisto interface {
 	LoadFromCheckpoint(*vpa_types.HistogramCheckpoint) error
 }
 
-func NewAutopilotHisto(options HistogramOptions, halfLife time.Duration, n int, defaultAggregationDuration time.Duration) AutopilotHisto {
+func NewAutopilotHisto(options HistogramOptions, halfLife time.Duration, n int, defaultAggregationDuration time.Duration, addSampleMode AutopilotAddSampleMode) AutopilotHisto {
 	if options.NumBuckets() < 1 {
 		panic("Number of buckets should be at least 1")
 	}
 
 	a := autopilotHisto{
-		options:      options,
-		halfLife:     halfLife,
-		lastSamplesN: n,
+		options:       options,
+		addSampleMode: addSampleMode,
+		halfLife:      halfLife,
+		lastSamplesN:  n,
 
 		cumulativeWeightedAverageLower: 0.0, // To Calculate below
 
@@ -85,6 +94,7 @@ func NewAutopilotHisto(options HistogramOptions, halfLife time.Duration, n int, 
 		aggregateNums:       0,
 
 		currentBucketWeight:                make([]int, options.NumBuckets()),
+		prevMaxBucket:                      0,
 		cumulativeWeightedAverageUpper:     0.0,
 		cumulativeAdjustedUsage:            make([]float64, options.NumBuckets()),
 		cumulativeAdjustedUsageWeightTotal: 0.0,
@@ -99,9 +109,10 @@ func NewAutopilotHisto(options HistogramOptions, halfLife time.Duration, n int, 
 }
 
 type autopilotHisto struct {
-	options      HistogramOptions
-	halfLife     time.Duration
-	lastSamplesN int
+	options       HistogramOptions
+	addSampleMode AutopilotAddSampleMode
+	halfLife      time.Duration
+	lastSamplesN  int
 
 	cumulativeWeightedAverageLower float64
 
@@ -109,7 +120,9 @@ type autopilotHisto struct {
 	aggregationDuration time.Duration
 	aggregateNums       int
 
-	currentBucketWeight                []int
+	currentBucketWeight []int
+	prevMaxBucket       int
+
 	cumulativeWeightedAverageUpper     float64
 	cumulativeAdjustedUsage            []float64
 	cumulativeAdjustedUsageWeightTotal float64
@@ -147,22 +160,42 @@ func (ah *autopilotHisto) currentAverageUsage() float64 {
 
 func (ah *autopilotHisto) AddSample(value float64) {
 	bucket := ah.options.FindBucket(value)
-	ah.currentBucketWeight[bucket] += 1
+
+	if ah.addSampleMode == AutopilotAddSampleModeMax {
+		if bucket >= ah.prevMaxBucket { //  >= is to guarantee the start
+			ah.currentBucketWeight[ah.prevMaxBucket] = 0
+			ah.currentBucketWeight[bucket] = 1
+			ah.prevMaxBucket = bucket
+		}
+	} else {
+		ah.currentBucketWeight[bucket] += 1
+	}
 }
 
 func (ah *autopilotHisto) SubtractSample(value float64) {
+	if ah.addSampleMode == AutopilotAddSampleModeMax {
+		panic("Not implemented subtract sample under max mode")
+	}
 	bucket := ah.options.FindBucket(value)
 	ah.currentBucketWeight[bucket] -= 1
 }
 
 func (ah *autopilotHisto) Merge(other AutopilotHisto) {
 	o := other.(*autopilotHisto)
-	if ah.options != o.options || ah.halfLife != o.halfLife || ah.lastSamplesN != o.lastSamplesN {
+	if ah.options != o.options || ah.halfLife != o.halfLife || ah.lastSamplesN != o.lastSamplesN || ah.addSampleMode != o.addSampleMode {
 		panic("Can't merge histograms with different options / halflife / n")
 	}
 	// Merge current weights
-	for i := 0; i < ah.options.NumBuckets(); i++ {
-		ah.currentBucketWeight[i] += o.currentBucketWeight[i]
+	if ah.addSampleMode == AutopilotAddSampleModeMax {
+		if ah.prevMaxBucket < o.prevMaxBucket {
+			ah.currentBucketWeight[ah.prevMaxBucket] = 0
+			ah.currentBucketWeight[o.prevMaxBucket] = 1
+			ah.prevMaxBucket = o.prevMaxBucket
+		}
+	} else {
+		for i := 0; i < ah.options.NumBuckets(); i++ {
+			ah.currentBucketWeight[i] += o.currentBucketWeight[i]
+		}
 	}
 
 	// Merge aggragation data
@@ -347,17 +380,23 @@ func (ah *autopilotHisto) Aggregate(operationTime time.Time) {
 	}
 
 	// Clear current bucket, ready for the samples in next window ...
+	totalCurrentSamples := 0
 	for i := 0; i < ah.options.NumBuckets(); i++ {
+		totalCurrentSamples += ah.currentBucketWeight[i]
 		ah.currentBucketWeight[i] = 0
 	}
-	// klog.V(4).Infof("NICONICO Aftre Aggregate: %s", ah.String())
+	if ah.addSampleMode == AutopilotAddSampleModeMax && totalCurrentSamples != 1 {
+		panic("There should be exact 1 sample in the max mode")
+	}
+	ah.prevMaxBucket = 0
+	klog.V(4).Infof("Aggregated %v samples in %v seconds", totalCurrentSamples, ah.aggregationDuration.Seconds())
 }
 
 func (ah *autopilotHisto) String() string {
 	lines := []string{
 		"",
 		"+++++++++++++++++++++++++++",
-		fmt.Sprintf("Time: Halflife: %v, N: %v, LastAggregation: %v, Aggregation duration: %v", ah.halfLife, ah.lastSamplesN, ah.lastAggregationTime, ah.aggregationDuration),
+		fmt.Sprintf("Time: Halflife: %v, N: %v, LastAggregation: %v, Aggregation duration: %v, max bucket: %v", ah.halfLife, ah.lastSamplesN, ah.lastAggregationTime, ah.aggregationDuration, ah.prevMaxBucket),
 		fmt.Sprintf("Current buckets: %+v", ah.currentBucketWeight),
 		fmt.Sprintf("Max: Window: %+v, HeadPosition: %v", ah.cumulativeMaxWindow, ah.cumulativeMaxHeadPosition),
 		fmt.Sprintf("Average: Upper: %v, Lower: %v", ah.cumulativeWeightedAverageUpper, ah.cumulativeWeightedAverageLower),

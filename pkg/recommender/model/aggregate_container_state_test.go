@@ -113,12 +113,12 @@ func TestAggregateStateByContainerName(t *testing.T) {
 
 	config := GetAggregationsConfig()
 	// Compute the expected histograms for the "app-A" containers.
-	expectedCPUHistogram := util.NewAutopilotHisto(config.CPUHistogramOptions, config.CPUHistogramDecayHalfLife, config.CPULastSamplesN, config.CPUDefaultAggregationDuration)
+	expectedCPUHistogram := util.NewAutopilotHisto(config.CPUHistogramOptions, config.CPUHistogramDecayHalfLife, config.CPULastSamplesN, config.CPUDefaultAggregationDuration, util.AutopilotAddSampleModeDistribution)
 	expectedCPUHistogram.Merge(cluster.findOrCreateAggregateContainerState(containers[0]).AggregateCPUUsage)
 	expectedCPUHistogram.Merge(cluster.findOrCreateAggregateContainerState(containers[2]).AggregateCPUUsage)
 	actualCPUHistogram := aggregateResources["app-A"].AggregateCPUUsage
 
-	expectedMemoryHistogram := util.NewAutopilotHisto(config.MemoryHistogramOptions, config.MemoryHistogramDecayHalfLife, config.MemoryLastSamplesN, config.MemoryDefaultAggregationDuration)
+	expectedMemoryHistogram := util.NewAutopilotHisto(config.MemoryHistogramOptions, config.MemoryHistogramDecayHalfLife, config.MemoryLastSamplesN, config.MemoryDefaultAggregationDuration, util.AutopilotAddSampleModeDistribution)
 	expectedMemoryHistogram.AddSample(2e9)
 	expectedMemoryHistogram.AddSample(4e9)
 	actualMemoryHistogram := aggregateResources["app-A"].AggregateMemoryUsage

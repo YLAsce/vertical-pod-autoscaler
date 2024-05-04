@@ -10,7 +10,7 @@ import (
 func Test_autopilotHisto_Basic(t *testing.T) {
 	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
 	assert.Nil(t, err)
-	ah := NewAutopilotHisto(options, time.Minute, 1, time.Minute)
+	ah := NewAutopilotHisto(options, time.Minute, 1, time.Minute, AutopilotAddSampleModeDistribution)
 	ah.AddSample(0.5)
 	assert.InDelta(t, 0, ah.Max(), valueDelta)
 	assert.InDelta(t, 0, ah.Average(), valueDelta)
@@ -34,7 +34,7 @@ func Test_autopilotHisto_Basic(t *testing.T) {
 func Test_autopilotHisto_Begin(t *testing.T) {
 	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
 	assert.Nil(t, err)
-	ah := NewAutopilotHisto(options, time.Minute, 1, time.Minute)
+	ah := NewAutopilotHisto(options, time.Minute, 1, time.Minute, AutopilotAddSampleModeDistribution)
 	ah.Aggregate(startTime)
 	// t.Log(ah.String())
 	assert.InDelta(t, 0, ah.Max(), valueDelta)
@@ -45,7 +45,7 @@ func Test_autopilotHisto_Begin(t *testing.T) {
 func Test_autopilotHisto_Max_Window(t *testing.T) {
 	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
 	assert.Nil(t, err)
-	ah := NewAutopilotHisto(options, time.Minute, 2, time.Minute)
+	ah := NewAutopilotHisto(options, time.Minute, 2, time.Minute, AutopilotAddSampleModeDistribution)
 	ah.AddSample(0.69)
 	ah.AddSample(0.49)
 
@@ -67,7 +67,7 @@ func Test_autopilotHisto_Max_Window(t *testing.T) {
 func Test_autopilotHisto_Merge(t *testing.T) {
 	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
 	assert.Nil(t, err)
-	ah1 := NewAutopilotHisto(options, time.Minute, 2, time.Minute)
+	ah1 := NewAutopilotHisto(options, time.Minute, 2, time.Minute, AutopilotAddSampleModeDistribution)
 	ah1.AddSample(0.69)
 	ah1.AddSample(0.49)
 
@@ -75,12 +75,12 @@ func Test_autopilotHisto_Merge(t *testing.T) {
 	ah1.AddSample(0.5)
 	// t.Log(ah1.String())
 
-	ahEmpty := NewAutopilotHisto(options, time.Minute, 2, time.Minute)
+	ahEmpty := NewAutopilotHisto(options, time.Minute, 2, time.Minute, AutopilotAddSampleModeDistribution)
 	ahEmpty.Merge(ah1)
 	// t.Log(ahEmpty.String())
 	assert.InDelta(t, 0.7, ahEmpty.Max(), valueDelta)
 
-	ah3 := NewAutopilotHisto(options, time.Minute, 2, time.Minute)
+	ah3 := NewAutopilotHisto(options, time.Minute, 2, time.Minute, AutopilotAddSampleModeDistribution)
 	ah3.AddSample(0.19)
 	ah3.AddSample(0.39)
 	ah3.Aggregate(startTime)

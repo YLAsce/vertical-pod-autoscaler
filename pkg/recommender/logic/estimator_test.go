@@ -38,12 +38,12 @@ var (
 func TestPercentileEstimator(t *testing.T) {
 	config := model.GetAggregationsConfig()
 	// Create a sample CPU histogram.
-	cpuHistogram := util.NewAutopilotHisto(config.CPUHistogramOptions, config.CPUHistogramDecayHalfLife, config.CPULastSamplesN, config.CPUDefaultAggregationDuration)
+	cpuHistogram := util.NewAutopilotHisto(config.CPUHistogramOptions, config.CPUHistogramDecayHalfLife, config.CPULastSamplesN, config.CPUDefaultAggregationDuration, util.AutopilotAddSampleModeDistribution)
 	cpuHistogram.AddSample(1.0)
 	cpuHistogram.AddSample(2.0)
 	cpuHistogram.AddSample(3.0)
 	// Create a sample memory histogram.
-	memoryPeaksHistogram := util.NewAutopilotHisto(config.MemoryHistogramOptions, config.MemoryHistogramDecayHalfLife, config.MemoryLastSamplesN, config.MemoryDefaultAggregationDuration)
+	memoryPeaksHistogram := util.NewAutopilotHisto(config.MemoryHistogramOptions, config.MemoryHistogramDecayHalfLife, config.MemoryLastSamplesN, config.MemoryDefaultAggregationDuration, util.AutopilotAddSampleModeDistribution)
 	memoryPeaksHistogram.AddSample(1e9)
 	memoryPeaksHistogram.AddSample(2e9)
 	memoryPeaksHistogram.AddSample(3e9)

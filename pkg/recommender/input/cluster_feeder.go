@@ -142,6 +142,7 @@ func watchEvictionEvents(evictedEventChan <-chan watch.Event, observer oom.Obser
 			klog.V(3).Infof("Eviction event chan closed")
 			return
 		}
+		klog.V(4).Infof("NICO Recv OOM: %+v", evictedEvent)
 		if evictedEvent.Type == watch.Added {
 			evictedEvent, ok := evictedEvent.Object.(*apiv1.Event)
 			if !ok {
@@ -450,9 +451,9 @@ Loop:
 		select {
 		case oomInfo := <-feeder.oomChan:
 			klog.V(3).Infof("OOM detected %+v", oomInfo)
-			// if err = feeder.clusterState.RecordOOM(oomInfo.ContainerID, oomInfo.Timestamp, oomInfo.Memory); err != nil {
-			// 	klog.Warningf("Failed to record OOM %+v. Reason: %+v", oomInfo, err)
-			// }
+			if err = feeder.clusterState.RecordOOM(oomInfo.ContainerID, oomInfo.Timestamp, oomInfo.Memory); err != nil {
+				klog.Warningf("Failed to record OOM %+v. Reason: %+v", oomInfo, err)
+			}
 		default:
 			break Loop
 		}
