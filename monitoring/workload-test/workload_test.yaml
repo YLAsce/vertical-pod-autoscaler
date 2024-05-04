@@ -16,15 +16,15 @@ spec:
         runAsUser: 0
       containers:
         - name: workload-test
-          image: docker.io/yuqiang302/workload:test-11
+          image: docker.io/yuqiang302/workload:test-oom
           command: ["./stress_generator", "workload-test"]
           securityContext:
             privileged: true
           resources:
             requests:
               cpu: 800m
-              memory: 600Mi
+              memory: 300Mi
             limits:
               cpu: 880m
-              memory: 660Mi
+              memory: 300Mi
 

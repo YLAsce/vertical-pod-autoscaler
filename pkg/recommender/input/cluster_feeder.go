@@ -444,19 +444,19 @@ func (feeder *clusterStateFeeder) LoadRealTimeMetrics() {
 	}
 	klog.V(5).Infof("ClusterSpec fed with #%v ContainerUsageSamples for #%v containers. Dropped #%v samples.", sampleCount, len(containersMetrics), droppedSampleCount)
 
-	// Currently do not record OOM in Autopilot
-	// Loop:
-	// 	for {
-	// 		select {
-	// 		case oomInfo := <-feeder.oomChan:
-	// 			klog.V(3).Infof("OOM detected %+v", oomInfo)
-	// 			if err = feeder.clusterState.RecordOOM(oomInfo.ContainerID, oomInfo.Timestamp, oomInfo.Memory); err != nil {
-	// 				klog.Warningf("Failed to record OOM %+v. Reason: %+v", oomInfo, err)
-	// 			}
-	// 		default:
-	// 			break Loop
-	// 		}
-	// 	}
+	// NICO update: record OOM in Autopilot
+Loop:
+	for {
+		select {
+		case oomInfo := <-feeder.oomChan:
+			klog.V(3).Infof("OOM detected %+v", oomInfo)
+			// if err = feeder.clusterState.RecordOOM(oomInfo.ContainerID, oomInfo.Timestamp, oomInfo.Memory); err != nil {
+			// 	klog.Warningf("Failed to record OOM %+v. Reason: %+v", oomInfo, err)
+			// }
+		default:
+			break Loop
+		}
+	}
 	metrics_recommender.RecordAggregateContainerStatesCount(feeder.clusterState.StateMapSize())
 }
 

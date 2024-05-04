@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:ml-v1fix1
+        image: docker.io/yuqiang302/vpa-recommender:ml-v1-oomtest
         imagePullPolicy: Always
         args:
           - --recommender-name=ml

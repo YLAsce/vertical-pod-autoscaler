@@ -1,7 +1,7 @@
 .PHONY: all
 all: docker-build docker-push uptag
 
-TAG?=test-11
+TAG?=test-oom
 REGISTRY?=yuqiang302
 COMPONENT=workload
 
