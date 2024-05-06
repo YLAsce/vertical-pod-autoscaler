@@ -51,6 +51,9 @@ type ClusterState struct {
 	// Observed VPAs. Used to check if there are updates needed.
 	ObservedVpas []*vpa_types.VerticalPodAutoscaler
 
+	// If the cluster observed an OOM to process
+	OOMToDo bool
+
 	// All container aggregations where the usage samples are stored.
 	aggregateStateMap aggregateContainerStatesMap
 	// Map with all label sets used by the aggregations. It serves as a cache
@@ -102,6 +105,7 @@ func NewClusterState(gcInterval time.Duration) *ClusterState {
 		Pods:                          make(map[PodID]*PodState),
 		Vpas:                          make(map[VpaID]*Vpa),
 		EmptyVPAs:                     make(map[VpaID]time.Time),
+		OOMToDo:                       false,
 		aggregateStateMap:             make(aggregateContainerStatesMap),
 		labelSetMap:                   make(labelSetMap),
 		lastAggregateContainerStateGC: time.Unix(0, 0),
@@ -232,6 +236,7 @@ func (cluster *ClusterState) AddSample(sample *ContainerUsageSampleWithKey) erro
 
 func (cluster *ClusterState) HistogramAggregate(now time.Time) {
 	for _, aggregation := range cluster.aggregateStateMap {
+		// klog.V(4).Infof("NICO Start Aggregate %+v", name)
 		aggregation.HistogramAggregate(now)
 	}
 	// NICO Below is not correct!! The containers with the same name in different pods will be calculated twice...
@@ -252,10 +257,10 @@ func (cluster *ClusterState) RecordOOM(containerID ContainerID, timestamp time.T
 	if !containerExists {
 		return NewKeyError(containerID.ContainerName)
 	}
-	err := containerState.RecordOOM(timestamp, requestedMemory)
-	if err != nil {
-		return fmt.Errorf("error while recording OOM for %v, Reason: %v", containerID, err)
-	}
+
+	containerState.RecordOOM(timestamp, requestedMemory)
+	klog.V(4).Infof("NICO Cluster recorded OOM event")
+	cluster.OOMToDo = true
 	return nil
 }
 

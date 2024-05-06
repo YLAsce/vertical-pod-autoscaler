@@ -20,12 +20,14 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:ml-v1-oomtest-debug1
+        image: docker.io/yuqiang302/vpa-recommender:ml-v1-oomsolution-v3
         imagePullPolicy: Always
         args:
           - --recommender-name=ml
           - --recommender-interval=5m
           - --metrics-interval=1s
+          - --oom-bump-up-ratio=1.2
+          - --oom-min-bump-up-bytes=102400000 # About 100MB
           - --ap-cpu-histogram-n=5
           - --ap-memory-histogram-n=5
           - --ap-cpu-recommend-policy=sp_90
@@ -35,10 +37,10 @@ spec:
           - --ap-algorithm=ml
           - --ap-cpu-histogram-decay-half-life=5m
           - --ap-memory-histogram-decay-half-life=5m
-          - --ap-cpu-histogram-bucket=0.005
-          - --ap-memory-histogram-bucket=2500000.0
-          - --ap-cpu-histogram-max=2.0
-          - --ap-memory-histogram-max=1000000000.0
+          - --ap-cpu-histogram-bucket-num=400
+          - --ap-memory-histogram-bucket-num=500
+          # - --ap-cpu-histogram-max=2.0
+          # - --ap-memory-histogram-max=1000000000.0
           - --ap-ml-cpu-hyperparam-d=0.6
           - --ap-ml-cpu-hyperparam-wo=0.6
           - --ap-ml-cpu-hyperparam-wu=0.6

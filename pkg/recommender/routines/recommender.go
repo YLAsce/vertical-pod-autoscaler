@@ -45,13 +45,13 @@ type Recommender interface {
 	// New API
 	CollectOnce()
 	SetupOnce()
-	RecommendOnce()
+	RecommendOnce(algorithmRun bool)
 	// GetClusterState returns ClusterState used by Recommender
 	GetClusterState() *model.ClusterState
 	// GetClusterStateFeeder returns ClusterStateFeeder used by Recommender
 	GetClusterStateFeeder() input.ClusterStateFeeder
 	// UpdateVPAs computes recommendations and sends VPAs status updates to API Server
-	UpdateVPAs()
+	UpdateVPAs(algorithmRun bool)
 	// MaintainCheckpoints stores current checkpoints in API Server and garbage collect old ones
 	// MaintainCheckpoints writes at least minCheckpoints if there are more checkpoints to write.
 	// Checkpoints are written until ctx permits or all checkpoints are written.
@@ -81,9 +81,17 @@ func (r *recommender) GetClusterStateFeeder() input.ClusterStateFeeder {
 }
 
 // Updates VPA CRD objects' statuses.
-func (r *recommender) UpdateVPAs() {
-	cnt := metrics_recommender.NewObjectCounter()
-	defer cnt.Observe()
+func (r *recommender) UpdateVPAs(algorithmRun bool) {
+	// 防止性能问题，这个版本先不放这个
+	// cnt := metrics_recommender.NewObjectCounter()
+	// defer cnt.Observe()
+
+	// 只有在OOM或者算法需要执行的时候，才走这个流程
+	if !(r.clusterState.OOMToDo || algorithmRun) {
+		return
+	}
+	// Reset the state mark, because if there is OOM, this OOM event MUST be solved below
+	r.clusterState.OOMToDo = false
 
 	for _, observedVpa := range r.clusterState.ObservedVpas {
 		key := model.VpaID{
@@ -94,7 +102,14 @@ func (r *recommender) UpdateVPAs() {
 		if !found {
 			continue
 		}
-		resources := r.podResourceRecommender.GetRecommendedPodResources(GetContainerNameToAggregateStateMap(vpa))
+		containerNameToAggregateStateMap, hasOOMAmongContainers := GetContainerNameToAggregateStateMapAndOOMStatus(vpa)
+		if !(hasOOMAmongContainers || algorithmRun) {
+			continue
+		}
+
+		klog.V(4).Infof("Execute Update VPA, Reason: ClusterOOMTODO? %v, VPAOOMTodo? %v, Algorithm? %v", r.clusterState.OOMToDo, hasOOMAmongContainers, algorithmRun)
+
+		resources := r.podResourceRecommender.GetRecommendedPodResources(containerNameToAggregateStateMap, algorithmRun)
 		// 这里获得推荐结果了，是个map，map[string]RecommendedContainerResources
 
 		had := vpa.HasRecommendation() //VPA中已经有recommendation了吗？
@@ -131,7 +146,7 @@ func (r *recommender) UpdateVPAs() {
 				}
 			}
 		}
-		cnt.Add(vpa)
+		// cnt.Add(vpa)
 		//更新status界面
 		_, err := vpa_utils.UpdateVpaStatusIfNeeded(
 			r.vpaClient.VerticalPodAutoscalers(vpa.ID.Namespace), vpa.ID.VpaName, vpa.AsStatus(), &observedVpa.Status)
@@ -167,32 +182,37 @@ func (r *recommender) SetupOnce() {
 	r.clusterStateFeeder.LoadVPAs()
 }
 
-func (r *recommender) RecommendOnce() {
+func (r *recommender) RecommendOnce(algorithmRun bool) {
+	// NICO 这个版本不提供checkpoint功能
 	//自己也提供一个prometheus数据源
-	timer := metrics_recommender.NewExecutionTimer()
-	defer timer.ObserveTotal()
+	// timer := metrics_recommender.NewExecutionTimer()
+	// defer timer.ObserveTotal()
 
-	// 管理远程请求
-	ctx := context.Background()
-	//默认1分钟写checkpoint
-	ctx, cancelFunc := context.WithDeadline(ctx, time.Now().Add(*checkpointsWriteTimeout))
-	defer cancelFunc()
+	// // 管理远程请求
+	// ctx := context.Background()
+	// //默认1分钟写checkpoint
+	// ctx, cancelFunc := context.WithDeadline(ctx, time.Now().Add(*checkpointsWriteTimeout))
+	// defer cancelFunc()
 
 	// Autopilot Histogram aggragate
-	r.clusterStateFeeder.HistogramAggregate(time.Now())
-	timer.ObserveStep("HistogramAggregate")
-	klog.V(3).Infof("ClusterState is tracking %v PodStates and %v VPAs", len(r.clusterState.Pods), len(r.clusterState.Vpas))
+	if algorithmRun {
+		r.clusterStateFeeder.HistogramAggregate(time.Now())
+		// timer.ObserveStep("HistogramAggregate")
+		klog.V(3).Infof("ClusterState is tracking %v PodStates and %v VPAs", len(r.clusterState.Pods), len(r.clusterState.Vpas))
+	}
 
 	// 最终结果是container级别的recommendation
-	r.UpdateVPAs()
-	timer.ObserveStep("UpdateVPAs")
+	r.UpdateVPAs(algorithmRun)
+	// timer.ObserveStep("UpdateVPAs")
 
-	r.MaintainCheckpoints(ctx, *minCheckpointsPerRun)
-	timer.ObserveStep("MaintainCheckpoints")
-
-	r.clusterState.RateLimitedGarbageCollectAggregateCollectionStates(time.Now(), r.controllerFetcher)
-	timer.ObserveStep("GarbageCollect")
-	klog.V(3).Infof("ClusterState is tracking %d aggregated container states", r.clusterState.StateMapSize())
+	if algorithmRun {
+		// NICO 这个版本不提供checkpoint功能
+		// r.MaintainCheckpoints(ctx, *minCheckpointsPerRun)
+		// timer.ObserveStep("MaintainCheckpoints")
+		r.clusterState.RateLimitedGarbageCollectAggregateCollectionStates(time.Now(), r.controllerFetcher)
+		// timer.ObserveStep("GarbageCollect")
+		klog.V(3).Infof("ClusterState is tracking %d aggregated container states", r.clusterState.StateMapSize())
+	}
 }
 
 func (r *recommender) RunOnce() {
@@ -219,8 +239,8 @@ func (r *recommender) RunOnce() {
 	timer.ObserveStep("LoadMetrics")
 	klog.V(3).Infof("ClusterState is tracking %v PodStates and %v VPAs", len(r.clusterState.Pods), len(r.clusterState.Vpas))
 
-	// 最终结果是container级别的recommendation
-	r.UpdateVPAs()
+	// 最终结果是container级别的recommendation. 这个true是后加的参数
+	r.UpdateVPAs(true)
 	timer.ObserveStep("UpdateVPAs")
 
 	r.MaintainCheckpoints(ctx, *minCheckpointsPerRun)

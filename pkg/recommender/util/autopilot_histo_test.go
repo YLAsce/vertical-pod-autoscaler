@@ -8,7 +8,7 @@ import (
 )
 
 func Test_autopilotHisto_Basic(t *testing.T) {
-	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	options, err := NewLinearHistogramOptions(1.0, 10, weightEpsilon)
 	assert.Nil(t, err)
 	ah := NewAutopilotHisto(options, time.Minute, 1, time.Minute, AutopilotAddSampleModeDistribution)
 	ah.AddSample(0.5)
@@ -32,7 +32,7 @@ func Test_autopilotHisto_Basic(t *testing.T) {
 }
 
 func Test_autopilotHisto_Begin(t *testing.T) {
-	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	options, err := NewLinearHistogramOptions(1.0, 10, weightEpsilon)
 	assert.Nil(t, err)
 	ah := NewAutopilotHisto(options, time.Minute, 1, time.Minute, AutopilotAddSampleModeDistribution)
 	ah.Aggregate(startTime)
@@ -43,7 +43,7 @@ func Test_autopilotHisto_Begin(t *testing.T) {
 }
 
 func Test_autopilotHisto_Max_Window(t *testing.T) {
-	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	options, err := NewLinearHistogramOptions(1.0, 10, weightEpsilon)
 	assert.Nil(t, err)
 	ah := NewAutopilotHisto(options, time.Minute, 2, time.Minute, AutopilotAddSampleModeDistribution)
 	ah.AddSample(0.69)
@@ -65,7 +65,7 @@ func Test_autopilotHisto_Max_Window(t *testing.T) {
 }
 
 func Test_autopilotHisto_Merge(t *testing.T) {
-	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	options, err := NewLinearHistogramOptions(1.0, 10, weightEpsilon)
 	assert.Nil(t, err)
 	ah1 := NewAutopilotHisto(options, time.Minute, 2, time.Minute, AutopilotAddSampleModeDistribution)
 	ah1.AddSample(0.69)
