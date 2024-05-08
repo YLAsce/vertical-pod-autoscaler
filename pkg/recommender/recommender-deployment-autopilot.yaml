@@ -20,23 +20,31 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:dev-v10
+        image: docker.io/yuqiang302/vpa-recommender:ml-v1-oomsolution-v3
         imagePullPolicy: Always
         args:
           - --recommender-name=autopilot
           - --recommender-interval=5m
           - --metrics-interval=1s
+          - --oom-bump-up-ratio=1.2
+          - --oom-min-bump-up-bytes=102400000 # About 100MB
           - --ap-cpu-histogram-decay-half-life=5m
           - --ap-memory-histogram-decay-half-life=5m
-          - --ap-cpu-histogram-bucket=0.005
-          - --ap-memory-histogram-bucket=2500000.0
-          - --ap-cpu-histogram-max=2.0
-          - --ap-memory-histogram-max=1000000000.0
+          - --ap-cpu-histogram-bucket-num=400
+          - --ap-memory-histogram-bucket-num=500
+          # - --ap-cpu-histogram-max=2.0
+          # - --ap-memory-histogram-max=1000000000.0
           - --ap-cpu-histogram-n=5
           - --ap-memory-histogram-n=5
           - --ap-cpu-recommend-policy=sp_90
           - --ap-memory-recommend-policy=max
           - --ap-fluctuation-reducer-duration=10m
+          - --ap-ml-cpu-num-dm=5
+          - --ap-ml-cpu-num-mm=5
+          - --ap-ml-cpu-max-mm=1.0
+          - --ap-ml-memory-num-dm=5
+          - --ap-ml-memory-num-mm=5
+          - --ap-ml-memory-max-mm=500000000.0
           - --v=4
         resources:
           limits:

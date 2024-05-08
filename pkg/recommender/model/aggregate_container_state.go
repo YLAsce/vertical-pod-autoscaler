@@ -43,6 +43,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/util"
+	"k8s.io/klog/v2"
 )
 
 // ContainerNameToAggregateStateMap maps a container name to AggregateContainerState
@@ -71,6 +72,8 @@ type ContainerStateAggregator interface {
 	// should be equal to some sample that was aggregated with AddSample()
 	// in the past.
 	SubtractSample(sample *ContainerUsageSample)
+
+	AddOOM(memoryAmount ResourceAmount)
 	// GetLastRecommendation returns last recommendation calculated for this
 	// aggregator.
 	GetLastRecommendation() corev1.ResourceList
@@ -98,6 +101,7 @@ type AggregateContainerState struct {
 	AggregateMemoryUsage util.AutopilotHisto
 	// Note: first/last sample timestamps as well as the sample count are based only on CPU samples.
 
+	OOMAmountToDo       ResourceAmount
 	MLRecommenderCPU    *Recommender
 	MLRecommenderMemory *Recommender
 
@@ -207,6 +211,13 @@ func (a *AggregateContainerState) AddSample(sample *ContainerUsageSample) {
 		a.AggregateMemoryUsage.AddSample(BytesFromMemoryAmount(sample.Usage))
 	default:
 		panic(fmt.Sprintf("AddSample doesn't support resource '%s'", sample.Resource))
+	}
+}
+
+func (a *AggregateContainerState) AddOOM(memoryAmount ResourceAmount) {
+	klog.V(4).Infof("NICO AggregateContainerState Recorded OOM: %v, OLD: %v", memoryAmount, a.OOMAmountToDo)
+	if memoryAmount > a.OOMAmountToDo {
+		a.OOMAmountToDo = memoryAmount
 	}
 }
 
@@ -359,6 +370,11 @@ func (p *ContainerStateAggregatorProxy) AddSample(sample *ContainerUsageSample) 
 func (p *ContainerStateAggregatorProxy) SubtractSample(sample *ContainerUsageSample) {
 	aggregator := p.cluster.findOrCreateAggregateContainerState(p.containerID)
 	aggregator.SubtractSample(sample)
+}
+
+func (p *ContainerStateAggregatorProxy) AddOOM(memoryAmount ResourceAmount) {
+	aggregator := p.cluster.findOrCreateAggregateContainerState(p.containerID)
+	aggregator.AddOOM(memoryAmount)
 }
 
 // GetLastRecommendation returns last recorded recommendation.

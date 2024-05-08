@@ -45,12 +45,12 @@ type HistogramOptions interface {
 // and the last bucket END larger or equal to maxValue.
 // Requires maxValue > 0, bucketSize > 0, epsilon > 0.
 func NewLinearHistogramOptions(
-	maxValue float64, bucketSize float64, epsilon float64) (HistogramOptions, error) {
-	if maxValue <= 0.0 || bucketSize <= 0.0 || epsilon <= 0.0 {
-		return nil, errors.New("maxValue and bucketSize must both be positive")
+	maxValue float64, bucketNum int, epsilon float64) (HistogramOptions, error) {
+	if maxValue <= 0.0 || bucketNum <= 0 || epsilon <= 0.0 {
+		return nil, errors.New("maxValue and bucketNum must both be positive")
 	}
-	numBuckets := int(math.Ceil(maxValue / bucketSize))
-	return &linearHistogramOptions{numBuckets, bucketSize, epsilon}, nil
+	bucketSize := maxValue / float64(bucketNum)
+	return &linearHistogramOptions{bucketNum, bucketSize, epsilon}, nil
 }
 
 // NewExponentialHistogramOptions returns HistogramOptions describing a

@@ -23,10 +23,11 @@ import (
 )
 
 // GetContainerNameToAggregateStateMap returns ContainerNameToAggregateStateMap for pods.
-func GetContainerNameToAggregateStateMap(vpa *model.Vpa) model.ContainerNameToAggregateStateMap {
+func GetContainerNameToAggregateStateMapAndOOMStatus(vpa *model.Vpa) (model.ContainerNameToAggregateStateMap, bool) {
 	containerNameToAggregateStateMap := vpa.AggregateStateByContainerName()
 	filteredContainerNameToAggregateStateMap := make(model.ContainerNameToAggregateStateMap)
 
+	hasOOM := false
 	for containerName, aggregatedContainerState := range containerNameToAggregateStateMap {
 		// klog.V(4).Infof("[NICO]aggregatedContainerName: %+v:", containerName)
 		// klog.V(4).Infof("[NICO]aggregatedContainerCPUHistogram: %+v:", aggregatedContainerState.AggregateCPUUsage.String())
@@ -37,7 +38,10 @@ func GetContainerNameToAggregateStateMap(vpa *model.Vpa) model.ContainerNameToAg
 		if !autoscalingDisabled {
 			aggregatedContainerState.UpdateFromPolicy(containerResourcePolicy)
 			filteredContainerNameToAggregateStateMap[containerName] = aggregatedContainerState
+			if aggregatedContainerState.OOMAmountToDo > 0 {
+				hasOOM = true
+			}
 		}
 	}
-	return filteredContainerNameToAggregateStateMap
+	return filteredContainerNameToAggregateStateMap, hasOOM
 }

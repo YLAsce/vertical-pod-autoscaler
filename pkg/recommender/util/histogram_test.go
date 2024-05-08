@@ -69,7 +69,7 @@ func TestPercentiles(t *testing.T) {
 // histogram, while querying percentile > 1.0 returns the maximum of the
 // histogram.
 func TestPercentileOutOfBounds(t *testing.T) {
-	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	options, err := NewLinearHistogramOptions(1.0, 10, weightEpsilon)
 	assert.Nil(t, err)
 	h := NewHistogram(options)
 	h.AddSample(0.1, 0.1, anyTime)
@@ -87,7 +87,7 @@ func TestPercentileOutOfBounds(t *testing.T) {
 
 // Verifies that IsEmpty() returns true on an empty histogram and false otherwise.
 func TestEmptyHistogram(t *testing.T) {
-	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	options, err := NewLinearHistogramOptions(1.0, 10, weightEpsilon)
 	assert.Nil(t, err)
 	h := NewHistogram(options)
 	assert.True(t, h.IsEmpty())
@@ -101,7 +101,7 @@ func TestEmptyHistogram(t *testing.T) {
 
 // Verifies that IsEmpty() returns false if we add epsilon-weight sample to a non-empty histogram.
 func TestNonEmptyOnEpsilonAddition(t *testing.T) {
-	options, err := NewLinearHistogramOptions(1.0, 0.1, weightEpsilon)
+	options, err := NewLinearHistogramOptions(1.0, 10, weightEpsilon)
 	assert.Nil(t, err)
 	h := NewHistogram(options)
 	assert.True(t, h.IsEmpty())

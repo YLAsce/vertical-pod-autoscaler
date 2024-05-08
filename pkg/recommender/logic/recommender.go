@@ -38,7 +38,7 @@ var (
 
 // PodResourceRecommender computes resource recommendation for a Vpa object.
 type PodResourceRecommender interface {
-	GetRecommendedPodResources(containerNameToAggregateStateMap model.ContainerNameToAggregateStateMap) RecommendedPodResources
+	GetRecommendedPodResources(containerNameToAggregateStateMap model.ContainerNameToAggregateStateMap, algorithmRun bool) RecommendedPodResources
 }
 
 // RecommendedPodResources is a Map from container name to recommended resources.
@@ -56,25 +56,38 @@ type RecommendedContainerResources struct {
 }
 
 type podResourceRecommender struct {
-	targetEstimator AutopilotResourceEstimator
+	targetEstimator  AutopilotResourceEstimator
+	oomPostProcessor *OOMPostProcessor
 	// Discarded in autopilot
 	// lowerBoundEstimator ResourceEstimator
 	// upperBoundEstimator ResourceEstimator
 }
 
-func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggregateStateMap model.ContainerNameToAggregateStateMap) RecommendedPodResources {
+func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggregateStateMap model.ContainerNameToAggregateStateMap, algorithmRun bool) RecommendedPodResources {
 
-	klog.V(4).Info("NICONICO============================================")
-	for name, state := range containerNameToAggregateStateMap {
-		klog.V(4).Infof("NICONICO %s:\n%s\n%s", name, state.AggregateCPUUsage.String(), state.AggregateMemoryUsage.String())
-		klog.V(4).Infof("NICONICO CPU Max: %v, Avg: %v, Per95: %v", state.AggregateCPUUsage.Max(), state.AggregateCPUUsage.Average(), state.AggregateCPUUsage.Percentile(0.95))
-		klog.V(4).Infof("NICONICO MEM Max: %v, Avg: %v, Per95: %v", state.AggregateMemoryUsage.Max(), state.AggregateMemoryUsage.Average(), state.AggregateMemoryUsage.Percentile(0.95))
-	}
-	klog.V(4).Info("NICONICO============================================")
+	// klog.V(4).Info("NICONICO============================================")
+	// for name, state := range containerNameToAggregateStateMap {
+	// 	klog.V(4).Infof("NICONICO %s:\n%s\n%s", name, state.AggregateCPUUsage.String(), state.AggregateMemoryUsage.String())
+	// 	klog.V(4).Infof("NICONICO CPU Max: %v, Avg: %v, Per95: %v", state.AggregateCPUUsage.Max(), state.AggregateCPUUsage.Average(), state.AggregateCPUUsage.Percentile(0.95))
+	// 	klog.V(4).Infof("NICONICO MEM Max: %v, Avg: %v, Per95: %v", state.AggregateMemoryUsage.Max(), state.AggregateMemoryUsage.Average(), state.AggregateMemoryUsage.Percentile(0.95))
+	// }
+	// klog.V(4).Info("NICONICO============================================")
 	var recommendation = make(RecommendedPodResources)
 	if len(containerNameToAggregateStateMap) == 0 {
 		return recommendation
 	}
+
+	// In Autopilot, recommender can refuse to give result, this can avoid code start problem
+	for containerName, aggregatedContainerState := range containerNameToAggregateStateMap {
+		estimation, err := r.estimateContainerResources(containerName, aggregatedContainerState, algorithmRun)
+		klog.V(4).Infof("NICONICO ESTIMATE %+v", estimation)
+		if err != nil {
+			klog.V(3).Infof("NICONICO Cannot give valid pod recommendation. Reason: %s", err.Error())
+		} else {
+			recommendation[containerName] = estimation
+		}
+	}
+	return recommendation
 
 	// fraction := 1.0 / float64(len(containerNameToAggregateStateMap))
 	// minResources := model.Resources{
@@ -87,28 +100,24 @@ func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggre
 	// 	// WithMinResources(minResources, r.lowerBoundEstimator),
 	// 	// WithMinResources(minResources, r.upperBoundEstimator),
 	// }
-
-	// In Autopilot, recommender can refuse to give result, this can avoid code start problem
-	for containerName, aggregatedContainerState := range containerNameToAggregateStateMap {
-		estimation, err := r.estimateContainerResources(containerName, aggregatedContainerState)
-		klog.V(4).Infof("NICONICO ESTIMATE %v %v %+v", aggregatedContainerState.AggregateCPUUsage.Percentile(0.95), aggregatedContainerState.AggregateMemoryUsage.Max(), estimation)
-		if err != nil {
-			klog.V(3).Infof("NICONICO Cannot give valid pod recommendation. Reason: %s", err.Error())
-		} else {
-			recommendation[containerName] = estimation
-		}
-	}
-	return recommendation
 }
 
 // Takes AggregateContainerState and returns a container recommendation.
-func (r *podResourceRecommender) estimateContainerResources(containerName string, s *model.AggregateContainerState) (RecommendedContainerResources, error) {
+func (r *podResourceRecommender) estimateContainerResources(containerName string, s *model.AggregateContainerState, algorithmRun bool) (RecommendedContainerResources, error) {
 	// return RecommendedContainerResources{
 	// 	FilterControlledResources(r.targetEstimator.GetResourceEstimation(s), s.GetControlledResources()),
 	// 	FilterControlledResources(r.lowerBoundEstimator.GetResourceEstimation(s), s.GetControlledResources()),
 	// 	FilterControlledResources(r.upperBoundEstimator.GetResourceEstimation(s), s.GetControlledResources()),
 	// }
-	estimation, err := r.targetEstimator.GetResourceEstimation(containerName, s)
+	if algorithmRun {
+		baseEstimation, err0 := r.targetEstimator.GetResourceEstimation(containerName, s)
+		if err0 == nil {
+			r.oomPostProcessor.RecordBaseEstimation(containerName, baseEstimation)
+		} else {
+			klog.V(3).Infof("NICONICO Estimation algorithm raise error, Cannot Post process OOM: %s", err0.Error())
+		}
+	}
+	estimation, err := r.oomPostProcessor.GetOOMPostProcessedEstimation(containerName, s)
 	res := FilterControlledResources(estimation, s.GetControlledResources())
 	// The same target, lower bound and upper bound
 	return RecommendedContainerResources{
@@ -131,15 +140,23 @@ func FilterControlledResources(estimation model.Resources, controlledResources [
 
 // CreatePodResourceRecommender take the config info, returns the primary recommender.
 func CreatePodResourceRecommender(cpuHistogramMaxValue, memoryHistogramMaxValue float64, recommenderInterval time.Duration, cpuLastSamplesN, memoryLastSamplesN int, isML bool) PodResourceRecommender {
+	oomPostProcessor := NewOOMPostProcessor()
+
 	if isML {
 		targetEstimator := NewMLEstimator(cpuLastSamplesN, memoryLastSamplesN)
-		return &podResourceRecommender{targetEstimator}
+		return &podResourceRecommender{
+			targetEstimator:  targetEstimator,
+			oomPostProcessor: oomPostProcessor,
+		}
 	}
 	// Is Rule
 	targetEstimator := NewAutopilotEstimator(*cpuRecommendPolicy, *memRecommendPolicy, cpuLastSamplesN, memoryLastSamplesN)
 	targetEstimator = WithAutopilotSafetyMargin(cpuHistogramMaxValue, memoryHistogramMaxValue, targetEstimator)
 	targetEstimator = WithAutopilotFluctuationReducer(*fluctuationReducerDuration, recommenderInterval, targetEstimator)
-	return &podResourceRecommender{targetEstimator}
+	return &podResourceRecommender{
+		targetEstimator:  targetEstimator,
+		oomPostProcessor: oomPostProcessor,
+	}
 }
 
 // Discarded in autopilot

@@ -109,6 +109,22 @@ func (m ClusterStateFeederFactory) Make() *clusterStateFeeder {
 	}
 }
 
+func GetNodeMaxAssignable(kubeClient kube_client.Interface) (float64, float64) {
+	nodes, err := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	if len(nodes.Items) > 0 {
+		node := nodes.Items[0]
+		cpuVal := float64(node.Status.Allocatable.Cpu().MilliValue()) / 1000.0
+		memVal := float64(node.Status.Allocatable.Memory().Value())
+		klog.V(3).Infof("Get Node 0 Max Assignable Value: CPU: %v, Memory %v", cpuVal, memVal)
+		return cpuVal, memVal
+	} else {
+		panic("GetNodeMaxAssignable: No nodes found")
+	}
+}
+
 // WatchEvictionEventsWithRetries watches new Events with reason=Evicted and passes them to the observer.
 func WatchEvictionEventsWithRetries(kubeClient kube_client.Interface, observer oom.Observer, namespace string) {
 	go func() {

@@ -74,7 +74,7 @@ var (
 	username            = flag.String("username", "", "The username used in the prometheus server basic auth")
 	password            = flag.String("password", "", "The password used in the prometheus server basic auth")
 	memorySaver         = flag.Bool("memory-saver", false, `If true, only track pods which have an associated VPA`)
-	// external metrics provider config
+	// external metrics provider config 看看能不能用做模拟器
 	useExternalMetrics   = flag.Bool("use-external-metrics", false, "ALPHA.  Use an external metrics provider instead of metrics_server.")
 	externalCpuMetric    = flag.String("external-metrics-cpu-metric", "", "ALPHA.  Metric to use with external metrics provider for CPU usage.")
 	externalMemoryMetric = flag.String("external-metrics-memory-metric", "", "ALPHA.  Metric to use with external metrics provider for memory usage.")
@@ -91,12 +91,12 @@ var (
 	memoryHistogramDecayHalfLife = flag.Duration("ap-memory-histogram-decay-half-life", model.DefaultMemoryHistogramDecayHalfLife, `The amount of time it takes a historical memory usage sample to lose half of its weight. In other words, a fresh usage sample is twice as 'important' as one with age equal to the half life period.`)
 	cpuHistogramDecayHalfLife    = flag.Duration("ap-cpu-histogram-decay-half-life", model.DefaultCPUHistogramDecayHalfLife, `The amount of time it takes a historical CPU usage sample to lose half of its weight.`)
 	// cpuDefaultAggregationDuration = memoryDefaultAggregationDuration = recommenderInterval
-	cpuLastSamplesN           = flag.Int("ap-cpu-histogram-n", model.DefaultLastSamplesN, `N last CPU samples in Autopilot paper`)
-	memoryLastSamplesN        = flag.Int("ap-memory-histogram-n", model.DefaultLastSamplesN, `N last memory samples in Autopilot paper`)
-	cpuHistogramMaxValue      = flag.Float64("ap-cpu-histogram-max", model.DefaultCPUHistogramMaxValue, `CPU End of the last bucket >= this value`)
-	cpuHistogramBucketSize    = flag.Float64("ap-cpu-histogram-bucket", model.DefaultCPUHistogramBucketSize, `CPU per bucket size`)
-	memoryHistogramMaxValue   = flag.Float64("ap-memory-histogram-max", model.DefaultMemoryHistogramMaxValue, `Mem End of the last bucket >= this value`)
-	memoryHistogramBucketSize = flag.Float64("ap-memory-histogram-bucket", model.DefaultMemoryHistogramBucketSize, `Mem per bucket size`)
+	cpuLastSamplesN    = flag.Int("ap-cpu-histogram-n", model.DefaultLastSamplesN, `N last CPU samples in Autopilot paper`)
+	memoryLastSamplesN = flag.Int("ap-memory-histogram-n", model.DefaultLastSamplesN, `N last memory samples in Autopilot paper`)
+	// cpuHistogramMaxValue      = flag.Float64("ap-cpu-histogram-max", model.DefaultCPUHistogramMaxValue, `CPU End of the last bucket >= this value`)
+	cpuHistogramBucketNum = flag.Int("ap-cpu-histogram-bucket-num", model.DefaultCPUHistogramBucketNum, `CPU num of buckets`)
+	// memoryHistogramMaxValue   = flag.Float64("ap-memory-histogram-max", model.DefaultMemoryHistogramMaxValue, `Mem End of the last bucket >= this value`)
+	memoryHistogramBucketNum = flag.Int("ap-memory-histogram-bucket-num", model.DefaultMemoryHistogramBucketNum, `Mem num of buckets`)
 
 	algorithm = flag.String("ap-algorithm", "ml", "Recommend algirithm, currently 'ml' or 'rule'")
 )
@@ -129,14 +129,15 @@ func main() {
 	factory := informers.NewSharedInformerFactoryWithOptions(kubeClient, defaultResyncPeriod, informers.WithNamespace(*vpaObjectNamespace))
 	controllerFetcher := controllerfetcher.NewControllerFetcher(config, kubeClient, factory, scaleCacheEntryFreshnessTime, scaleCacheEntryLifetime, scaleCacheEntryJitterFactor)
 	podLister, oomObserver := input.NewPodListerAndOOMObserver(kubeClient, *vpaObjectNamespace)
-
+	cpuMaxAssignable, memoryMaxAssignable := input.GetNodeMaxAssignable(kubeClient)
+	// 一个deployment最少有两个pod，所以资源上限除以2
 	model.InitializeAggregationsConfig(model.NewAggregationsConfig(*memoryAggregationInterval,
 		*memoryAggregationIntervalCount,
 		*memoryHistogramDecayHalfLife, *cpuHistogramDecayHalfLife,
 		*oomBumpUpRatio, *oomMinBumpUp,
 		*recommenderInterval, *recommenderInterval,
 		*cpuLastSamplesN, *memoryLastSamplesN,
-		*cpuHistogramMaxValue, *cpuHistogramBucketSize, *memoryHistogramMaxValue, *memoryHistogramBucketSize))
+		cpuMaxAssignable/2.0, *cpuHistogramBucketNum, memoryMaxAssignable/2.0, *memoryHistogramBucketNum))
 
 	healthCheck := metrics.NewHealthCheck(*metricsFetcherInterval*5, true)
 	metrics.Initialize(*address, healthCheck)
@@ -191,7 +192,7 @@ func main() {
 		ControllerFetcher:            controllerFetcher,
 		CheckpointWriter:             checkpoint.NewCheckpointWriter(clusterState, vpa_clientset.NewForConfigOrDie(config).AutoscalingV1()),
 		VpaClient:                    vpa_clientset.NewForConfigOrDie(config).AutoscalingV1(),
-		PodResourceRecommender:       logic.CreatePodResourceRecommender(*cpuHistogramMaxValue, *memoryHistogramMaxValue, *recommenderInterval, *cpuLastSamplesN, *memoryLastSamplesN, *algorithm == "ml"),
+		PodResourceRecommender:       logic.CreatePodResourceRecommender(cpuMaxAssignable/2.0, memoryMaxAssignable/2.0, *recommenderInterval, *cpuLastSamplesN, *memoryLastSamplesN, *algorithm == "ml"),
 		RecommendationPostProcessors: postProcessors,
 		CheckpointsGCInterval:        *checkpointsGCInterval,
 		UseCheckpoints:               useCheckpoints,
@@ -245,10 +246,11 @@ func main() {
 
 		recommender.CollectOnce()
 
-		if counter == recommenderRoundLength-1 { // The very end of a recommender round
-			recommender.RecommendOnce()
-			klog.V(3).Info("Recommend Finished.")
-		}
+		// Algorithm run at the end of a round
+		algorithmRun := counter == recommenderRoundLength-1
+		// The very end of a recommender round
+		recommender.RecommendOnce(algorithmRun)
+
 		healthCheck.UpdateLastActivity()
 		counter = (counter + 1) % recommenderRoundLength
 	}

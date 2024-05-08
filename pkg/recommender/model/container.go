@@ -17,7 +17,6 @@ limitations under the License.
 package model
 
 import (
-	"fmt"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -50,7 +49,7 @@ type ContainerState struct {
 	// Start of the latest CPU usage sample that was aggregated. Discard in Autopilot
 	// LastCPUSampleStart time.Time
 	// Max memory usage observed in the current aggregation interval.
-	memoryPeak ResourceAmount
+	memoryRecent ResourceAmount
 	// Max memory usage estimated from an OOM event in the current aggregation interval.
 	oomPeak ResourceAmount
 	// End time of the current memory aggregation interval (not inclusive).
@@ -66,7 +65,8 @@ func NewContainerState(request Resources, aggregator ContainerStateAggregator) *
 	return &ContainerState{
 		Request: request,
 		// LastCPUSampleStart:    time.Time{},
-		WindowEnd: time.Time{},
+		memoryRecent: 0,
+		WindowEnd:    time.Time{},
 		// lastMemorySampleStart: time.Time{},
 		aggregator: aggregator,
 	}
@@ -124,19 +124,22 @@ func (container *ContainerState) observeQualityMetrics(usage ResourceAmount, isO
 
 // GetMaxMemoryPeak returns maximum memory usage in the sample, possibly estimated from OOM
 func (container *ContainerState) GetMaxMemoryPeak() ResourceAmount {
-	return ResourceAmountMax(container.memoryPeak, container.oomPeak)
+	// return ResourceAmountMax(container.memoryPeak, container.oomPeak)
+	panic("not implemented")
 }
 
 func (container *ContainerState) HistogramAggregate(now time.Time) {
 	container.aggregator.HistogramAggregate(now)
 }
 
-func (container *ContainerState) addMemorySample(sample *ContainerUsageSample, isOOM bool) bool {
+func (container *ContainerState) addMemorySample(sample *ContainerUsageSample) bool {
 	if !sample.isValid(ResourceMemory) {
 		return false // Discard invalid, In Autopilot Keep duplicate or out-of-order samples here.
 	}
-	container.observeQualityMetrics(sample.Usage, isOOM, corev1.ResourceMemory)
+	// container.observeQualityMetrics(sample.Usage, isOOM, corev1.ResourceMemory)
 	container.aggregator.AddSample(sample)
+
+	container.memoryRecent = sample.Usage
 
 	// In Autopilot Does not process OOM...
 	// ts := sample.MeasureStart
@@ -196,26 +199,18 @@ func (container *ContainerState) addMemorySample(sample *ContainerUsageSample, i
 }
 
 // RecordOOM adds info regarding OOM event in the model as an artificial memory sample.
-func (container *ContainerState) RecordOOM(timestamp time.Time, requestedMemory ResourceAmount) error {
+func (container *ContainerState) RecordOOM(timestamp time.Time, requestedMemory ResourceAmount) {
 	// Discard old OOM
-	if timestamp.Before(container.WindowEnd.Add(-1 * GetAggregationsConfig().MemoryAggregationInterval)) {
-		return fmt.Errorf("OOM event will be discarded - it is too old (%v)", timestamp)
-	}
+	// if timestamp.Before(container.WindowEnd.Add(-1 * GetAggregationsConfig().MemoryAggregationInterval)) {
+	// 	return fmt.Errorf("OOM event will be discarded - it is too old (%v)", timestamp)
+	// }
 	// Get max of the request and the recent usage-based memory peak.
 	// Omitting oomPeak here to protect against recommendation running too high on subsequent OOMs.
-	memoryUsed := ResourceAmountMax(requestedMemory, container.memoryPeak)
+	// NICO 新逻辑：和最近的分配成功的memory取最大值，然后再bump up
+	memoryUsed := ResourceAmountMax(requestedMemory, container.memoryRecent)
 	memoryNeeded := ResourceAmountMax(memoryUsed+MemoryAmountFromBytes(GetAggregationsConfig().OOMMinBumpUp),
 		ScaleResource(memoryUsed, GetAggregationsConfig().OOMBumpUpRatio))
-
-	oomMemorySample := ContainerUsageSample{
-		MeasureStart: timestamp,
-		Usage:        memoryNeeded,
-		Resource:     ResourceMemory,
-	}
-	if !container.addMemorySample(&oomMemorySample, true) {
-		return fmt.Errorf("adding OOM sample failed")
-	}
-	return nil
+	container.aggregator.AddOOM(memoryNeeded)
 }
 
 // AddSample adds a usage sample to the given ContainerState. Requires samples
@@ -230,7 +225,7 @@ func (container *ContainerState) AddSample(sample *ContainerUsageSample) bool {
 	case ResourceCPU:
 		return container.addCPUSample(sample)
 	case ResourceMemory:
-		return container.addMemorySample(sample, false)
+		return container.addMemorySample(sample)
 	default:
 		return false
 	}

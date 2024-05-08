@@ -17,7 +17,7 @@ spec:
           memory: 1Mi
         maxAllowed:
           cpu: 1000m
-          memory: 600Mi
+          memory: 1500Mi
         controlledResources: ["cpu", "memory"]
   # updatePolicy:
   #   updateMode: "Off"
@@ -49,6 +49,6 @@ spec:
               cpu: 800m
               memory: 600Mi
             limits:
-              cpu: 880m
-              memory: 660Mi
+              cpu: 800m
+              memory: 600Mi
 

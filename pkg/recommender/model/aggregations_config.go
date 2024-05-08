@@ -82,12 +82,12 @@ const (
 	DefaultOOMMinBumpUp float64 = 100 * 1024 * 1024 // Memory is increased by at least 100MB after an OOMKill.
 
 	// Autopilot special
-	DefaultAggregationDuration       = time.Minute * 5
-	DefaultLastSamplesN              = 5
-	DefaultCPUHistogramMaxValue      = 2.0          // In Cores
-	DefaultMemoryHistogramMaxValue   = 1000000000.0 // Assume 1GB, Unit to be confirmed
-	DefaultCPUHistogramBucketSize    = 0.005
-	DefaultMemoryHistogramBucketSize = 2500000.0
+	DefaultAggregationDuration      = time.Minute * 5
+	DefaultLastSamplesN             = 5
+	DefaultCPUHistogramMaxValue     = 2.0          // In Cores
+	DefaultMemoryHistogramMaxValue  = 1000000000.0 // Assume 1GB, Unit to be confirmed
+	DefaultCPUHistogramBucketNum    = 400
+	DefaultMemoryHistogramBucketNum = 400
 )
 
 // GetMemoryAggregationWindowLength returns the total length of the memory usage history aggregated by VPA.
@@ -95,24 +95,24 @@ func (a *AggregationsConfig) GetMemoryAggregationWindowLength() time.Duration {
 	return a.MemoryAggregationInterval * time.Duration(a.MemoryAggregationIntervalCount)
 }
 
-func (a *AggregationsConfig) cpuHistogramOptions(maxValue, bucketSize float64) util.HistogramOptions {
+func (a *AggregationsConfig) cpuHistogramOptions(maxValue float64, bucketNum int) util.HistogramOptions {
 	// CPU histograms use exponential bucketing scheme with the smallest bucket
 	// size of 0.01 core, max of 1000.0 cores and the relative error of HistogramRelativeError.
 	//
 	// When parameters below are changed SupportedCheckpointVersion has to be bumped.
-	options, err := util.NewLinearHistogramOptions(maxValue, bucketSize, epsilon) // Epsilon is unused in Autopilot...
+	options, err := util.NewLinearHistogramOptions(maxValue, bucketNum, epsilon) // Epsilon is unused in Autopilot...
 	if err != nil {
 		panic("Invalid CPU histogram options") // Should not happen.
 	}
 	return options
 }
 
-func (a *AggregationsConfig) memoryHistogramOptions(maxValue, bucketSize float64) util.HistogramOptions {
+func (a *AggregationsConfig) memoryHistogramOptions(maxValue float64, bucketNum int) util.HistogramOptions {
 	// Memory histograms use exponential bucketing scheme with the smallest
 	// bucket size of 10MB, max of 1TB and the relative error of HistogramRelativeError.
 	//
 	// When parameters below are changed SupportedCheckpointVersion has to be bumped.
-	options, err := util.NewLinearHistogramOptions(maxValue, bucketSize, epsilon) // Epsilon is unused in Autopilot...
+	options, err := util.NewLinearHistogramOptions(maxValue, bucketNum, epsilon) // Epsilon is unused in Autopilot...
 	if err != nil {
 		panic("Invalid memory histogram options") // Should not happen.
 	}
@@ -126,7 +126,7 @@ func NewAggregationsConfig(memoryAggregationInterval time.Duration,
 	oomBumpUpRatio float64, oomMinBumpUp float64,
 	cpuDefaultAggregationDuration, memoryDefaultAggregationDuration time.Duration,
 	cpuLastSamplesN, memoryLastSamplesN int,
-	cpuHistogramMaxValue, cpuHistogramBucketSize, memoryHistogramMaxValue, memoryHistogramBucketSize float64) *AggregationsConfig {
+	cpuHistogramMaxValue float64, cpuHistogramBucketNum int, memoryHistogramMaxValue float64, memoryHistogramBucketNum int) *AggregationsConfig {
 	a := &AggregationsConfig{
 		MemoryAggregationInterval:      memoryAggregationInterval,
 		MemoryAggregationIntervalCount: memoryAggregationIntervalCount,
@@ -141,8 +141,9 @@ func NewAggregationsConfig(memoryAggregationInterval time.Duration,
 		CPULastSamplesN:                  cpuLastSamplesN,
 		MemoryLastSamplesN:               memoryLastSamplesN,
 	}
-	a.CPUHistogramOptions = a.cpuHistogramOptions(cpuHistogramMaxValue, cpuHistogramBucketSize)
-	a.MemoryHistogramOptions = a.memoryHistogramOptions(memoryHistogramMaxValue, memoryHistogramBucketSize)
+	// Calculate per-histogram size and set
+	a.CPUHistogramOptions = a.cpuHistogramOptions(cpuHistogramMaxValue, cpuHistogramBucketNum)
+	a.MemoryHistogramOptions = a.memoryHistogramOptions(memoryHistogramMaxValue, memoryHistogramBucketNum)
 	return a
 }
 
@@ -157,7 +158,7 @@ func GetAggregationsConfig() *AggregationsConfig {
 			DefaultOOMBumpUpRatio, DefaultOOMMinBumpUp,
 			DefaultAggregationDuration, DefaultAggregationDuration,
 			DefaultLastSamplesN, DefaultLastSamplesN,
-			DefaultCPUHistogramMaxValue, DefaultCPUHistogramBucketSize, DefaultMemoryHistogramMaxValue, DefaultMemoryHistogramBucketSize,
+			DefaultCPUHistogramMaxValue, DefaultCPUHistogramBucketNum, DefaultMemoryHistogramMaxValue, DefaultMemoryHistogramBucketNum,
 		)
 	}
 
