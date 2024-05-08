@@ -153,6 +153,7 @@ func main() {
 
 	// CappingPostProcessor, should always come in the last position for post-processing
 	postProcessors = append(postProcessors, &routines.CappingPostProcessor{})
+
 	var source input_metrics.PodMetricsLister
 	if *useExternalMetrics {
 		resourceMetrics := map[apiv1.ResourceName]string{}

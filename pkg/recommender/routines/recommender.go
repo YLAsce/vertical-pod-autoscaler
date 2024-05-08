@@ -90,8 +90,6 @@ func (r *recommender) UpdateVPAs(algorithmRun bool) {
 	if !(r.clusterState.OOMToDo || algorithmRun) {
 		return
 	}
-	// Reset the state mark, because if there is OOM, this OOM event MUST be solved below
-	r.clusterState.OOMToDo = false
 
 	for _, observedVpa := range r.clusterState.ObservedVpas {
 		key := model.VpaID{
@@ -155,6 +153,9 @@ func (r *recommender) UpdateVPAs(algorithmRun bool) {
 				"Cannot update VPA %v/%v object. Reason: %+v", vpa.ID.Namespace, vpa.ID.VpaName, err)
 		}
 	}
+
+	// Reset the state mark, because if there is OOM, this OOM event MUST be solved above
+	r.clusterState.OOMToDo = false
 }
 
 func (r *recommender) MaintainCheckpoints(ctx context.Context, minCheckpointsPerRun int) {

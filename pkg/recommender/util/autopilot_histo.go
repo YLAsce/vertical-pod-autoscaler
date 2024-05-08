@@ -7,6 +7,7 @@ import (
 	"time"
 
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
+	"k8s.io/klog/v2"
 )
 
 type AutopilotAddSampleMode string
@@ -388,7 +389,7 @@ func (ah *autopilotHisto) Aggregate(operationTime time.Time) {
 		panic("There should be at most 1 sample in the max mode")
 	}
 	ah.prevMaxBucket = 0
-	// klog.V(4).Infof("Aggregated %v samples in %v seconds", totalCurrentSamples, ah.aggregationDuration.Seconds())
+	klog.V(4).Infof("Aggregated %v samples in %v seconds", totalCurrentSamples, ah.aggregationDuration.Seconds())
 }
 
 func (ah *autopilotHisto) String() string {

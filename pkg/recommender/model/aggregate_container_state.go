@@ -175,6 +175,10 @@ func (a *AggregateContainerState) MergeContainerState(other *AggregateContainerS
 	a.AggregateMemoryUsage.Merge(other.AggregateMemoryUsage)
 	// klog.V(4).Infof("NICONICO MergeMerge2 %s", a.AggregateCPUUsage.String())
 
+	if other.OOMAmountToDo > a.OOMAmountToDo {
+		a.OOMAmountToDo = other.OOMAmountToDo
+	}
+
 	a.MLRecommenderCPU.Merge(other.MLRecommenderCPU)
 	a.MLRecommenderMemory.Merge(other.MLRecommenderMemory)
 
