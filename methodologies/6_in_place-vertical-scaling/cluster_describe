@@ -1,0 +1,46 @@
+ID                ba1bce4d-66bf-4959-90cf-d5f09fa70b9d
+Type              kapsule
+Name              k8s-mlintra
+Status            ready
+Version           1.29.1
+Region            fr-par
+OrganizationID    59a14bfb-e3a7-4428-81ac-41cb7fb21965
+ProjectID         08675cd3-c769-4d58-994f-896c6c5348a4
+Cni               cilium
+Description       -
+ClusterURL        https://ba1bce4d-66bf-4959-90cf-d5f09fa70b9d.api.k8s.fr-par.scw.cloud:6443
+DNSWildcard       *.ba1bce4d-66bf-4959-90cf-d5f09fa70b9d.nodes.k8s.fr-par.scw.cloud
+CreatedAt         3 weeks ago
+UpdatedAt         3 minutes ago
+UpgradeAvailable  false
+FeatureGates.0    InPlacePodVerticalScaling
+PrivateNetworkID  c932c5fe-09c9-4393-a2d7-23cf1a975399
+CommitmentEndsAt  3 weeks ago
+
+Autoscaler configuration:
+ScaleDownDisabled              false
+ScaleDownDelayAfterAdd         10m
+Estimator                      binpacking
+Expander                       random
+IgnoreDaemonsetsUtilization    false
+BalanceSimilarNodeGroups       false
+ExpendablePodsPriorityCutoff   -10
+ScaleDownUnneededTime          10m
+ScaleDownUtilizationThreshold  0.5
+MaxGracefulTerminationSec      600
+
+Auto-upgrade settings:
+Enabled                      false
+MaintenanceWindow.StartHour  0
+MaintenanceWindow.Day        any
+
+Open ID Connect configuration:
+IssuerURL       -
+ClientID        -
+UsernameClaim   -
+UsernamePrefix  -
+GroupsPrefix    -
+
+Pools:
+ID                                    NAME     STATUS  VERSION  NODE TYPE    MIN SIZE  SIZE  MAX SIZE  AUTOSCALING  AUTOHEALING
+630b5e01-cf39-4819-b433-99fe4387ef13  default  ready   1.29.1   play2_micro  2         2     2         false        true
