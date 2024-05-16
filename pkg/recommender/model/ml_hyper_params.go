@@ -25,7 +25,10 @@ var (
 	numMmMemory = flag.Int("ap-ml-memory-num-mm", 100, "Number of different models = num-dm * num-mm")
 	maxMmMemory = flag.Float64("ap-ml-memory-max-mm", 100, "Number of different models = num-dm * num-mm")
 )
+<<<<<<< HEAD
 
 func TestGetParam() int {
 	return *numDmCPU
 }
+=======
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724

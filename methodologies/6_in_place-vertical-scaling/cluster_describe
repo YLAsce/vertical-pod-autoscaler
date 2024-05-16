@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 scw k8s cluster get ba1bce4d-66bf-4959-90cf-d5f09fa70b9d
 
 
+=======
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 ID                ba1bce4d-66bf-4959-90cf-d5f09fa70b9d
 Type              kapsule
 Name              k8s-mlintra

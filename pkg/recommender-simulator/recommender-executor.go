@@ -1,13 +1,17 @@
 package main
 
 import (
+<<<<<<< HEAD
 	"flag"
 	"time"
 
+=======
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/logic"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/model"
 )
 
+<<<<<<< HEAD
 const mockContainerName = "container"
 
 var (
@@ -29,11 +33,14 @@ var (
 	isML = flag.Bool("ap-algorithm-ml", true, "Boolean value, is ML? or rule based")
 )
 
+=======
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 type recommenderExecutor struct {
 	podResourceRecommender  logic.PodResourceRecommender
 	aggregateContainerState *model.AggregateContainerState
 }
 
+<<<<<<< HEAD
 func NewRecommenderExecutor() *recommenderExecutor {
 	model.InitializeAggregationsConfig(model.NewAggregationsConfig(*recommenderInterval,
 		model.DefaultMemoryAggregationIntervalCount,
@@ -78,3 +85,6 @@ func (r *recommenderExecutor) Recommend(algorithmRun bool) (logic.RecommendedCon
 	ret, ok := recommendedResources[mockContainerName]
 	return ret, ok
 }
+=======
+func NewMemoryRecommender
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724

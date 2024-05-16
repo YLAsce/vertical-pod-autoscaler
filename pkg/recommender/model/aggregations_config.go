@@ -153,7 +153,10 @@ var aggregationsConfig *AggregationsConfig
 // GetAggregationsConfig gets the aggregations config. Initializes to default values if not initialized already.
 func GetAggregationsConfig() *AggregationsConfig {
 	if aggregationsConfig == nil {
+<<<<<<< HEAD
 		klog.V(4).Infof("Aggregation config Not initialized!")
+=======
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 		aggregationsConfig = NewAggregationsConfig(DefaultMemoryAggregationInterval,
 			DefaultMemoryAggregationIntervalCount,
 			DefaultMemoryHistogramDecayHalfLife, DefaultCPUHistogramDecayHalfLife,

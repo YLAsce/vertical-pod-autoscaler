@@ -16,15 +16,26 @@ spec:
         runAsUser: 0
       containers:
         - name: workload-test
+<<<<<<< HEAD
           image: docker.io/yuqiang302/workload:test-oom-nocpulimit
+=======
+          image: docker.io/yuqiang302/workload:test-oom
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
           command: ["./stress_generator", "workload-test"]
           securityContext:
             privileged: true
           resources:
             requests:
               cpu: 200m
+<<<<<<< HEAD
               memory: 500Mi
             limits:
               cpu: 300m
               memory: 500Mi
+=======
+              memory: 200Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 

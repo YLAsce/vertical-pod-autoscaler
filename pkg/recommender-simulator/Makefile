@@ -11,6 +11,7 @@ build:
 	CGO_ENABLED=0 LD_FLAGS=-s go build -C pkg/recommender-simulator -mod vendor -o recommender-simulator
 	cp ${GOPATH}/src/k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender-simulator/recommender-simulator bin/
 
+<<<<<<< HEAD
 run-rule:
 	bin/recommender-simulator \
 		-ap-algorithm-ml=false \
@@ -92,3 +93,5 @@ run-ml:
 		-metrics-summary-file=metrics-summary-ml-exambest1 \
 		-metrics-summary-ignore-head=1800 \
 		-memory-limit-request-ratio=1.04
+=======
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724

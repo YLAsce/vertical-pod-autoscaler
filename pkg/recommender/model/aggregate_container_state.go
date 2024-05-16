@@ -202,7 +202,11 @@ func NewAggregateContainerState() *AggregateContainerState {
 		AggregateMemoryUsage: agMemory,
 		MLRecommenderCPU:     NewCPURecommender(agCPU),
 		MLRecommenderMemory:  NewMemoryRecommender(agMemory),
+<<<<<<< HEAD
 		CreationTime:         time.Now(), //这个时间只是用来搞garbage collection的，simulator中随便取值，不会用到
+=======
+		CreationTime:         time.Now(),
+>>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 	}
 }
 
