@@ -1,0 +1,54 @@
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: workload-google-trace-@@@@@-vpa
+spec:
+  recommenders: 
+    - name: @@@@@
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: workload-google-trace-@@@@@
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        minAllowed:
+          cpu: 10m
+          memory: 1Mi
+        maxAllowed:
+          cpu: 1500m
+          memory: 1500Mi
+        controlledResources: ["cpu", "memory"]
+  # updatePolicy:
+  #   updateMode: "Off"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-google-trace-@@@@@
+spec:
+  selector:
+    matchLabels:
+      app: workload-google-trace-@@@@@
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: workload-google-trace-@@@@@
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: workload-google-trace-@@@@@
+          image: docker.io/yuqiang302/workload-google-trace:dev-v1
+          command: ["./stress_generator", "workload-google-trace-@@@@@"]
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 800m
+              memory: 600Mi
+            limits:
+              cpu: 880m
+              # memory: 660Mi
+

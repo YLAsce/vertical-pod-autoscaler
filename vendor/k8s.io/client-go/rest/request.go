@@ -1061,7 +1061,7 @@ func (r *Request) request(ctx context.Context, fn func(*http.Request, *http.Resp
 func (r *Request) Do(ctx context.Context) Result {
 	var result Result
 	err := r.request(ctx, func(req *http.Request, resp *http.Response) {
-		klog.V(4).Infof("NICO---%+v, %+v", *req, *resp)
+		// klog.V(4).Infof("NICO---%+v, %+v", *req, *resp)
 		result = r.transformResponse(resp, req)
 	})
 	if err != nil {

@@ -1,0 +1,82 @@
+https://kubernetes.io/blog/2023/05/12/in-place-pod-resize-alpha/
+https://github.com/scaleway/scaleway-cli/blob/master/docs/commands/k8s.md#update-a-cluster
+
+
+679f8314-8696-4c52-9fc5-3c17f51a6778
+secret key存在这里了
+
+
+k patch pod workload-test-c45b86bc9-cnq2n --patch '{"spec": {"containers": [{"name":"workload-test", "resources": {"requests": {"cpu": "600m"}, "limits": {"cpu": "600m"}}}]}}'
+启动之后k describe pod 中的数据修改了，但是实际使用没有增加。。。而且大概30秒之后（不准确），restart了一次。
+NAME                                  READY   STATUS    RESTARTS      AGE
+workload-autopilot-79c45bbdbd-rj4tg   1/1     Running   0             8m40s
+workload-autopilot-79c45bbdbd-zfhhl   1/1     Running   0             7m40s
+workload-ml-75b455b956-f6w76          1/1     Running   0             3m40s
+workload-ml-75b455b956-lt77b          1/1     Running   0             2m40s
+workload-test-c45b86bc9-cnq2n         1/1     Running   2 (24s ago)   17m
+workload-test-c45b86bc9-nbnft         1/1     Running   0             17m
+workload-yuqiang-9fd875c69-7wnqj      1/1     Running   0             35m
+workload-yuqiang-9fd875c69-tfwjt      1/1     Running   0             36m
+
+kubectl get --raw /apis/metrics.k8s.io/v1beta1/namespaces/default/pods/workload-test-c45b86bc9-cnq2n
+{"kind":"PodMetrics","apiVersion":"metrics.k8s.io/v1beta1","metadata":{"name":"workload-test-c45b86bc9-cnq2n","namespace":"default","creationTimestamp":"2024-05-09T09:46:50Z","labels":{"app":"workload-test","pod-template-hash":"c45b86bc9"}},"timestamp":"2024-05-09T09:46:44Z","window":"11.726s","containers":[{"name":"workload-test","usage":{"cpu":"200047415n","memory":"394808Ki"}}]}
+
+"resources": {
+    "limits": {
+    "cpu": "800m",
+    "memory": "500Mi"
+    },
+    "requests": {
+    "cpu": "800m",
+    "memory": "500Mi"
+    }
+},
+
+
+可能原因： 内部的cgroups限制？取消看看 取消了也没用
+
+CPU的limit=request时：cgroups位置：/sys/fs/cgroup/kubepods.slice/kubepods-pod76d6a11c_921e_4652_8c31
+_484ca0fdc694.slice/cri-containerd-d23bb0abfc6a4f2a19dc898e50817dd3acdf6de372f486b8d5ff3cd129bea159.scope
+
+CPU往大了调节：没用
+CPU往小了调节： OK！
+在设置request和limit相等的情况下，小于初始值的修改可以生效（cgroups验证过：limit）
+设置300m core时，limit:30000 weight:12
+设置150m core时，limit:15000 weight: 6
+设置250m core时，limit:25000 weight: 10
+可以看到在设置大于200m时，cgroups的修改生效了，但是负载使用没有增加，仍然是200m
+kubectl get --raw /apis/metrics.k8s.io/v1beta1/namespaces/default/pods/workload-test-64996c6f5d-cnmr8
+{"kind":"PodMetrics","apiVersion":"metrics.k8s.io/v1beta1","metadata":{"name":"workload-test-64996c6f5d-cnmr8","namespace":"default","creationTimestamp":"2024-05-10T13:18:02Z","labels":{"app":"workload-test","pod-template-hash":"64996c6f5d"}},"timestamp":"2024-05-10T13:17:37Z","window":"18.444s","containers":[{"name":"workload-test","usage":{"cpu":"199146009n","memory":"395632Ki"}}]}
+
+
+https://arthurchiao.art/blog/k8s-cgroup-zh/
+Guaranteed: requests == limits, requests != 0， 即 正常需求 == 最大需求，换言之 spec 要求的资源量必须得到保证，少一点都不行；
+Burstable: requests < limits, requests != 0， 即 正常需求 < 最大需求，资源使用量可以有一定弹性空间；
+BestEffort: request == limits == 0， 创建 pod 时不指定 requests/limits 就等同于设置为 0，kubelet 对这种 pod 将尽力而为；有好处也有坏处：
+
+调节到request！=limit时：Graranteed调节到burstable时，报错The Pod "workload-test-64996c6f5d-cnmr8" is invalid: metadata: Invalid value: "Guaranteed": Pod QoS is immutable
+不能调节到burstable
+
+如果初始状态就是request!=limit时：
+设置request=200 limit=300, 初始使用量300
+调节之后不会重启
+位置：/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-b
+urstable-pod2c4233c4_a67a_4911_bad5_8e2a3e9cf74a.slice/cri-containerd-445a8e4e1f9016cc0930265518ea220903acf702273345052044ff71f14065c3.scope
+设置request=300 limit=400时，limit=40000 weight=12(ok)
+使用量400，ok！
+设置request=200, limit=250时，使用量 250 ok
+同样也不能改成guaranteed
+
+结论：guaranteed模式下，只能改小，不能改大。burstable模式下，一切都好用
+
+然后和没开config map的版本做比较
+没开config map根本不能patch。。。
+
+
+yiannis方案：设置CPU request=recommendation，不设置CPU limit
+设置memory limit=recommendation，设置memory request=limit*0.95
+
+Request: 容器使用的最小资源需求，作为容器调度时资源分配的判断依赖。只有当节点上可分配资源量>=容器资源请求数时才允许将容器调度到该节点。但Request参数不限制容器的最大可使用资源。
+Limit: 容器能使用资源的资源的最大值，设置为0表示使用资源无上限。
+最终方案：CPU不设置limit，request=recommendation
+Memory设置request=recommendation, limit=request*1.05

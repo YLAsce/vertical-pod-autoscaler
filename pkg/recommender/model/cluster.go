@@ -25,7 +25,7 @@ import (
 	"k8s.io/klog/v2"
 
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
-	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
+	controllerfetcher "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
 	vpa_utils "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/utils/vpa"
 )
 
@@ -50,6 +50,9 @@ type ClusterState struct {
 	EmptyVPAs map[VpaID]time.Time
 	// Observed VPAs. Used to check if there are updates needed.
 	ObservedVpas []*vpa_types.VerticalPodAutoscaler
+
+	// If the cluster observed an OOM to process
+	OOMToDo bool
 
 	// All container aggregations where the usage samples are stored.
 	aggregateStateMap aggregateContainerStatesMap
@@ -102,6 +105,7 @@ func NewClusterState(gcInterval time.Duration) *ClusterState {
 		Pods:                          make(map[PodID]*PodState),
 		Vpas:                          make(map[VpaID]*Vpa),
 		EmptyVPAs:                     make(map[VpaID]time.Time),
+		OOMToDo:                       false,
 		aggregateStateMap:             make(aggregateContainerStatesMap),
 		labelSetMap:                   make(labelSetMap),
 		lastAggregateContainerStateGC: time.Unix(0, 0),
@@ -210,6 +214,9 @@ func (cluster *ClusterState) AddOrUpdateContainer(containerID ContainerID, reque
 // object. Requires the container as well as the parent pod to be added to the
 // ClusterState first. Otherwise an error is returned.
 func (cluster *ClusterState) AddSample(sample *ContainerUsageSampleWithKey) error {
+	// if sample.Container.ContainerName == "workload" {
+	// 	klog.V(4).Infof("NICO ADD SAMPLE in %+v", *sample)
+	// }
 	pod, podExists := cluster.Pods[sample.Container.PodID]
 	if !podExists {
 		return NewKeyError(sample.Container.PodID)
@@ -221,7 +228,23 @@ func (cluster *ClusterState) AddSample(sample *ContainerUsageSampleWithKey) erro
 	if !containerState.AddSample(&sample.ContainerUsageSample) {
 		return fmt.Errorf("sample discarded (invalid or out of order)")
 	}
+	// if sample.Container.ContainerName == "workload" {
+	// 	klog.V(4).Infof("NICO ADD SAMPLE after %s: %v", sample.Container.ContainerName, sample.Usage)
+	// }
 	return nil
+}
+
+func (cluster *ClusterState) HistogramAggregate(now time.Time) {
+	for _, aggregation := range cluster.aggregateStateMap {
+		// klog.V(4).Infof("NICO Start Aggregate %+v", name)
+		aggregation.HistogramAggregate(now)
+	}
+	// NICO Below is not correct!! The containers with the same name in different pods will be calculated twice...
+	// for _, pod := range cluster.Pods {
+	// 	for _, container := range pod.Containers {
+	// 		container.HistogramAggregate(now)
+	// 	}
+	// }
 }
 
 // RecordOOM adds info regarding OOM event in the model as an artificial memory sample.
@@ -234,10 +257,10 @@ func (cluster *ClusterState) RecordOOM(containerID ContainerID, timestamp time.T
 	if !containerExists {
 		return NewKeyError(containerID.ContainerName)
 	}
-	err := containerState.RecordOOM(timestamp, requestedMemory)
-	if err != nil {
-		return fmt.Errorf("error while recording OOM for %v, Reason: %v", containerID, err)
-	}
+
+	containerState.RecordOOM(timestamp, requestedMemory)
+	klog.V(4).Infof("NICO Cluster recorded OOM event")
+	cluster.OOMToDo = true
 	return nil
 }
 

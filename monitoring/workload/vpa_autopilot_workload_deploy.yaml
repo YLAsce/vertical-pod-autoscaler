@@ -1,0 +1,54 @@
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: workload-autopilot-vpa
+spec:
+  recommenders: 
+    - name: autopilot
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: workload-autopilot
+  resourcePolicy:
+    containerPolicies:
+      - containerName: '*'
+        minAllowed:
+          cpu: 10m
+          memory: 1Mi
+        maxAllowed:
+          cpu: 1000m
+          memory: 1500Mi
+        controlledResources: ["cpu", "memory"]
+  # updatePolicy:
+  #   updateMode: "Off"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workload-autopilot
+spec:
+  selector:
+    matchLabels:
+      app: workload-autopilot
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: workload-autopilot
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: workload-autopilot
+          image: docker.io/yuqiang302/workload:dev-v11
+          command: ["./stress_generator", "workload-autopilot"]
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 800m
+              memory: 600Mi
+            limits:
+              cpu: 800m
+              memory: 600Mi
+

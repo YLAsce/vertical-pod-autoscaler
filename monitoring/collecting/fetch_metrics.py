@@ -9,7 +9,7 @@ import time
 import copy
 
 subscription_id = "cbd332d2-cbb7-4189-bf84-48155e558134"
-prometheus_addr = "108.141.80.121"
+prometheus_addr = "195.154.73.222"
 deployment_name = "workload"
 namespace = "default"
 frequency = 1 # 1min

@@ -23,6 +23,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	vpa_types "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/apis/autoscaling.k8s.io/v1"
+	"k8s.io/klog/v2"
 )
 
 var (
@@ -63,14 +64,17 @@ func (h *decayingHistogram) Percentile(percentile float64) float64 {
 }
 
 func (h *decayingHistogram) AddSample(value float64, weight float64, time time.Time) {
+	klog.V(4).Infof("NICONI AddSample %+v %+v %+v", value, weight, time)
 	h.histogram.AddSample(value, weight*h.decayFactor(time), time)
 }
 
 func (h *decayingHistogram) SubtractSample(value float64, weight float64, time time.Time) {
+	klog.V(4).Infof("NICONI SUbtractSample %+v %+v %+v", value, weight, time)
 	h.histogram.SubtractSample(value, weight*h.decayFactor(time), time)
 }
 
 func (h *decayingHistogram) Merge(other Histogram) {
+	klog.V(4).Infof("NICONI Merge %+v", other)
 	o := other.(*decayingHistogram)
 	if h.halfLife != o.halfLife {
 		panic("can't merge decaying histograms with different half life periods")
@@ -85,6 +89,7 @@ func (h *decayingHistogram) Merge(other Histogram) {
 }
 
 func (h *decayingHistogram) Equals(other Histogram) bool {
+	klog.V(4).Infof("NICONI Equals %+v", other)
 	h2, typesMatch := (other).(*decayingHistogram)
 	return typesMatch && h.halfLife == h2.halfLife && h.referenceTimestamp == h2.referenceTimestamp && h.histogram.Equals(&h2.histogram)
 }
@@ -119,6 +124,7 @@ func (h *decayingHistogram) decayFactor(timestamp time.Time) float64 {
 }
 
 func (h *decayingHistogram) SaveToChekpoint() (*vpa_types.HistogramCheckpoint, error) {
+	klog.V(4).Infof("NICONI SaveToCheckpoint")
 	checkpoint, err := h.histogram.SaveToChekpoint()
 	if err != nil {
 		return checkpoint, err
@@ -128,6 +134,7 @@ func (h *decayingHistogram) SaveToChekpoint() (*vpa_types.HistogramCheckpoint, e
 }
 
 func (h *decayingHistogram) LoadFromCheckpoint(checkpoint *vpa_types.HistogramCheckpoint) error {
+	klog.V(4).Infof("NICONI LoadFromCheckpoint %+v", checkpoint)
 	err := h.histogram.LoadFromCheckpoint(checkpoint)
 	if err != nil {
 		return err

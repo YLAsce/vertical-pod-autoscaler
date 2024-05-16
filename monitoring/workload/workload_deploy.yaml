@@ -1,44 +1,47 @@
 apiVersion: "autoscaling.k8s.io/v1"
 kind: VerticalPodAutoscaler
 metadata:
-  name: workload-vpa
+  name: workload-@@@@@-vpa
 spec:
   recommenders: 
-    - name: yuqiang
+    - name: @@@@@
   targetRef:
     apiVersion: "apps/v1"
     kind: Deployment
-    name: workload
+    name: workload-@@@@@
   resourcePolicy:
     containerPolicies:
       - containerName: '*'
         minAllowed:
-          cpu: 100m
+          cpu: 10m
           memory: 1Mi
         maxAllowed:
           cpu: 1000m
-          memory: 500Mi
+          memory: 1500Mi
         controlledResources: ["cpu", "memory"]
+  # updatePolicy:
+  #   updateMode: "Off"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: workload
+  name: workload-@@@@@
 spec:
   selector:
     matchLabels:
-      app: workload
+      app: workload-@@@@@
   replicas: 2
   template:
     metadata:
       labels:
-        app: workload
+        app: workload-@@@@@
     spec:
       securityContext:
         runAsUser: 0
       containers:
-        - name: workload
-          image: docker.io/yuqiang302/workload:dev-ubuntu-awsv1
+        - name: workload-@@@@@
+          image: docker.io/yuqiang302/workload:dev-v11
+          command: ["./stress_generator", "workload-@@@@@"]
           securityContext:
             privileged: true
           resources:
@@ -46,6 +49,6 @@ spec:
               cpu: 800m
               memory: 600Mi
             limits:
-              cpu: 1000m
-              memory: 800Mi
+              cpu: 880m
+              memory: 600Mi
 

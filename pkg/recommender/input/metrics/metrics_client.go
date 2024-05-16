@@ -18,7 +18,6 @@ package metrics
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	k8sapiv1 "k8s.io/api/core/v1"
@@ -72,9 +71,9 @@ func (c *metricsClient) GetContainersMetrics() ([]*ContainerMetricsSnapshot, err
 	if err != nil {
 		return nil, err
 	}
-	klog.V(3).Infof("%v podMetrics retrieved for all namespaces", len(podMetricsList.Items))
+	klog.V(5).Infof("%v podMetrics retrieved for all namespaces", len(podMetricsList.Items))
 	for _, podMetrics := range podMetricsList.Items {
-		klog.V(3).Infof("[NICO]    %s", fmt.Sprintf("%+v", podMetrics))
+		// klog.V(3).Infof("[NICO]    %s", fmt.Sprintf("%+v", podMetrics))
 		metricsSnapshotsForPod := createContainerMetricsSnapshots(podMetrics)
 		metricsSnapshots = append(metricsSnapshots, metricsSnapshotsForPod...)
 	}
@@ -108,7 +107,7 @@ func newContainerMetricsSnapshot(containerMetrics v1beta1.ContainerMetrics, podM
 func calculateUsage(containerUsage k8sapiv1.ResourceList) model.Resources {
 	cpuQuantity := containerUsage[k8sapiv1.ResourceCPU]
 	cpuMillicores := cpuQuantity.MilliValue()
-	klog.V(4).Infof("[NICO]CPU usage: %+v, %+v", cpuQuantity, cpuMillicores)
+	// klog.V(4).Infof("[NICO]CPU usage: %+v, %+v", cpuQuantity, cpuMillicores)
 
 	memoryQuantity := containerUsage[k8sapiv1.ResourceMemory]
 	memoryBytes := memoryQuantity.Value()

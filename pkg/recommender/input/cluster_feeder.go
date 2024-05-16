@@ -42,7 +42,7 @@ import (
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/input/spec"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/model"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target"
-	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
+	controllerfetcher "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
 	metrics_recommender "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/utils/metrics/recommender"
 )
 
@@ -69,6 +69,9 @@ type ClusterStateFeeder interface {
 
 	// LoadRealTimeMetrics updates clusterState with current usage metrics of containers.
 	LoadRealTimeMetrics()
+
+	// Trigger the aggregate window. Used in Autopilot
+	HistogramAggregate(now time.Time)
 
 	// GarbageCollectCheckpoints removes historical checkpoints that don't have a matching VPA.
 	GarbageCollectCheckpoints()
@@ -106,6 +109,22 @@ func (m ClusterStateFeederFactory) Make() *clusterStateFeeder {
 	}
 }
 
+func GetNodeMaxAssignable(kubeClient kube_client.Interface) (float64, float64) {
+	nodes, err := kubeClient.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	if len(nodes.Items) > 0 {
+		node := nodes.Items[0]
+		cpuVal := float64(node.Status.Allocatable.Cpu().MilliValue()) / 1000.0
+		memVal := float64(node.Status.Allocatable.Memory().Value())
+		klog.V(3).Infof("Get Node 0 Max Assignable Value: CPU: %v, Memory %v", cpuVal, memVal)
+		return cpuVal, memVal
+	} else {
+		panic("GetNodeMaxAssignable: No nodes found")
+	}
+}
+
 // WatchEvictionEventsWithRetries watches new Events with reason=Evicted and passes them to the observer.
 func WatchEvictionEventsWithRetries(kubeClient kube_client.Interface, observer oom.Observer, namespace string) {
 	go func() {
@@ -114,6 +133,7 @@ func WatchEvictionEventsWithRetries(kubeClient kube_client.Interface, observer o
 		}
 
 		watchEvictionEventsOnce := func() {
+			//NICO 这里还能接收eviction events，神奇
 			watchInterface, err := kubeClient.CoreV1().Events(namespace).Watch(context.TODO(), options)
 			if err != nil {
 				klog.Errorf("Cannot initialize watching events. Reason %v", err)
@@ -138,6 +158,7 @@ func watchEvictionEvents(evictedEventChan <-chan watch.Event, observer oom.Obser
 			klog.V(3).Infof("Eviction event chan closed")
 			return
 		}
+		klog.V(4).Infof("NICO Recv OOM: %+v", evictedEvent)
 		if evictedEvent.Type == watch.Added {
 			evictedEvent, ok := evictedEvent.Object.(*apiv1.Event)
 			if !ok {
@@ -438,7 +459,9 @@ func (feeder *clusterStateFeeder) LoadRealTimeMetrics() {
 			}
 		}
 	}
-	klog.V(3).Infof("ClusterSpec fed with #%v ContainerUsageSamples for #%v containers. Dropped #%v samples.", sampleCount, len(containersMetrics), droppedSampleCount)
+	klog.V(5).Infof("ClusterSpec fed with #%v ContainerUsageSamples for #%v containers. Dropped #%v samples.", sampleCount, len(containersMetrics), droppedSampleCount)
+
+	// NICO update: record OOM in Autopilot
 Loop:
 	for {
 		select {
@@ -452,6 +475,10 @@ Loop:
 		}
 	}
 	metrics_recommender.RecordAggregateContainerStatesCount(feeder.clusterState.StateMapSize())
+}
+
+func (feeder *clusterStateFeeder) HistogramAggregate(now time.Time) {
+	feeder.clusterState.HistogramAggregate(now)
 }
 
 func (feeder *clusterStateFeeder) matchesVPA(pod *spec.BasicPodSpec) bool {

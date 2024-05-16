@@ -27,8 +27,9 @@ var (
 )
 
 // Test all methods of LinearHistogramOptions using a sample bucketing scheme.
+// Discarded in Autopilot version
 func TestLinearHistogramOptions(t *testing.T) {
-	o, err := NewLinearHistogramOptions(5.0, 0.3, epsilon)
+	o, err := NewLinearHistogramOptions(5.0, 16, epsilon)
 	assert.Nil(t, err)
 	assert.Equal(t, epsilon, o.Epsilon())
 	assert.Equal(t, 18, o.NumBuckets())

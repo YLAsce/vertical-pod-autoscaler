@@ -1,11 +1,12 @@
 .PHONY: all
 all: docker-build docker-push uptag
 
-TAG?=dev-ubuntu-awsv1
+TAG?=dev-v12
 REGISTRY?=yuqiang302
 COMPONENT=workload
 
 ALL_ARCHITECTURES?=amd64  # add arm32v7 arm64v8 but extra string processing needed
+VPA ?= 
 
 .PHONY: docker-build
 docker-build: $(addprefix docker-build-,$(ALL_ARCHITECTURES))
@@ -47,10 +48,30 @@ push-multi-arch:
 
 .PHONY: uptag
 uptag:
-	sed -i '' '41s/.*/          image: docker.io\/${REGISTRY}\/${COMPONENT}:${TAG}/' workload_deploy.yaml
-
+	sed -i '' '43s/.*/          image: docker.io\/${REGISTRY}\/${COMPONENT}:${TAG}/' *workload_deploy.yaml
 
 .PHONY: restart
-restart:
-	kubectl delete -f workload_deploy.yaml
-	kubectl apply -f workload_deploy.yaml
+restart: stop start
+
+.PHONY: stop
+stop:
+	kubectl delete -f vpa_${VPA}_workload_deploy.yaml
+	sleep 15
+
+.PHONY: start
+start:
+	echo 0 | aws s3 cp - s3://mlintra/workload-${VPA}.state
+	kubectl apply -f vpa_${VPA}_workload_deploy.yaml
+
+
+.PHONY: reset
+reset:
+	echo 0 | aws s3 cp - s3://mlintra/workload-${VPA}.state
+
+.PHONY: confvpa
+confvpa:
+	sed 's/@@@@@/${VPA}/g' workload_deploy.yaml > vpa_${VPA}_workload_deploy.yaml
+
+.PHONY: state
+state:
+	aws s3 cp s3://mlintra/workload-${VPA}.state -

@@ -1,0 +1,145 @@
+I0505 22:15:51.329274       1 flags.go:57] FLAG: --add-dir-header="false"
+I0505 22:15:51.343275       1 flags.go:57] FLAG: --address=":8942"
+I0505 22:15:51.343513       1 flags.go:57] FLAG: --alsologtostderr="false"
+I0505 22:15:51.343612       1 flags.go:57] FLAG: --ap-algorithm="ml"
+I0505 22:15:51.343679       1 flags.go:57] FLAG: --ap-cpu-histogram-bucket="0.005"
+I0505 22:15:51.343755       1 flags.go:57] FLAG: --ap-cpu-histogram-decay-half-life="5m0s"
+I0505 22:15:51.343819       1 flags.go:57] FLAG: --ap-cpu-histogram-n="5"
+I0505 22:15:51.343867       1 flags.go:57] FLAG: --ap-cpu-recommend-policy="sp_90"
+I0505 22:15:51.343928       1 flags.go:57] FLAG: --ap-fluctuation-reducer-duration="10m0s"
+I0505 22:15:51.343981       1 flags.go:57] FLAG: --ap-memory-histogram-bucket="2.5e+06"
+I0505 22:15:51.344048       1 flags.go:57] FLAG: --ap-memory-histogram-decay-half-life="5m0s"
+I0505 22:15:51.344113       1 flags.go:57] FLAG: --ap-memory-histogram-n="5"
+I0505 22:15:51.344165       1 flags.go:57] FLAG: --ap-memory-recommend-policy="max"
+I0505 22:15:51.344229       1 flags.go:57] FLAG: --ap-ml-cpu-hyperparam-d="0.6"
+I0505 22:15:51.344282       1 flags.go:57] FLAG: --ap-ml-cpu-hyperparam-wdeltal="0.6"
+I0505 22:15:51.344346       1 flags.go:57] FLAG: --ap-ml-cpu-hyperparam-wdeltam="0.6"
+I0505 22:15:51.344405       1 flags.go:57] FLAG: --ap-ml-cpu-hyperparam-wo="0.6"
+I0505 22:15:51.344473       1 flags.go:57] FLAG: --ap-ml-cpu-hyperparam-wu="0.6"
+I0505 22:15:51.344518       1 flags.go:57] FLAG: --ap-ml-cpu-max-mm="1"
+I0505 22:15:51.344597       1 flags.go:57] FLAG: --ap-ml-cpu-num-dm="5"
+I0505 22:15:51.344657       1 flags.go:57] FLAG: --ap-ml-cpu-num-mm="5"
+I0505 22:15:51.344759       1 flags.go:57] FLAG: --ap-ml-memory-hyperparam-d="0.6"
+I0505 22:15:51.344822       1 flags.go:57] FLAG: --ap-ml-memory-hyperparam-wdeltal="0.6"
+I0505 22:15:51.344890       1 flags.go:57] FLAG: --ap-ml-memory-hyperparam-wdeltam="0.6"
+I0505 22:15:51.344957       1 flags.go:57] FLAG: --ap-ml-memory-hyperparam-wo="0.6"
+I0505 22:15:51.345017       1 flags.go:57] FLAG: --ap-ml-memory-hyperparam-wu="0.6"
+I0505 22:15:51.345075       1 flags.go:57] FLAG: --ap-ml-memory-max-mm="5e+08"
+I0505 22:15:51.345127       1 flags.go:57] FLAG: --ap-ml-memory-num-dm="5"
+I0505 22:15:51.345214       1 flags.go:57] FLAG: --ap-ml-memory-num-mm="5"
+I0505 22:15:51.345282       1 flags.go:57] FLAG: --checkpoints-gc-interval="10m0s"
+I0505 22:15:51.345326       1 flags.go:57] FLAG: --checkpoints-timeout="1m0s"
+I0505 22:15:51.345412       1 flags.go:57] FLAG: --container-name-label="name"
+I0505 22:15:51.345471       1 flags.go:57] FLAG: --container-namespace-label="namespace"
+I0505 22:15:51.345523       1 flags.go:57] FLAG: --container-pod-name-label="pod_name"
+I0505 22:15:51.345623       1 flags.go:57] FLAG: --cpu-integer-post-processor-enabled="false"
+I0505 22:15:51.345702       1 flags.go:57] FLAG: --external-metrics-cpu-metric=""
+I0505 22:15:51.345745       1 flags.go:57] FLAG: --external-metrics-memory-metric=""
+I0505 22:15:51.345821       1 flags.go:57] FLAG: --history-length="8d"
+I0505 22:15:51.345880       1 flags.go:57] FLAG: --history-resolution="1h"
+I0505 22:15:51.345932       1 flags.go:57] FLAG: --kube-api-burst="10"
+I0505 22:15:51.346002       1 flags.go:57] FLAG: --kube-api-qps="5"
+I0505 22:15:51.346066       1 flags.go:57] FLAG: --kubeconfig=""
+I0505 22:15:51.346118       1 flags.go:57] FLAG: --log-backtrace-at=":0"
+I0505 22:15:51.346192       1 flags.go:57] FLAG: --log-dir=""
+I0505 22:15:51.346257       1 flags.go:57] FLAG: --log-file=""
+I0505 22:15:51.346317       1 flags.go:57] FLAG: --log-file-max-size="1800"
+I0505 22:15:51.346376       1 flags.go:57] FLAG: --logtostderr="true"
+I0505 22:15:51.346427       1 flags.go:57] FLAG: --memory-aggregation-interval="24h0m0s"
+I0505 22:15:51.346501       1 flags.go:57] FLAG: --memory-aggregation-interval-count="8"
+I0505 22:15:51.346564       1 flags.go:57] FLAG: --memory-saver="false"
+I0505 22:15:51.346615       1 flags.go:57] FLAG: --metric-for-pod-labels="up{job=\"kubernetes-pods\"}"
+I0505 22:15:51.346680       1 flags.go:57] FLAG: --metrics-interval="1s"
+I0505 22:15:51.346731       1 flags.go:57] FLAG: --min-checkpoints="10"
+I0505 22:15:51.346794       1 flags.go:57] FLAG: --one-output="false"
+I0505 22:15:51.346845       1 flags.go:57] FLAG: --oom-bump-up-ratio="1.2"
+I0505 22:15:51.346909       1 flags.go:57] FLAG: --oom-min-bump-up-bytes="1.024e+08"
+I0505 22:15:51.346961       1 flags.go:57] FLAG: --password=""
+I0505 22:15:51.347033       1 flags.go:57] FLAG: --pod-label-prefix="pod_label_"
+I0505 22:15:51.347086       1 flags.go:57] FLAG: --pod-name-label="kubernetes_pod_name"
+I0505 22:15:51.347148       1 flags.go:57] FLAG: --pod-namespace-label="kubernetes_namespace"
+I0505 22:15:51.347222       1 flags.go:57] FLAG: --prometheus-address=""
+I0505 22:15:51.347288       1 flags.go:57] FLAG: --prometheus-cadvisor-job-name="kubernetes-cadvisor"
+I0505 22:15:51.347344       1 flags.go:57] FLAG: --prometheus-query-timeout="5m"
+I0505 22:15:51.347407       1 flags.go:57] FLAG: --recommender-interval="5m0s"
+I0505 22:15:51.347457       1 flags.go:57] FLAG: --recommender-name="ml"
+I0505 22:15:51.347518       1 flags.go:57] FLAG: --skip-headers="false"
+I0505 22:15:51.347569       1 flags.go:57] FLAG: --skip-log-headers="false"
+I0505 22:15:51.347631       1 flags.go:57] FLAG: --stderrthreshold="2"
+I0505 22:15:51.347682       1 flags.go:57] FLAG: --storage=""
+I0505 22:15:51.347766       1 flags.go:57] FLAG: --use-external-metrics="false"
+I0505 22:15:51.347831       1 flags.go:57] FLAG: --username=""
+I0505 22:15:51.347891       1 flags.go:57] FLAG: --v="4"
+I0505 22:15:51.347947       1 flags.go:57] FLAG: --vmodule=""
+I0505 22:15:51.348001       1 flags.go:57] FLAG: --vpa-object-namespace=""
+I0505 22:15:51.348076       1 main.go:123] Vertical Pod Autoscaler 1.1.0 Recommender: ml
+I0505 22:15:51.349086       1 reflector.go:289] Starting reflector *v1.DaemonSet (10m0s) from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.349222       1 reflector.go:325] Listing and watching *v1.DaemonSet from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.451291       1 shared_informer.go:341] caches populated
+I0505 22:15:51.451320       1 controller_fetcher.go:141] Initial sync of DaemonSet completed
+I0505 22:15:51.451434       1 reflector.go:289] Starting reflector *v1.Deployment (10m0s) from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.451447       1 reflector.go:325] Listing and watching *v1.Deployment from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.551530       1 shared_informer.go:341] caches populated
+I0505 22:15:51.551555       1 controller_fetcher.go:141] Initial sync of Deployment completed
+I0505 22:15:51.551701       1 reflector.go:289] Starting reflector *v1.ReplicaSet (10m0s) from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.551714       1 reflector.go:325] Listing and watching *v1.ReplicaSet from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.652464       1 shared_informer.go:341] caches populated
+I0505 22:15:51.652624       1 controller_fetcher.go:141] Initial sync of ReplicaSet completed
+I0505 22:15:51.652850       1 reflector.go:289] Starting reflector *v1.StatefulSet (10m0s) from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.652865       1 reflector.go:325] Listing and watching *v1.StatefulSet from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.753906       1 shared_informer.go:341] caches populated
+I0505 22:15:51.754038       1 controller_fetcher.go:141] Initial sync of StatefulSet completed
+I0505 22:15:51.754306       1 reflector.go:289] Starting reflector *v1.ReplicationController (10m0s) from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.754320       1 reflector.go:325] Listing and watching *v1.ReplicationController from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.855157       1 shared_informer.go:341] caches populated
+I0505 22:15:51.855245       1 controller_fetcher.go:141] Initial sync of ReplicationController completed
+I0505 22:15:51.855440       1 reflector.go:289] Starting reflector *v1.Job (10m0s) from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.855460       1 reflector.go:325] Listing and watching *v1.Job from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.955645       1 shared_informer.go:341] caches populated
+I0505 22:15:51.955685       1 controller_fetcher.go:141] Initial sync of Job completed
+I0505 22:15:51.955876       1 reflector.go:289] Starting reflector *v1.CronJob (10m0s) from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:51.956061       1 reflector.go:325] Listing and watching *v1.CronJob from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher/controller_fetcher.go:136
+I0505 22:15:52.056142       1 shared_informer.go:341] caches populated
+I0505 22:15:52.056169       1 controller_fetcher.go:141] Initial sync of CronJob completed
+I0505 22:15:52.056699       1 reflector.go:289] Starting reflector *v1.Pod (1h0m0s) from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/input/cluster_feeder.go:192
+I0505 22:15:52.056733       1 reflector.go:325] Listing and watching *v1.Pod from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/input/cluster_feeder.go:192
+I0505 22:15:52.078821       1 cluster_feeder.go:121] Get Node 0 Max Assignable Value: CPU: 3.8, Memory 7.133753344e+09
+I0505 22:15:52.078976       1 main.go:169] Using Metrics Server.
+I0505 22:15:52.152718       1 reflector.go:289] Starting reflector *v1.VerticalPodAutoscaler (1h0m0s) from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/utils/vpa/api.go:90
+I0505 22:15:52.152758       1 reflector.go:325] Listing and watching *v1.VerticalPodAutoscaler from k8s.io/autoscaler/vertical-pod-autoscaler/pkg/utils/vpa/api.go:90
+I0505 22:15:52.320172       1 shared_informer.go:341] caches populated
+I0505 22:15:52.320203       1 api.go:94] Initial VPA synced successfully
+I0505 22:15:52.327598       1 shared_informer.go:341] caches populated
+I0505 22:15:52.327616       1 fetcher.go:99] Initial sync of DaemonSet completed
+I0505 22:15:52.327636       1 shared_informer.go:341] caches populated
+I0505 22:15:52.327727       1 fetcher.go:99] Initial sync of Deployment completed
+I0505 22:15:52.327783       1 shared_informer.go:341] caches populated
+I0505 22:15:52.327789       1 fetcher.go:99] Initial sync of ReplicaSet completed
+I0505 22:15:52.327796       1 shared_informer.go:341] caches populated
+I0505 22:15:52.327800       1 fetcher.go:99] Initial sync of StatefulSet completed
+I0505 22:15:52.327804       1 shared_informer.go:341] caches populated
+W0505 22:15:52.327837       1 shared_informer.go:459] The sharedIndexInformer has started, run more than once is not allowed
+W0505 22:15:52.327687       1 shared_informer.go:459] The sharedIndexInformer has started, run more than once is not allowed
+W0505 22:15:52.327703       1 shared_informer.go:459] The sharedIndexInformer has started, run more than once is not allowed
+W0505 22:15:52.327858       1 shared_informer.go:459] The sharedIndexInformer has started, run more than once is not allowed
+I0505 22:15:52.327810       1 fetcher.go:99] Initial sync of ReplicationController completed
+I0505 22:15:52.327877       1 shared_informer.go:341] caches populated
+I0505 22:15:52.327885       1 fetcher.go:99] Initial sync of Job completed
+I0505 22:15:52.327889       1 shared_informer.go:341] caches populated
+W0505 22:15:52.327916       1 shared_informer.go:459] The sharedIndexInformer has started, run more than once is not allowed
+W0505 22:15:52.327924       1 shared_informer.go:459] The sharedIndexInformer has started, run more than once is not allowed
+I0505 22:15:52.327935       1 fetcher.go:99] Initial sync of CronJob completed
+W0505 22:15:52.328007       1 shared_informer.go:459] The sharedIndexInformer has started, run more than once is not allowed
+I0505 22:15:52.331595       1 recommender.go:286] New Recommender created &{clusterState:0xc0004dfd50 clusterStateFeeder:0xc0000ee640 checkpointWriter:0xc000874840 checkpointsGCInterval:600000000000 controllerFetcher:0xc00011d680 lastCheckpointGC:{wall:13944867544600123431 ext:1168737503 loc:0x2a28320} vpaClient:0xc000852ee0 podResourceRecommender:0xc0008748d0 useCheckpoints:true lastAggregateContainerStateGC:{wall:13944867544600123351 ext:1168737432 loc:0x2a28320} recommendationPostProcessor:[0x2a8a140]}
+I0505 22:15:52.331647       1 cluster_feeder.go:266] Initializing VPA from checkpoints
+I0505 22:15:52.331660       1 cluster_feeder.go:338] Start selecting the vpaCRDs.
+I0505 22:15:52.331668       1 cluster_feeder.go:373] Fetched 1 VPAs.
+I0505 22:15:52.331713       1 cluster_feeder.go:383] Using selector app=workload-google-trace-ml for VPA default/workload-google-trace-ml-vpa
+I0505 22:15:52.331732       1 cluster_feeder.go:275] Fetching checkpoints from namespace default
+I0505 22:15:52.347717       1 main.go:237] recommenderRoundLength: 300
+I0505 22:15:53.347854       1 cluster_feeder.go:338] Start selecting the vpaCRDs.
+I0505 22:15:53.348301       1 cluster_feeder.go:373] Fetched 1 VPAs.
+I0505 22:15:53.348450       1 cluster_feeder.go:383] Using selector app=workload-google-trace-ml for VPA default/workload-google-trace-ml-vpa
+I0505 22:15:53.348580       1 main.go:244] Setup Finished.
+I0505 22:16:08.348066       1 cluster_feeder.go:422] Deleting Pod {default workload-yuqiang-5f658c8464-968lx}
+error: http2: client connection lost

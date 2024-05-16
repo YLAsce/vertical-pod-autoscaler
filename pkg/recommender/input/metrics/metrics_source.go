@@ -114,10 +114,8 @@ func (s *externalMetricsClient) List(ctx context.Context, namespace string, opts
 					return nil, err
 				}
 				if m == nil || len(m.Items) == 0 {
-					klog.V(4).Infof("[NICO]External Metrics Query for VPA %+v: resource %+v, metric %+v, No items,", vpa.ID, resourceName, metricName)
 					continue
 				}
-				klog.V(4).Infof("[NICO]External Metrics Query for VPA %+v: resource %+v, metric %+v, %d items, item[0]: %+v", vpa.ID, resourceName, metricName, len(m.Items), m.Items[0])
 				podMets.Timestamp = m.Items[0].Timestamp
 				if m.Items[0].WindowSeconds != nil {
 					podMets.Window = v1.Duration{Duration: time.Duration(*m.Items[0].WindowSeconds) * time.Second}
