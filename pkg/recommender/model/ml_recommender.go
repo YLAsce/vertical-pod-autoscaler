@@ -59,17 +59,10 @@ func deltaResource(x, y ResourceAmount) int {
 }
 
 func (r *Recommender) CalculateOnce() {
-<<<<<<< HEAD
 	for _, m := range r.modelPool {
 		// klog.V(4).Infof("NICO ML Model %v before r: dm %v, mm %v, lmId %v, lm %v, cm %v", i, m.dm, m.mm, m.lmId, m.lm, m.cm)
 		m.CalculateOnce()
 		// klog.V(4).Infof("NICO ML Model %v finished: dm %v, mm %v, lmId %v, lm %v, cm %v", i, m.dm, m.mm, m.lmId, m.lm, m.cm)
-=======
-	for i, m := range r.modelPool {
-		klog.V(4).Infof("NICO ML Model %v before r: dm %v, mm %v, lmId %v, lm %v, cm %v", i, m.dm, m.mm, m.lmId, m.lm, m.cm)
-		m.CalculateOnce()
-		klog.V(4).Infof("NICO ML Model %v finished: dm %v, mm %v, lmId %v, lm %v, cm %v", i, m.dm, m.mm, m.lmId, m.lm, m.cm)
->>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 	}
 
 	minVal := r.modelPool[0].GetCurCm() +

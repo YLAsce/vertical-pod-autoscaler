@@ -1,11 +1,7 @@
 .PHONY: all
 all: docker-build docker-push uptag
 
-<<<<<<< HEAD
 TAG?=test-oom-nocpulimit
-=======
-TAG?=test-oom
->>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 REGISTRY?=yuqiang302
 COMPONENT=workload
 

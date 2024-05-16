@@ -67,11 +67,7 @@ func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggre
 
 	// klog.V(4).Info("NICONICO============================================")
 	// for name, state := range containerNameToAggregateStateMap {
-<<<<<<< HEAD
 	// 	fmt.Printf("NICONICO %s:\n%s\n%s", name, state.AggregateCPUUsage.String(), state.AggregateMemoryUsage.String())
-=======
-	// 	klog.V(4).Infof("NICONICO %s:\n%s\n%s", name, state.AggregateCPUUsage.String(), state.AggregateMemoryUsage.String())
->>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 	// 	klog.V(4).Infof("NICONICO CPU Max: %v, Avg: %v, Per95: %v", state.AggregateCPUUsage.Max(), state.AggregateCPUUsage.Average(), state.AggregateCPUUsage.Percentile(0.95))
 	// 	klog.V(4).Infof("NICONICO MEM Max: %v, Avg: %v, Per95: %v", state.AggregateMemoryUsage.Max(), state.AggregateMemoryUsage.Average(), state.AggregateMemoryUsage.Percentile(0.95))
 	// }
@@ -115,15 +111,7 @@ func (r *podResourceRecommender) estimateContainerResources(containerName string
 	// }
 	if algorithmRun {
 		baseEstimation, err0 := r.targetEstimator.GetResourceEstimation(containerName, s)
-<<<<<<< HEAD
 		r.oomPostProcessor.RecordBaseEstimation(containerName, baseEstimation, err0)
-=======
-		if err0 == nil {
-			r.oomPostProcessor.RecordBaseEstimation(containerName, baseEstimation)
-		} else {
-			klog.V(3).Infof("NICONICO Estimation algorithm raise error, Cannot Post process OOM: %s", err0.Error())
-		}
->>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 	}
 	estimation, err := r.oomPostProcessor.GetOOMPostProcessedEstimation(containerName, s)
 	res := FilterControlledResources(estimation, s.GetControlledResources())
