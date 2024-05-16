@@ -47,17 +47,7 @@ spec:
           resources:
             requests:
               cpu: 800m
-<<<<<<< HEAD
-              memory: 600 / 1.04Mi
-            limits:
-              cpu: 880m
-              memory: 600Mi
-
-recommendation:600
-=======
               memory: 600Mi
             limits:
               cpu: 880m
-              # memory: 660Mi
-
->>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
+              memory: 660Mi

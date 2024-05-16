@@ -159,11 +159,7 @@ void timeout_handler(int signal) {
     printf("Start round, time:%d, cpu %f, memory %lu\n", time_sec, cpu, memory);
     fflush(stdout);
     
-<<<<<<< HEAD
     // create_cpu_usage(cpu);
-=======
-    create_cpu_usage(cpu);
->>>>>>> 83b4a7b2995f5cda7ade0e061d546bffbdfb3724
 
     if(memory > prev_mem_usage) {
         add_memory_usage((long)(memory - prev_mem_usage));
