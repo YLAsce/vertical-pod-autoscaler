@@ -9,11 +9,11 @@ const_cpu = False
 const_memory = True
 
 task_def = { # min, max, default, num
-    "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.3, 6],
-    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 1.0, 0.001, 6],
-    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 1.0, 0.001,6],
-    "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.8, 6],
-    "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.005, 6],
+    "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.3, 26],
+    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 0.0, 0.001, 1],
+    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 0.0, 0.001,1],
+    "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.8, 26],
+    "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.005, 26],
     "ap-ml-memory-hyperparam-d": [0.0, 1.0, 0.99, 10],
     "ap-ml-memory-hyperparam-wdeltal": [0.0, 1.0, 0.001, 10],
     "ap-ml-memory-hyperparam-wdeltam": [0.0, 1.0, 0.01, 10],

@@ -1,0 +1,35 @@
+CPU：第一轮五个参数，
+
+task_def = { # min, max, default, num
+    "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.3, 4],
+    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 1.0, 0.001, 4],
+    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 1.0, 0.001,4],
+    "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.8, 4],
+    "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.005, 4],
+    "ap-ml-memory-hyperparam-d": [0.0, 1.0, 0.99, 10],
+    "ap-ml-memory-hyperparam-wdeltal": [0.0, 1.0, 0.001, 10],
+    "ap-ml-memory-hyperparam-wdeltam": [0.0, 1.0, 0.01, 10],
+    "ap-ml-memory-hyperparam-wo": [0.0, 1.0, 80, 10],
+    "ap-ml-memory-hyperparam-wu": [0.0, 1.0, 0, 10]
+}
+task_def = { # min, max, default, num
+    "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.3, 6],
+    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 1.0, 0.001, 6],
+    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 1.0, 0.001,6],
+    "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.8, 6],
+    "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.005, 6],
+    "ap-ml-memory-hyperparam-d": [0.0, 1.0, 0.99, 10],
+    "ap-ml-memory-hyperparam-wdeltal": [0.0, 1.0, 0.001, 10],
+    "ap-ml-memory-hyperparam-wdeltam": [0.0, 1.0, 0.01, 10],
+    "ap-ml-memory-hyperparam-wo": [0.0, 1.0, 80, 10],
+    "ap-ml-memory-hyperparam-wu": [0.0, 1.0, 0, 10]
+}
+筛选条件是：    
+if result['cpu-overrun-seconds'] > 20000:
+continue
+if result['cpu-request-adjust-times'] > 600:
+continue
+
+4核 1024个任务 4小时
+32核  16384个任务   8小时
+第二轮 26的3次方 个任务
