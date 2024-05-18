@@ -1,2 +1,4 @@
 bin/*
 metrics/*.data
+metrics/tmp/*
+*.log

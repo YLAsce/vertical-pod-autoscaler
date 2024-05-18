@@ -9,11 +9,11 @@ const_cpu = False
 const_memory = True
 
 task_def = { # min, max, default, num
-    "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.3, 7],
-    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 1.0, 0.001, 7],
-    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 1.0, 0.001,7],
-    "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.8, 7],
-    "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.005, 7],
+    "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.3, 6],
+    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 1.0, 0.001, 6],
+    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 1.0, 0.001,6],
+    "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.8, 6],
+    "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.005, 6],
     "ap-ml-memory-hyperparam-d": [0.0, 1.0, 0.99, 10],
     "ap-ml-memory-hyperparam-wdeltal": [0.0, 1.0, 0.001, 10],
     "ap-ml-memory-hyperparam-wdeltam": [0.0, 1.0, 0.01, 10],
@@ -21,7 +21,7 @@ task_def = { # min, max, default, num
     "ap-ml-memory-hyperparam-wu": [0.0, 1.0, 0, 10]
 }
 
-max_workers = 8
+max_workers = 24
 
 ranges = []
 names = []
@@ -87,7 +87,7 @@ with ThreadPoolExecutor(max_workers=max_workers) as executor:
         output_args_list.append(output_args)
         copied_args.append("-metrics-summary-file=tmp/{}".format(file_index))
 
-        print("Add Task: CMD:", copied_args)
+        print("Add Task: ARG:", c)
         threadpool_results.append(executor.submit(subprocess.run, copied_args, check=True))
         file_index += 1
         # break
