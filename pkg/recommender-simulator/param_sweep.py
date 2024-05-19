@@ -21,7 +21,7 @@ task_def = { # min, max, default, num
     "ap-ml-memory-hyperparam-wu": [0.0, 1.0, 0, 10]
 }
 
-max_workers = 24
+max_workers = 32
 
 ranges = []
 names = []

@@ -21,5 +21,5 @@ for s in sorted_inputs:
     print(s['result'])
     print('- ', s['args'])
     i += 1
-    if i > 10:
+    if i > 20:
         break
