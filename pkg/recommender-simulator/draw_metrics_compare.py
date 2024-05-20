@@ -10,7 +10,7 @@ timestamps = []
 cpu_request = []
 cpu_usage = []
 
-memory_limit = []
+# memory_limit = []
 memory_request = []
 memory_usage = []
 
@@ -29,7 +29,7 @@ with open('metrics/{}_1.04.data'.format(filename), 'r') as file:
         cpu_usage.append( float(parts[2]) )
 
         memory_request.append( int(parts[3]) )
-        memory_limit.append( int(float(parts[3])*1.04) )
+        # memory_limit.append( int(float(parts[3])*1.04) )
         memory_usage.append( int(parts[4]) )
         # print(int(parts[4]))
 
@@ -53,7 +53,9 @@ basetime = timestamps[0]
 for i in range(len(timestamps)):
     timestamps[i] -= basetime
 
-cpu_request2 += [0.0, 0.0]
+for _ in range(len(timestamps) - len(cpu_request2)):
+    cpu_request2.append(0.0)
+    memory_request2.append(0.0)
 
 fig, (ax1, ax2) = plt.subplots(2)
 
@@ -71,8 +73,8 @@ ax1.legend()
 
 
 # 在第二个子图上绘制内存曲线
-ax2.plot(timestamps, memory_limit, label='Memory Limit')
-ax2.plot(timestamps, memory_request, label='Memory Request')
+ax2.plot(timestamps, memory_request2, label='Memory Request Rule')
+ax2.plot(timestamps, memory_request, label='Memory Request ML')
 ax2.plot(timestamps, memory_usage, label='Memory Usage')
 ax2.set_title('Memory Resource')
 ax2.set_xlabel('Time (minutes)')

@@ -1,7 +1,7 @@
 all: clean build
 
-# GOPATH=/Users/yuqiangma/go
-GOPATH=/root/go
+GOPATH=/Users/yuqiangma/go
+# GOPATH=/root/go
 
 clean:
 	rm -rf ${GOPATH}/src/k8s.io/autoscaler/vertical-pod-autoscaler/pkg
@@ -75,10 +75,10 @@ run-ml:
 		-ap-ml-cpu-max-mm=1.0 \
 		-ap-ml-cpu-num-dm=20 \
 		-ap-ml-cpu-num-mm=20 \
-		-ap-ml-memory-hyperparam-d=1.0 \
-		-ap-ml-memory-hyperparam-wdeltal=0.44 \
-		-ap-ml-memory-hyperparam-wdeltam=0.04 \
-		-ap-ml-memory-hyperparam-wo=0.76 \
+		-ap-ml-memory-hyperparam-d=0.1 \
+		-ap-ml-memory-hyperparam-wdeltal=0.0 \
+		-ap-ml-memory-hyperparam-wdeltam=0.1 \
+		-ap-ml-memory-hyperparam-wo=0.2 \
 		-ap-ml-memory-hyperparam-wu=0.0 \
 		-ap-ml-memory-max-mm=500000000 \
 		-ap-ml-memory-num-dm=20 \
