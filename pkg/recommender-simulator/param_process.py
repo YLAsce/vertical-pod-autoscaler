@@ -1,6 +1,6 @@
 import json
 
-with open('param_sweep_result_memory3_26.json', 'r') as f:
+with open('param_sweep_result.json', 'r') as f:
     inputs = json.load(f)
 
 filtered_inputs = []
@@ -12,12 +12,12 @@ for input in inputs:
     # if result['cpu-request-adjust-times'] > 600:
     #     continue
 
-    # if result['memory-overrun-seconds'] > 400:
-    #     continue
-    # if result['memory-request-adjust-times'] > 100:
-    #     continue
-    # if result['oom-seconds'] > 5:
-    #     continue
+    if result['memory-overrun-seconds'] > 400:
+        continue
+    if result['memory-request-adjust-times'] > 100:
+        continue
+    if result['oom-seconds'] > 5:
+        continue
 
     filtered_inputs.append(input)
 
