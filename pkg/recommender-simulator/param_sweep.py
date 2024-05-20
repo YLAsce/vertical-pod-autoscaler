@@ -5,40 +5,43 @@ import json
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-const_cpu = False
-const_memory = True
+const_cpu = True
+const_memory = False
 
 task_def = { # min, max, default, num
-    "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.3, 26],
-    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 0.0, 0.001, 1],
-    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 0.0, 0.001,1],
-    "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.8, 26],
-    "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.005, 26],
-    "ap-ml-memory-hyperparam-d": [0.0, 1.0, 0.99, 10],
-    "ap-ml-memory-hyperparam-wdeltal": [0.0, 1.0, 0.001, 10],
-    "ap-ml-memory-hyperparam-wdeltam": [0.0, 1.0, 0.01, 10],
-    "ap-ml-memory-hyperparam-wo": [0.0, 1.0, 80, 10],
-    "ap-ml-memory-hyperparam-wu": [0.0, 1.0, 0, 10]
+    "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.96, 26],
+    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 0.0, 0.0, 1],
+    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 0.0, 0.0, 1],
+    "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.04, 26],
+    "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.0, 26],
+    "ap-ml-memory-hyperparam-d": [1.0, 1.0, 0.99, 1],
+    "ap-ml-memory-hyperparam-wdeltal": [0.0, 1.0, 0.001, 26],
+    "ap-ml-memory-hyperparam-wdeltam": [0.0, 1.0, 0.01, 26],
+    "ap-ml-memory-hyperparam-wo": [0.0, 1.0, 80, 26],
+    "ap-ml-memory-hyperparam-wu": [0.0, 0.0, 0, 1]
 }
 
 max_workers = 32
 
 ranges = []
 names = []
+total_tasks = 0
 for n, d in task_def.items() :
+    total_tasks += 1
     r = []
     if const_cpu and n.startswith("ap-ml-cpu"):
         r.append(d[2])
     elif const_memory and n.startswith("ap-ml-memory"):
         r.append(d[2])
     else:
+        print(d[0], d[1], d[3])
         for v in np.linspace(d[0], d[1], d[3]):
             r.append(v)
     print(r)
     ranges.append(r)
     names.append(n)
 
-# print(ranges)
+print(total_tasks)
 
 
 init_args = [
@@ -100,12 +103,15 @@ for future in threadpool_results:
 outputs = []
 
 for i in range(len(output_args_list)):
-    with open('metrics/tmp/{}_1.04.json'.format(i), 'r') as f:
-        single_run_result = json.load(f)
-        output = {}
-        output["args"] = output_args_list[i]
-        output["result"] = single_run_result
-        outputs.append(output)
+    try:
+        with open('metrics/tmp/{}_1.04.json'.format(i), 'r') as f:
+            single_run_result = json.load(f)
+            output = {}
+            output["args"] = output_args_list[i]
+            output["result"] = single_run_result
+            outputs.append(output)
+    except FileNotFoundError:
+        continue
 
 with open('param_sweep_result.json', 'w') as f:
     json.dump(outputs, f)

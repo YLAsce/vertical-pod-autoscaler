@@ -37,6 +37,7 @@ func main() {
 
 	metricsCollector := NewMetricsCollector(*memoryLimitRequestRatio)
 
+	memoryOverrunSeconds := 0
 	for {
 		ok, period, cpu, memory := traceParser.ScanNext()
 		if !ok {
@@ -76,6 +77,12 @@ func main() {
 			curCPUUsage = curCPUSample
 			curMemoryUsage = curMemorySample
 
+			if memoryOverrun {
+				memoryOverrunSeconds += 1
+			}
+			if memoryOverrunSeconds > 400 {
+				return
+			}
 			metricsCollector.Record(metricPoint{
 				CpuUsage:      curCPUUsage,
 				CpuRequest:    curCPURequest,
