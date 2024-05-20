@@ -1,7 +1,7 @@
 all: clean build
 
-# GOPATH=/Users/yuqiangma/go
-GOPATH=/root/go
+GOPATH=/Users/yuqiangma/go
+# GOPATH=/root/go
 
 clean:
 	rm -rf ${GOPATH}/src/k8s.io/autoscaler/vertical-pod-autoscaler/pkg
@@ -75,21 +75,21 @@ run-ml:
 		-ap-ml-cpu-max-mm=1.0 \
 		-ap-ml-cpu-num-dm=20 \
 		-ap-ml-cpu-num-mm=20 \
-		-ap-ml-memory-hyperparam-d=0.99 \
-		-ap-ml-memory-hyperparam-wdeltal=0.001 \
-		-ap-ml-memory-hyperparam-wdeltam=0.1 \
-		-ap-ml-memory-hyperparam-wo=80.0 \
-		-ap-ml-memory-hyperparam-wu=0 \
+		-ap-ml-memory-hyperparam-d=1.0 \
+		-ap-ml-memory-hyperparam-wdeltal=0.44 \
+		-ap-ml-memory-hyperparam-wdeltam=0.04 \
+		-ap-ml-memory-hyperparam-wo=0.76 \
+		-ap-ml-memory-hyperparam-wu=0.0 \
 		-ap-ml-memory-max-mm=500000000 \
 		-ap-ml-memory-num-dm=20 \
 		-ap-ml-memory-num-mm=20 \
 		-initial-cpu=0.6 \
 		-initial-memory=600000000 \
-		-metrics-file=metrics-ml-exambest2 \
+		-metrics-file=metrics-ml-exambest3 \
 		-oom-bump-up-ratio=1.2 \
 		-oom-min-bump-up-bytes=100000000 \
 		-recommender-interval=5m \
 		-trace-file=trace \
-		-metrics-summary-file=metrics-summary-ml-exambest2 \
+		-metrics-summary-file=metrics-summary-ml-exambest3 \
 		-metrics-summary-ignore-head=1800 \
 		-memory-limit-request-ratio=1.04
