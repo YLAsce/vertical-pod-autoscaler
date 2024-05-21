@@ -1,8 +1,9 @@
 package model
 
 import (
+	"fmt"
+
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/util"
-	"k8s.io/klog/v2"
 )
 
 func NewCPURecommender(backHisto util.AutopilotHisto) *Recommender {
@@ -31,6 +32,7 @@ func NewMemoryRecommender(backHisto util.AutopilotHisto) *Recommender {
 		wdm:             *wdmMemory,
 		wdl:             *wdlMemory,
 		selectedModelId: -1,
+		isMemory:        true,
 		recommendation:  ResourceAmount(-1),
 	}
 	for i := 0; i <= *numDmMemory-1; i++ {
@@ -47,6 +49,7 @@ type Recommender struct {
 	wdm             float64
 	wdl             float64
 	selectedModelId int
+	isMemory        bool
 
 	recommendation ResourceAmount
 }
@@ -81,7 +84,16 @@ func (r *Recommender) CalculateOnce() {
 	r.selectedModelId = minId
 	r.recommendation = r.modelPool[r.selectedModelId].GetCurLm()
 
-	klog.V(4).Infof("NICO ML Recommender finished: Use Model %v", r.selectedModelId)
+	// klog.V(4).Infof("NICO ML Recommender finished: Use Model %v", r.selectedModelId)
+	if r.isMemory {
+		fmt.Printf("NICO ML Recommender finished: Use Model %v\n", r.selectedModelId)
+		// tmp := make([]float64, 0)
+		// for _, m := range r.modelPool {
+		// 	tmp = append(tmp, m.GetCurCm())
+		// }
+		// fmt.Printf("Model recommendations %+v\n", tmp)
+		fmt.Printf("Model 20: %v %v %v %v\n", r.modelPool[20].GetCurCm(), r.modelPool[20].GetCurLm(), r.modelPool[20].mm, r.modelPool[20].lmId)
+	}
 }
 
 func (r *Recommender) GetRecommendation() ResourceAmount {

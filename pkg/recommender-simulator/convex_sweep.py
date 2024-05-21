@@ -118,8 +118,8 @@ def process_convex(convex_dimension):
 # process_convex("ap-ml-cpu-hyperparam-wo")
 # process_convex("ap-ml-cpu-hyperparam-wu")
 
-process_convex("ap-ml-memory-hyperparam-d")
-# process_convex("ap-ml-memory-hyperparam-wdeltal")
-# process_convex("ap-ml-memory-hyperparam-wdeltam")
-process_convex("ap-ml-memory-hyperparam-wo")
-process_convex("ap-ml-memory-hyperparam-wu")
+# process_convex("ap-ml-memory-hyperparam-d")
+process_convex("ap-ml-memory-hyperparam-wdeltal")
+process_convex("ap-ml-memory-hyperparam-wdeltam")
+# process_convex("ap-ml-memory-hyperparam-wo")
+# process_convex("ap-ml-memory-hyperparam-wu")

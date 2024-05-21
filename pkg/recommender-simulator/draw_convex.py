@@ -3,8 +3,11 @@ import pprint
 import sys
 import matplotlib.pyplot as plt
 
-dimension = "ap-ml-cpu-hyperparam-wo"
-observe = "cpu"
+dimension = "ap-ml-memory-hyperparam-wdeltal"
+small = 0.01
+mid = 0.01
+large = 0.01
+observe = "memory"
 
 param = []
 average_gap = []
@@ -14,12 +17,14 @@ request_adjust = []
 with open('convex/param_sweep_result_{}.json'.format(dimension), 'r') as file:
     data = json.load(file)
     for d in data:
+        # if d['args'][dimension] < large:
+        #     continue
         param.append(d['args'][dimension])
         average_gap.append(d['result']['{}-average-gap'.format(observe)])
         overrun_seconds.append(d['result']['{}-overrun-seconds'.format(observe)])
         request_adjust.append(d['result']['{}-request-adjust-times'.format(observe)])
 
-fig, (ax1, ax2, ax3) = plt.subplots(3)
+fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(10, 7))
 
 ax1.plot(param, average_gap)
 ax1.set_title('{} Average Gap'.format(observe))
@@ -43,5 +48,7 @@ ax3.grid(True)
 # 调整子图布局
 plt.tight_layout()
 
+dname = dimension.split('-')[-1]
+fig.savefig('convex/convex_memory_{}.png'.format(dname, large))
 # 显示图表
 plt.show()
