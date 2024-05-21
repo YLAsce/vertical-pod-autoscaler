@@ -3,7 +3,7 @@ import pprint
 import sys
 import matplotlib.pyplot as plt
 
-dimension = "ap-ml-cpu-hyperparam-d"
+dimension = "ap-ml-cpu-hyperparam-wo"
 observe = "cpu"
 
 param = []

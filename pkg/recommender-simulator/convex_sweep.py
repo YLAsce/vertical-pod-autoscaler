@@ -8,8 +8,8 @@ from concurrent.futures import ThreadPoolExecutor
 def process_convex(convex_dimension):
     task_def = { # min, max, default, num
         "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.96, 1500],
-        "ap-ml-cpu-hyperparam-wdeltal": [0.0, 0.0, 0.0, 1500],
-        "ap-ml-cpu-hyperparam-wdeltam": [0.0, 0.0, 0.0, 1500],
+        "ap-ml-cpu-hyperparam-wdeltal": [0.0, 1.0, 0.0, 1500],
+        "ap-ml-cpu-hyperparam-wdeltam": [0.0, 1.0, 0.0, 1500],
         "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.04, 1500],
         "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.0, 1500],
         "ap-ml-memory-hyperparam-d": [0.0, 1.0, 1.0, 1000],
