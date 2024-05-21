@@ -112,8 +112,8 @@ def process_convex(convex_dimension):
     with open('convex/param_sweep_result_{}.json'.format(convex_dimension), 'w') as f:
         json.dump(outputs, f)
     
-process_convex("ap-ml-cpu-hyperparam-d")
+# process_convex("ap-ml-cpu-hyperparam-d")
 process_convex("ap-ml-cpu-hyperparam-wdeltal")
 process_convex("ap-ml-cpu-hyperparam-wdeltam")
-process_convex("ap-ml-cpu-hyperparam-wo")
-process_convex("ap-ml-cpu-hyperparam-wu")
+# process_convex("ap-ml-cpu-hyperparam-wo")
+# process_convex("ap-ml-cpu-hyperparam-wu")

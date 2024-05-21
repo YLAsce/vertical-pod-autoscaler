@@ -1,7 +1,7 @@
 all: clean build
 
-GOPATH=/Users/yuqiangma/go
-# GOPATH=/root/go
+# GOPATH=/Users/yuqiangma/go
+GOPATH=/root/go
 
 clean:
 	rm -rf ${GOPATH}/src/k8s.io/autoscaler/vertical-pod-autoscaler/pkg
