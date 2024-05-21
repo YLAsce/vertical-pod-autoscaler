@@ -7,16 +7,16 @@ from concurrent.futures import ThreadPoolExecutor
 
 def process_convex(convex_dimension):
     task_def = { # min, max, default, num
-        "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.96, 1500],
-        "ap-ml-cpu-hyperparam-wdeltal": [0.0, 1.0, 0.0, 1500],
-        "ap-ml-cpu-hyperparam-wdeltam": [0.0, 1.0, 0.0, 1500],
-        "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.04, 1500],
-        "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.0, 1500],
-        "ap-ml-memory-hyperparam-d": [0.0, 1.0, 1.0, 1000],
-        "ap-ml-memory-hyperparam-wdeltal": [0.0, 1.0, 0.44, 1000],
-        "ap-ml-memory-hyperparam-wdeltam": [0.0, 1.0, 0.04, 1000],
-        "ap-ml-memory-hyperparam-wo": [0.0, 1.0, 0.76, 1000],
-        "ap-ml-memory-hyperparam-wu": [0.0, 0.0, 0.0, 1000]
+        "ap-ml-cpu-hyperparam-d":           [0.0, 1.0, 0.96, 1500],
+        "ap-ml-cpu-hyperparam-wdeltal":     [0.0, 1.0, 0.0, 1500],
+        "ap-ml-cpu-hyperparam-wdeltam":     [0.0, 1.0, 0.0, 1500],
+        "ap-ml-cpu-hyperparam-wo":          [0.0, 1.0, 0.04, 1500],
+        "ap-ml-cpu-hyperparam-wu":          [0.0, 1.0, 0.0, 1500],
+        "ap-ml-memory-hyperparam-d":        [0.0, 1.0, 0.1, 1500],
+        "ap-ml-memory-hyperparam-wdeltal":  [0.0, 1.0, 0.0, 1500],
+        "ap-ml-memory-hyperparam-wdeltam":  [0.0, 1.0, 0.1, 1500],
+        "ap-ml-memory-hyperparam-wo":       [0.0, 1.0, 0.2, 1500],
+        "ap-ml-memory-hyperparam-wu":       [0.0, 1.0, 0.0, 1500]
     }
 
     max_workers = 32
@@ -112,8 +112,14 @@ def process_convex(convex_dimension):
     with open('convex/param_sweep_result_{}.json'.format(convex_dimension), 'w') as f:
         json.dump(outputs, f)
     
-process_convex("ap-ml-cpu-hyperparam-d")
-process_convex("ap-ml-cpu-hyperparam-wdeltal")
-process_convex("ap-ml-cpu-hyperparam-wdeltam")
-process_convex("ap-ml-cpu-hyperparam-wo")
-process_convex("ap-ml-cpu-hyperparam-wu")
+# process_convex("ap-ml-cpu-hyperparam-d")
+# process_convex("ap-ml-cpu-hyperparam-wdeltal")
+# process_convex("ap-ml-cpu-hyperparam-wdeltam")
+# process_convex("ap-ml-cpu-hyperparam-wo")
+# process_convex("ap-ml-cpu-hyperparam-wu")
+
+process_convex("ap-ml-memory-hyperparam-d")
+process_convex("ap-ml-memory-hyperparam-wdeltal")
+process_convex("ap-ml-memory-hyperparam-wdeltam")
+process_convex("ap-ml-memory-hyperparam-wo")
+process_convex("ap-ml-memory-hyperparam-wu")
