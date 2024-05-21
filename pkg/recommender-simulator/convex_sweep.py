@@ -12,11 +12,11 @@ def process_convex(convex_dimension):
         "ap-ml-cpu-hyperparam-wdeltam":     [0.0, 1.0, 0.0, 1500],
         "ap-ml-cpu-hyperparam-wo":          [0.0, 1.0, 0.04, 1500],
         "ap-ml-cpu-hyperparam-wu":          [0.0, 1.0, 0.0, 1500],
-        "ap-ml-memory-hyperparam-d":        [0.0, 1.0, 0.1, 1500],
+        "ap-ml-memory-hyperparam-d":        [0.0, 1.0, 0.1, 1000],
         "ap-ml-memory-hyperparam-wdeltal":  [0.0, 1.0, 0.0, 1500],
         "ap-ml-memory-hyperparam-wdeltam":  [0.0, 1.0, 0.1, 1500],
-        "ap-ml-memory-hyperparam-wo":       [0.0, 1.0, 0.2, 1500],
-        "ap-ml-memory-hyperparam-wu":       [0.0, 1.0, 0.0, 1500]
+        "ap-ml-memory-hyperparam-wo":       [0.0, 1.0, 0.2, 1000],
+        "ap-ml-memory-hyperparam-wu":       [0.0, 1.0, 0.0, 1000]
     }
 
     max_workers = 32
@@ -118,8 +118,8 @@ def process_convex(convex_dimension):
 # process_convex("ap-ml-cpu-hyperparam-wo")
 # process_convex("ap-ml-cpu-hyperparam-wu")
 
-process_convex("ap-ml-memory-hyperparam-d")
+# process_convex("ap-ml-memory-hyperparam-d")
 process_convex("ap-ml-memory-hyperparam-wdeltal")
 process_convex("ap-ml-memory-hyperparam-wdeltam")
-process_convex("ap-ml-memory-hyperparam-wo")
-process_convex("ap-ml-memory-hyperparam-wu")
+# process_convex("ap-ml-memory-hyperparam-wo")
+# process_convex("ap-ml-memory-hyperparam-wu")
