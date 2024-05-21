@@ -18,6 +18,7 @@ package logic
 
 import (
 	"flag"
+	"fmt"
 	"sort"
 	"time"
 
@@ -67,11 +68,12 @@ func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggre
 
 	// klog.V(4).Info("NICONICO============================================")
 	// for name, state := range containerNameToAggregateStateMap {
-	// 	fmt.Printf("NICONICO %s:\n%s\n%s", name, state.AggregateCPUUsage.String(), state.AggregateMemoryUsage.String())
+	// fmt.Printf("NICONICO %s:\n%s", name, state.AggregateMemoryUsage.String())
 	// 	klog.V(4).Infof("NICONICO CPU Max: %v, Avg: %v, Per95: %v", state.AggregateCPUUsage.Max(), state.AggregateCPUUsage.Average(), state.AggregateCPUUsage.Percentile(0.95))
 	// 	klog.V(4).Infof("NICONICO MEM Max: %v, Avg: %v, Per95: %v", state.AggregateMemoryUsage.Max(), state.AggregateMemoryUsage.Average(), state.AggregateMemoryUsage.Percentile(0.95))
 	// }
 	// klog.V(4).Info("NICONICO============================================")
+	// time.Sleep(20 * time.Millisecond)
 	var recommendation = make(RecommendedPodResources)
 	if len(containerNameToAggregateStateMap) == 0 {
 		return recommendation
@@ -112,6 +114,7 @@ func (r *podResourceRecommender) estimateContainerResources(containerName string
 	if algorithmRun {
 		baseEstimation, err0 := r.targetEstimator.GetResourceEstimation(containerName, s)
 		r.oomPostProcessor.RecordBaseEstimation(containerName, baseEstimation, err0)
+		fmt.Printf("Base: %+v\n", baseEstimation)
 	}
 	estimation, err := r.oomPostProcessor.GetOOMPostProcessedEstimation(containerName, s)
 	res := FilterControlledResources(estimation, s.GetControlledResources())
