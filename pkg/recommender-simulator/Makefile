@@ -77,7 +77,7 @@ run-ml:
 		-ap-ml-cpu-num-mm=20 \
 		-ap-ml-memory-hyperparam-d=0.1 \
 		-ap-ml-memory-hyperparam-wdeltal=0.0 \
-		-ap-ml-memory-hyperparam-wdeltam=0.1 \
+		-ap-ml-memory-hyperparam-wdeltam=0.0 \
 		-ap-ml-memory-hyperparam-wo=0.2 \
 		-ap-ml-memory-hyperparam-wu=0.0 \
 		-ap-ml-memory-max-mm=500000000 \
@@ -85,11 +85,11 @@ run-ml:
 		-ap-ml-memory-num-mm=20 \
 		-initial-cpu=0.6 \
 		-initial-memory=600000000 \
-		-metrics-file=metrics-ml-exambest3 \
+		-metrics-file=metrics-ml-testmem1 \
 		-oom-bump-up-ratio=1.2 \
 		-oom-min-bump-up-bytes=100000000 \
 		-recommender-interval=5m \
 		-trace-file=trace \
-		-metrics-summary-file=metrics-summary-ml-exambest3 \
+		-metrics-summary-file=metrics-summary-ml-testmem1 \
 		-metrics-summary-ignore-head=1800 \
 		-memory-limit-request-ratio=1.04

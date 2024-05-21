@@ -43,3 +43,21 @@ ps -p 13222 -o etime
 
 
 memory优化：在内存overrun很多的时候，直接返回，不生成文件
+
+
+memory的问题！！很神奇，average gap很高，trace变高以后就再也不变低了
+如图Figure_compare_bestcpumem_1.png所示
+怀疑： 和CPU不同，memory的oL和uL都在0到1之间，而cpu的可能高达600
+但是最优解中wdl和wdm都已经是0了，问题出在哪里：
+不对！wdm不是0，先让wdm是0看看-----
+
+以下三行都没问题！！！
+首先检查代码中histogram的更新是否有问题
+应该不是recommender代码的问题，Figure_Google_trace_ml那个图，用五个0.6跑出来的数据也是有波动的
+检查simulator在构造ML memory的时候有什么问题
+
+
+wdm=0时：也不行
+recommender代码可能有问题：Figure_Google_trace_ml那个图，用五个0.6跑出来的：是因为反复的OOM，触发了OOM规则，才使结果很好的
+观察代码，histogram更新没有问题，正常更新
+OOM规则是否每次都触发了？
