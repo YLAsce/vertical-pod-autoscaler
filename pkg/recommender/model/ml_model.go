@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/util"
 )
 
@@ -45,6 +47,7 @@ func NewMemoryModel(backHisto util.AutopilotHisto, dm, mm float64) *Model {
 		cm:   0.0,
 
 		resourceAmountFunction: MemoryAmountFromBytes,
+		isMemory:               true,
 	}
 }
 
@@ -66,6 +69,8 @@ type Model struct {
 	cm   float64
 
 	resourceAmountFunction func(float64) ResourceAmount
+	isMemory               bool
+	tmpid                  int
 }
 
 func delta(x, y int) int {
@@ -85,6 +90,9 @@ func (m *Model) CalculateOnce() {
 	minSubLId := 0
 	for i := 1; i <= m.usageHistogram.GetMaxIdL(); i++ {
 		curMin := m.wo*m.oL[i] + m.wu*m.uL[i] + m.wdl*float64(delta(i, m.lmId))
+		if m.isMemory {
+			fmt.Println(i, curMin)
+		}
 		if curMin < minSubL {
 			minSubL = curMin
 			minSubLId = i
