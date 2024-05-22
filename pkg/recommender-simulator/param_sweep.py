@@ -14,11 +14,11 @@ task_def = { # min, max, default, num
     "ap-ml-cpu-hyperparam-wdeltam": [0.0, 1.0, 0.0, 8],
     "ap-ml-cpu-hyperparam-wo":      [0.0, 1.0, 0.04, 8],
     "ap-ml-cpu-hyperparam-wu":      [0.0, 1.0, 0.0, 8],
-    "ap-ml-memory-hyperparam-d":        [0.0, 1.0, 0.02, 11],
-    "ap-ml-memory-hyperparam-wdeltal":  [0.0, 1.0, 0.0000000000099999, 11],
-    "ap-ml-memory-hyperparam-wdeltam":  [0.0, 1.0, 0.00000000000000005, 11],
-    "ap-ml-memory-hyperparam-wo":       [0.0, 1.0, 0.5, 11],
-    "ap-ml-memory-hyperparam-wu":       [0.0, 0.0, 0.00000000001, 1]
+    "ap-ml-memory-hyperparam-d":        [0.0, 1.0, 0.1, 8],
+    "ap-ml-memory-hyperparam-wdeltal":  [0.0, 1.0, 0.0, 8],
+    "ap-ml-memory-hyperparam-wdeltam":  [0.0, 1.0, 0.1, 8],
+    "ap-ml-memory-hyperparam-wo":       [0.0, 1.0, 0.2, 8],
+    "ap-ml-memory-hyperparam-wu":       [0.0, 1.0, 0.0, 8]
 }
 
 max_workers = 32
