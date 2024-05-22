@@ -46,17 +46,17 @@ spec:
           - --ap-ml-cpu-hyperparam-wu=0.6
           - --ap-ml-cpu-hyperparam-wdeltal=0.6
           - --ap-ml-cpu-hyperparam-wdeltam=0.6
-          - --ap-ml-cpu-num-dm=5
-          - --ap-ml-cpu-num-mm=5
-          - --ap-ml-cpu-max-mm=1.0
+          - --ap-ml-cpu-num-dm=50
+          - --ap-ml-cpu-num-mm=400
+          - --ap-ml-cpu-size-buckets-mm=1
           - --ap-ml-memory-hyperparam-d=0.6
           - --ap-ml-memory-hyperparam-wo=0.6
           - --ap-ml-memory-hyperparam-wu=0.6
           - --ap-ml-memory-hyperparam-wdeltal=0.6
           - --ap-ml-memory-hyperparam-wdeltam=0.6
-          - --ap-ml-memory-num-dm=5
-          - --ap-ml-memory-num-mm=5
-          - --ap-ml-memory-max-mm=500000000.0
+          - --ap-ml-memory-num-dm=50
+          - --ap-ml-memory-num-mm=500
+          - --ap-ml-memory-size-buckets-mm=1
         resources:
           limits:
             cpu: 120m

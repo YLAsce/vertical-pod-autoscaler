@@ -33,8 +33,8 @@ type AutopilotHisto interface {
 
 	NumSamplesWithValueMoreThan(idL int) int
 	NumSamplesWithValueLessThan(idL int) int
-	NumSamplesWithValueMoreThanValue(l float64) int
-	NumSamplesWithValueLessThanValue(l float64) int
+	// NumSamplesWithValueMoreThanValue(l float64) int
+	// NumSamplesWithValueLessThanValue(l float64) int
 	GetMaxIdL() int
 	GetLValWithId(idL int) float64
 
@@ -285,37 +285,37 @@ func (ah *autopilotHisto) NumSamplesWithValueLessThan(idL int) int {
 	return ah.totalBucketWeightLower[idL-1]
 }
 
-func (ah *autopilotHisto) NumSamplesWithValueMoreThanValue(l float64) int {
-	// TODO optimize complexity using math calculation...
-	idL := -1
-	for i := 0; i < ah.options.NumBuckets(); i++ {
-		if ah.options.GetBucketEnd(i) > l {
-			idL = i
-			break
-		}
-	}
+// func (ah *autopilotHisto) NumSamplesWithValueMoreThanValue(l float64) int {
+// 	// TODO optimize complexity using math calculation...
+// 	idL := -1
+// 	for i := 0; i < ah.options.NumBuckets(); i++ {
+// 		if ah.options.GetBucketEnd(i) > l {
+// 			idL = i
+// 			break
+// 		}
+// 	}
 
-	if idL == -1 {
-		return 0
-	}
-	return ah.totalBucketWeightHigher[idL]
-}
+// 	if idL == -1 {
+// 		return 0
+// 	}
+// 	return ah.totalBucketWeightHigher[idL]
+// }
 
-func (ah *autopilotHisto) NumSamplesWithValueLessThanValue(l float64) int {
-	// TODO optimize complexity using math calculation...
-	idL := -1
-	for i := ah.options.NumBuckets() - 1; i >= 0; i-- {
-		if ah.options.GetBucketEnd(i) < l {
-			idL = i
-			break
-		}
-	}
+// func (ah *autopilotHisto) NumSamplesWithValueLessThanValue(l float64) int {
+// 	// TODO optimize complexity using math calculation...
+// 	idL := -1
+// 	for i := ah.options.NumBuckets() - 1; i >= 0; i-- {
+// 		if ah.options.GetBucketEnd(i) < l {
+// 			idL = i
+// 			break
+// 		}
+// 	}
 
-	if idL == -1 {
-		return 0
-	}
-	return ah.totalBucketWeightLower[idL]
-}
+// 	if idL == -1 {
+// 		return 0
+// 	}
+// 	return ah.totalBucketWeightLower[idL]
+// }
 
 func (ah *autopilotHisto) GetMaxIdL() int {
 	return ah.options.NumBuckets() - 1

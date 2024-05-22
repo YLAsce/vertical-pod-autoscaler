@@ -34,7 +34,7 @@ basetime = timestamps[0]
 for i in range(len(timestamps)):
     timestamps[i] -= basetime
 
-fig, (ax1, ax2) = plt.subplots(2)
+fig, (ax1, ax2) = plt.subplots(2, figsize=(14, 5))
 
 # 在第一个子图上绘制 CPU 曲线
 ax1.plot(timestamps, cpu_request, label='CPU Request')

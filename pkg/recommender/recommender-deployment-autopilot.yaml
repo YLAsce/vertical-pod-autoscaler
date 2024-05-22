@@ -39,12 +39,12 @@ spec:
           - --ap-cpu-recommend-policy=sp_90
           - --ap-memory-recommend-policy=max
           - --ap-fluctuation-reducer-duration=10m
-          - --ap-ml-cpu-num-dm=5
-          - --ap-ml-cpu-num-mm=5
-          - --ap-ml-cpu-max-mm=1.0
-          - --ap-ml-memory-num-dm=5
-          - --ap-ml-memory-num-mm=5
-          - --ap-ml-memory-max-mm=500000000.0
+          - --ap-ml-cpu-num-dm=50
+          - --ap-ml-cpu-num-mm=400
+          - --ap-ml-cpu-size-buckets-mm=1
+          - --ap-ml-memory-num-dm=50
+          - --ap-ml-memory-num-mm=500
+          - --ap-ml-memory-size-buckets-mm=1
           - --v=4
         resources:
           limits:

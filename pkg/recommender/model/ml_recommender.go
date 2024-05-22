@@ -1,24 +1,45 @@
 package model
 
 import (
-	"fmt"
-
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/util"
 )
+
+type CombinedOLULLmPrime struct {
+	OL        []float64
+	UL        []float64
+	LmPrimeId int
+}
+
+func NewCombinedOLULLmPrime(arrSize int) *CombinedOLULLmPrime {
+	return &CombinedOLULLmPrime{
+		OL:        make([]float64, arrSize),
+		UL:        make([]float64, arrSize),
+		LmPrimeId: -1,
+	}
+}
 
 func NewCPURecommender(backHisto util.AutopilotHisto) *Recommender {
 	numModels := (*numDmCPU) * (*numMmCPU)
 	ret := Recommender{
-		modelPool:       make([]*Model, numModels),
-		numModels:       numModels,
-		wdm:             *wdmCPU,
-		wdl:             *wdlCPU,
-		selectedModelId: -1,
-		recommendation:  ResourceAmount(-1),
+		modelPool:               make([]*Model, numModels),
+		combinedOLULLmPrimePool: make([]*CombinedOLULLmPrime, *numDmCPU),
+		numModels:               numModels,
+		wo:                      *woCPU,
+		wu:                      *wuCPU,
+		wdm:                     *wdmCPU,
+		wdl:                     *wdlCPU,
+		selectedModelId:         -1,
+		backHisto:               backHisto,
+		recommendation:          ResourceAmount(-1),
+		recommendationId:        -1,
 	}
 	for i := 0; i <= *numDmCPU-1; i++ {
+		ret.combinedOLULLmPrimePool[i] = NewCombinedOLULLmPrime(backHisto.GetMaxIdL() + 1)
+	}
+
+	for i := 0; i <= *numDmCPU-1; i++ {
 		for j := 0; j <= *numMmCPU-1; j++ {
-			ret.modelPool[i*(*numDmCPU)+j] = NewCPUModel(backHisto, float64(i)/float64(*numDmCPU-1), float64(j)*(*maxMmCPU)/float64(*numMmCPU-1))
+			ret.modelPool[i*(*numMmCPU)+j] = NewCPUModel(backHisto, ret.combinedOLULLmPrimePool[i], j*(*sizeMmBucketsCPU))
 		}
 	}
 	return &ret
@@ -27,73 +48,95 @@ func NewCPURecommender(backHisto util.AutopilotHisto) *Recommender {
 func NewMemoryRecommender(backHisto util.AutopilotHisto) *Recommender {
 	numModels := (*numDmMemory) * (*numMmMemory)
 	ret := Recommender{
-		modelPool:       make([]*Model, numModels),
-		numModels:       numModels,
-		wdm:             *wdmMemory,
-		wdl:             *wdlMemory,
-		selectedModelId: -1,
-		isMemory:        true,
-		recommendation:  ResourceAmount(-1),
+		modelPool:               make([]*Model, numModels),
+		combinedOLULLmPrimePool: make([]*CombinedOLULLmPrime, *numDmMemory),
+		numModels:               numModels,
+		wo:                      *woMemory,
+		wu:                      *wuMemory,
+		wdm:                     *wdmMemory,
+		wdl:                     *wdlMemory,
+		selectedModelId:         -1,
+		backHisto:               backHisto,
+		recommendation:          ResourceAmount(-1),
+		recommendationId:        -1,
 	}
 	for i := 0; i <= *numDmMemory-1; i++ {
+		ret.combinedOLULLmPrimePool[i] = NewCombinedOLULLmPrime(backHisto.GetMaxIdL() + 1)
+	}
+
+	for i := 0; i <= *numDmMemory-1; i++ {
 		for j := 0; j <= *numMmMemory-1; j++ {
-			ret.modelPool[i*(*numDmMemory)+j] = NewMemoryModel(backHisto, float64(i)/float64(*numDmMemory-1), float64(j)*(*maxMmMemory)/float64(*numMmMemory-1))
+			ret.modelPool[i*(*numMmMemory)+j] = NewMemoryModel(backHisto, ret.combinedOLULLmPrimePool[i], j*(*sizeMmBucketsMemory))
 		}
 	}
 	return &ret
 }
 
 type Recommender struct {
-	modelPool       []*Model
-	numModels       int
-	wdm             float64
-	wdl             float64
-	selectedModelId int
-	isMemory        bool
+	modelPool               []*Model
+	combinedOLULLmPrimePool []*CombinedOLULLmPrime
+	numModels               int
+	wo                      float64
+	wu                      float64
+	wdm                     float64
+	wdl                     float64
+	selectedModelId         int
+	backHisto               util.AutopilotHisto
 
-	recommendation ResourceAmount
+	recommendation   ResourceAmount
+	recommendationId int
 }
 
-func deltaResource(x, y ResourceAmount) int {
-	if x != y {
-		return 1
-	}
-	return 0
-}
-
+// 总体时间复杂度 O(dM * max(bucketNum, mM))
+// 总体空间复杂度 O(dM * max(bucketNum, mM))
 func (r *Recommender) CalculateOnce() {
+	//复杂度 O(dM*bucketNum)
+	//在外部更新所有pool中的mL和uL, 更新Dm*Mm次优化到更新Dm次
+	for i := 0; i <= *numDmCPU-1; i++ {
+		dm := float64(i) / float64(*numDmCPU-1)
+		for idL := 0; idL <= r.backHisto.GetMaxIdL(); idL++ {
+			r.combinedOLULLmPrimePool[i].OL[idL] = (1.0-dm)*r.combinedOLULLmPrimePool[i].OL[idL] + dm*float64(r.backHisto.NumSamplesWithValueMoreThan(idL))
+			r.combinedOLULLmPrimePool[i].UL[idL] = (1.0-dm)*r.combinedOLULLmPrimePool[i].UL[idL] + dm*float64(r.backHisto.NumSamplesWithValueLessThan(idL))
+		}
+
+		prevLmPrimeId := r.combinedOLULLmPrimePool[i].LmPrimeId
+		minSubL := r.wo*r.combinedOLULLmPrimePool[i].OL[0] + r.wu*r.combinedOLULLmPrimePool[i].UL[0] + r.wdl*float64(delta(0, prevLmPrimeId))
+		r.combinedOLULLmPrimePool[i].LmPrimeId = 0
+		for j := 1; j <= r.backHisto.GetMaxIdL(); j++ {
+			curMin := r.wo*r.combinedOLULLmPrimePool[i].OL[j] + r.wu*r.combinedOLULLmPrimePool[i].UL[j] + r.wdl*float64(delta(j, prevLmPrimeId))
+			if curMin < minSubL {
+				minSubL = curMin
+				r.combinedOLULLmPrimePool[i].LmPrimeId = i
+			}
+		}
+	}
+
+	//复杂度 O(numModels) = O(dM * mM)
 	for _, m := range r.modelPool {
-		// klog.V(4).Infof("NICO ML Model %v before r: dm %v, mm %v, lmId %v, lm %v, cm %v", i, m.dm, m.mm, m.lmId, m.lm, m.cm)
 		m.CalculateOnce()
 		// klog.V(4).Infof("NICO ML Model %v finished: dm %v, mm %v, lmId %v, lm %v, cm %v", i, m.dm, m.mm, m.lmId, m.lm, m.cm)
 	}
 
 	minVal := r.modelPool[0].GetCurCm() +
 		r.wdm*float64(delta(r.selectedModelId, 0)) +
-		r.wdl*float64(deltaResource(r.recommendation, r.modelPool[0].GetCurLm()))
-	minId := 0
+		r.wdl*float64(delta(r.recommendationId, r.modelPool[0].GetCurLmId()))
+	minModelId := 0
+	//复杂度 O(dM * mM)
 	for id, m := range r.modelPool {
 		curVal := m.GetCurCm() +
 			r.wdm*float64(delta(r.selectedModelId, id)) +
-			r.wdl*float64(deltaResource(r.recommendation, m.GetCurLm()))
+			r.wdl*float64(delta(r.recommendationId, m.GetCurLmId()))
 		if curVal < minVal {
 			minVal = curVal
-			minId = id
+			minModelId = id
 		}
 	}
-	r.selectedModelId = minId
+	r.selectedModelId = minModelId
+
 	r.recommendation = r.modelPool[r.selectedModelId].GetCurLm()
+	r.recommendationId = r.modelPool[r.selectedModelId].GetCurLmId()
 
 	// klog.V(4).Infof("NICO ML Recommender finished: Use Model %v", r.selectedModelId)
-	if r.isMemory {
-		fmt.Printf("NICO ML Recommender finished: Use Model %v\n", r.selectedModelId)
-		// tmp := make([]float64, 0)
-		// for _, m := range r.modelPool {
-		// 	tmp = append(tmp, m.GetCurCm())
-		// }
-		// fmt.Printf("Model recommendations %+v\n", tmp)
-		fmt.Printf("Model 20: %v %v %v %v\n", r.modelPool[20].GetCurCm(), r.modelPool[20].GetCurLm(), r.modelPool[20].mm, r.modelPool[20].lmId)
-	}
 }
 
 func (r *Recommender) GetRecommendation() ResourceAmount {
@@ -105,9 +148,15 @@ func (r *Recommender) Merge(other *Recommender) {
 		panic("ML Recommender can't merge two ongoing instances. Merge will be discarded later")
 	}
 	r.modelPool = other.modelPool
+	r.combinedOLULLmPrimePool = other.combinedOLULLmPrimePool
 	r.numModels = other.numModels
+	r.wo = other.wo
+	r.wu = other.wu
 	r.wdm = other.wdm
 	r.wdl = other.wdl
 	r.selectedModelId = other.selectedModelId
+	r.backHisto = other.backHisto
+
 	r.recommendation = other.recommendation
+	r.recommendationId = other.recommendationId
 }

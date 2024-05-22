@@ -18,7 +18,6 @@ package logic
 
 import (
 	"flag"
-	"fmt"
 	"sort"
 	"time"
 
@@ -114,7 +113,7 @@ func (r *podResourceRecommender) estimateContainerResources(containerName string
 	if algorithmRun {
 		baseEstimation, err0 := r.targetEstimator.GetResourceEstimation(containerName, s)
 		r.oomPostProcessor.RecordBaseEstimation(containerName, baseEstimation, err0)
-		fmt.Printf("Base: %+v\n", baseEstimation)
+		// fmt.Printf("Base: %+v\n", baseEstimation)
 	}
 	estimation, err := r.oomPostProcessor.GetOOMPostProcessedEstimation(containerName, s)
 	res := FilterControlledResources(estimation, s.GetControlledResources())

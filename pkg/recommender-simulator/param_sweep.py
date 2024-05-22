@@ -5,20 +5,20 @@ import json
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-const_cpu = True
-const_memory = False
+const_cpu = False
+const_memory = True
 
 task_def = { # min, max, default, num
-    "ap-ml-cpu-hyperparam-d": [0.0, 1.0, 0.96, 26],
-    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 0.0, 0.0, 1],
-    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 0.0, 0.0, 1],
-    "ap-ml-cpu-hyperparam-wo": [0.0, 1.0, 0.04, 26],
-    "ap-ml-cpu-hyperparam-wu": [0.0, 1.0, 0.0, 26],
-    "ap-ml-memory-hyperparam-d": [0.0, 1.0, 0.99, 11],
-    "ap-ml-memory-hyperparam-wdeltal": [0.0, 1.0, 0.001, 11],
-    "ap-ml-memory-hyperparam-wdeltam": [0.0, 1.0, 0.01, 11],
-    "ap-ml-memory-hyperparam-wo": [0.0, 1.0, 80, 11],
-    "ap-ml-memory-hyperparam-wu": [0.0, 0.0, 0, 1]
+    "ap-ml-cpu-hyperparam-d":       [0.0, 1.0, 0.96, 8],
+    "ap-ml-cpu-hyperparam-wdeltal": [0.0, 1.0, 0.0, 8],
+    "ap-ml-cpu-hyperparam-wdeltam": [0.0, 1.0, 0.0, 8],
+    "ap-ml-cpu-hyperparam-wo":      [0.0, 1.0, 0.04, 8],
+    "ap-ml-cpu-hyperparam-wu":      [0.0, 1.0, 0.0, 8],
+    "ap-ml-memory-hyperparam-d":        [0.0, 1.0, 0.02, 11],
+    "ap-ml-memory-hyperparam-wdeltal":  [0.0, 1.0, 0.0000000000099999, 11],
+    "ap-ml-memory-hyperparam-wdeltam":  [0.0, 1.0, 0.00000000000000005, 11],
+    "ap-ml-memory-hyperparam-wo":       [0.0, 1.0, 0.5, 11],
+    "ap-ml-memory-hyperparam-wu":       [0.0, 0.0, 0.00000000001, 1]
 }
 
 max_workers = 32
@@ -55,12 +55,12 @@ init_args = [
     "-ap-memory-histogram-max=3483278000",
     "-ap-memory-histogram-n=5",
     "-ap-memory-recommend-policy=sp_98",
-    "-ap-ml-cpu-max-mm=1.0",
-    "-ap-ml-cpu-num-dm=20",
-    "-ap-ml-cpu-num-mm=20",
-    "-ap-ml-memory-max-mm=500000000",
-    "-ap-ml-memory-num-dm=20",
-    "-ap-ml-memory-num-mm=20",
+    "-ap-ml-cpu-size-buckets-mm=1",
+    "-ap-ml-cpu-num-dm=50",
+    "-ap-ml-cpu-num-mm=400",
+    "-ap-ml-memory-size-buckets-mm=1",
+    "-ap-ml-memory-num-dm=50",
+    "-ap-ml-memory-num-mm=500",
     "-initial-cpu=0.6",
     "-initial-memory=600000000",
     "-metrics-file=",

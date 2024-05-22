@@ -54,15 +54,15 @@ func (m *MockAutopilotHisto) NumSamplesWithValueLessThan(idL int) int {
 	return args.Get(0).(int)
 }
 
-func (m *MockAutopilotHisto) NumSamplesWithValueMoreThanValue(l float64) int {
-	args := m.Called(l)
-	return args.Get(0).(int)
-}
+// func (m *MockAutopilotHisto) NumSamplesWithValueMoreThanValue(l float64) int {
+// 	args := m.Called(l)
+// 	return args.Get(0).(int)
+// }
 
-func (m *MockAutopilotHisto) NumSamplesWithValueLessThanValue(l float64) int {
-	args := m.Called(l)
-	return args.Get(0).(int)
-}
+// func (m *MockAutopilotHisto) NumSamplesWithValueLessThanValue(l float64) int {
+// 	args := m.Called(l)
+// 	return args.Get(0).(int)
+// }
 
 func (m *MockAutopilotHisto) GetMaxIdL() int {
 	args := m.Called()

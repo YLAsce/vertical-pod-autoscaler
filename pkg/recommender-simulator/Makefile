@@ -1,7 +1,6 @@
 all: clean build
 
-GOPATH=/Users/yuqiangma/go
-# GOPATH=/root/go
+GOPATH := $(shell go env GOPATH)
 
 clean:
 	rm -rf ${GOPATH}/src/k8s.io/autoscaler/vertical-pod-autoscaler/pkg
@@ -31,17 +30,17 @@ run-rule:
 		-ap-ml-cpu-hyperparam-wdeltam=0.5 \
 		-ap-ml-cpu-hyperparam-wo=0.5 \
 		-ap-ml-cpu-hyperparam-wu=0.5 \
-		-ap-ml-cpu-max-mm=1.0 \
-		-ap-ml-cpu-num-dm=20 \
-		-ap-ml-cpu-num-mm=20 \
+		-ap-ml-cpu-size-buckets-mm=1 \
+		-ap-ml-cpu-num-dm=50 \
+		-ap-ml-cpu-num-mm=400 \
 		-ap-ml-memory-hyperparam-d=0.7 \
 		-ap-ml-memory-hyperparam-wdeltal=0.05 \
 		-ap-ml-memory-hyperparam-wdeltam=0.05 \
 		-ap-ml-memory-hyperparam-wo=0.5 \
 		-ap-ml-memory-hyperparam-wu=0.5 \
-		-ap-ml-memory-max-mm=500000000 \
-		-ap-ml-memory-num-dm=20 \
-		-ap-ml-memory-num-mm=20 \
+		-ap-ml-memory-size-buckets-mm=1 \
+		-ap-ml-memory-num-dm=50 \
+		-ap-ml-memory-num-mm=500 \
 		-initial-cpu=0.6 \
 		-initial-memory=600000000 \
 		-metrics-file=metrics-rule \
@@ -72,24 +71,24 @@ run-ml:
 		-ap-ml-cpu-hyperparam-wdeltam=0.0 \
 		-ap-ml-cpu-hyperparam-wo=0.04 \
 		-ap-ml-cpu-hyperparam-wu=0.0 \
-		-ap-ml-cpu-max-mm=1.0 \
-		-ap-ml-cpu-num-dm=20 \
-		-ap-ml-cpu-num-mm=20 \
+		-ap-ml-cpu-size-buckets-mm=1 \
+		-ap-ml-cpu-num-dm=50 \
+		-ap-ml-cpu-num-mm=400 \
 		-ap-ml-memory-hyperparam-d=0.1 \
 		-ap-ml-memory-hyperparam-wdeltal=0.0 \
-		-ap-ml-memory-hyperparam-wdeltam=0.0 \
+		-ap-ml-memory-hyperparam-wdeltam=0.1 \
 		-ap-ml-memory-hyperparam-wo=0.2 \
 		-ap-ml-memory-hyperparam-wu=0.0 \
-		-ap-ml-memory-max-mm=500000000 \
-		-ap-ml-memory-num-dm=20 \
-		-ap-ml-memory-num-mm=20 \
+		-ap-ml-memory-size-buckets-mm=1 \
+		-ap-ml-memory-num-dm=50 \
+		-ap-ml-memory-num-mm=500 \
 		-initial-cpu=0.6 \
 		-initial-memory=600000000 \
-		-metrics-file=metrics-ml-testmem1 \
+		-metrics-file=metrics-mlv2-1 \
 		-oom-bump-up-ratio=1.2 \
 		-oom-min-bump-up-bytes=100000000 \
 		-recommender-interval=5m \
 		-trace-file=trace \
-		-metrics-summary-file=metrics-summary-ml-testmem1 \
+		-metrics-summary-file=metrics-summary-mlv2-1 \
 		-metrics-summary-ignore-head=1800 \
 		-memory-limit-request-ratio=1.04

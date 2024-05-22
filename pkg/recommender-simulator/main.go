@@ -37,8 +37,8 @@ func main() {
 	initialTime := time.Now()
 
 	metricsCollector := NewMetricsCollector(*memoryLimitRequestRatio)
-
-	// memoryOverrunSeconds := 0
+	start := time.Now()
+	memoryOverrunSeconds := 0
 	for {
 		ok, period, cpu, memory := traceParser.ScanNext()
 		if !ok {
@@ -78,12 +78,12 @@ func main() {
 			curCPUUsage = curCPUSample
 			curMemoryUsage = curMemorySample
 
-			// if memoryOverrun {
-			// 	memoryOverrunSeconds += 1
-			// }
-			// if memoryOverrunSeconds > 400 {
-			// 	return
-			// }
+			if memoryOverrun {
+				memoryOverrunSeconds += 1
+			}
+			if memoryOverrunSeconds > 400 {
+				return
+			}
 			metricsCollector.Record(metricPoint{
 				CpuUsage:      curCPUUsage,
 				CpuRequest:    curCPURequest,
@@ -103,20 +103,23 @@ func main() {
 				if ok {
 					curCPURequest = recommendedResources.Target[model.ResourceCPU]
 					curMemoryRequest = recommendedResources.Target[model.ResourceMemory]
-					fmt.Printf("Recommendation: %+v\n", recommendedResources.Target)
+					// fmt.Printf("Recommendation: %+v\n", recommendedResources.Target)
 				}
 			} else if oom {
 				recommendedResources, ok = executor.Recommend(false)
 				if ok {
 					curCPURequest = recommendedResources.Target[model.ResourceCPU]
 					curMemoryRequest = recommendedResources.Target[model.ResourceMemory]
-					fmt.Printf("OOM Recommendation: %+v\n", recommendedResources.Target)
+					// fmt.Printf("OOM Recommendation: %+v\n", recommendedResources.Target)
 				}
 			}
 
 		}
 	}
+	elapsed := time.Since(start)
 
+	// 打印运行时间
+	fmt.Printf("Function took %s to execute\n", elapsed)
 	metricsCollector.Dump()
 	metricsCollector.DumpSummary()
 }
