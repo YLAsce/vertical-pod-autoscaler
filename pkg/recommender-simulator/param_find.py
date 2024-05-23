@@ -10,16 +10,16 @@ from concurrent.futures import ThreadPoolExecutor
 iter_class = "memory"
 
 task_def = { # min, max, default, num
-    "ap-ml-cpu-hyperparam-d":           [0.0, 1.0, 0.8571428571428571, 100],
-    "ap-ml-cpu-hyperparam-wdeltal":     [0.0, 1.0, 0.0, 100],
-    "ap-ml-cpu-hyperparam-wdeltam":     [0.0, 1.0, 0.0, 100],
-    "ap-ml-cpu-hyperparam-wo":          [0.0, 1.0, 0.14285714285714285,100],
-    "ap-ml-cpu-hyperparam-wu":          [0.0, 1.0, 0.0, 100],
-    "ap-ml-memory-hyperparam-d":        [0.0, 1.0, 0.7142857142857142, 100],
-    "ap-ml-memory-hyperparam-wdeltal":  [0.0, 1.0, 0.14285714285714285, 100],
-    "ap-ml-memory-hyperparam-wdeltam":  [0.0, 1.0, 0.7142857142857142, 100],
-    "ap-ml-memory-hyperparam-wo":       [0.0, 1.0, 0.8571428571428571, 100],
-    "ap-ml-memory-hyperparam-wu":       [0.0, 1.0, 0.0, 100]
+    "ap-ml-cpu-hyperparam-d":           [0.0, 1.0, 0.8571428571428571, 101],
+    "ap-ml-cpu-hyperparam-wdeltal":     [0.0, 1.0, 0.0, 101],
+    "ap-ml-cpu-hyperparam-wdeltam":     [0.0, 1.0, 0.0, 101],
+    "ap-ml-cpu-hyperparam-wo":          [0.0, 1.0, 0.14285714285714285,101],
+    "ap-ml-cpu-hyperparam-wu":          [0.0, 1.0, 0.0, 101],
+    "ap-ml-memory-hyperparam-d":        [0.0, 1.0, 0.7142857142857142, 101],
+    "ap-ml-memory-hyperparam-wdeltal":  [0.0, 1.0, 0.14285714285714285, 101],
+    "ap-ml-memory-hyperparam-wdeltam":  [0.0, 1.0, 0.7142857142857142, 101],
+    "ap-ml-memory-hyperparam-wo":       [0.0, 1.0, 0.8571428571428571, 101],
+    "ap-ml-memory-hyperparam-wu":       [0.0, 1.0, 0.0, 101]
 }
 
 init_args = [
@@ -64,6 +64,11 @@ max_adjust = {
     "memory": 1000,
 }
 
+def print_args(args):
+    for k, v in args.items():
+        if iter_class in k:
+            print(k, v)
+
 def process_convex(convex_dimension):
 
     max_workers = 32
@@ -80,6 +85,7 @@ def process_convex(convex_dimension):
             r.append(d[2])
         ranges.append(r)
         names.append(n)
+    print("Ranges:", ranges)
 
     file_index = 0
     threadpool_results = []
@@ -114,16 +120,14 @@ def process_convex(convex_dimension):
         try:
             with open('metrics/tmp/{}-{}_1.04.json'.format(i, convex_dimension), 'r') as f:
                 single_run_result = json.load(f)
-                if single_run_result['{}-overrun-seconds'.format(iter_class)] > max_overrun[iter_class]:
-                    continue
-                if single_run_result['{}-request-adjust-times'.format(iter_class)] > max_adjust[iter_class]:
-                    continue
-                if single_run_result['{}-average-gap'.format(iter_class)] < mingap:
-                    mingap = single_run_result['{}-average-gap'.format(iter_class)]
-                    output = {}
-                    output["args"] = output_args_list[i]
-                    output["result"] = single_run_result
-                    minoutput = output
+                if single_run_result['{}-overrun-seconds'.format(iter_class)] <= max_overrun[iter_class]:
+                    if single_run_result['{}-request-adjust-times'.format(iter_class)] <= max_adjust[iter_class]:
+                        if single_run_result['{}-average-gap'.format(iter_class)] < mingap:
+                            mingap = single_run_result['{}-average-gap'.format(iter_class)]
+                            output = {}
+                            output["args"] = output_args_list[i]
+                            output["result"] = single_run_result
+                            minoutput = output
             
             os.remove('metrics/tmp/{}-{}_1.04.json'.format(i, convex_dimension))
         except FileNotFoundError:
@@ -136,17 +140,25 @@ def process_convex(convex_dimension):
 
 select_keys = [key for key in task_def.keys() if iter_class in key]
 
-def do_once(round):
-    print("Cur task def:", task_def)
+def do_descent(round):
+    print("Cur Randompoint task def:")
+    print_args(task_def)
     mingap = 100000000000.0
     minoutput = {}
     prevmingap = 100000000000.0
+    i = 0
     while(1):
         random.shuffle(select_keys)
         for k in select_keys:
-            print("============Start round")
+            print("============Start descent round", i, k)
             mingap, minoutput = process_convex(k)
-            print("============Finish round")
+            print("============Finish descent round, mingap=", mingap)
+            print("minoutput=")
+            if len(minoutput) > 0:
+                print_args(minoutput['args'])
+            else:
+                print("NO OUTPUT")
+            i += 1
         if prevmingap - mingap < 1.0:
             with open('find/cur_best_{}_{}.json'.format(iter_class, round), 'w') as f:
                 json.dump(minoutput, f, indent=4)
@@ -157,8 +169,9 @@ r = 0
 while(1):
     for k in select_keys:
         task_def[k][2] = random.uniform(0,1)
-        minoutput = do_once(r)
-        r += 1
-        with open('find/best_{}.json'.format(iter_class), 'w') as f:
-            json.dump(minoutput, f, indent=4)
+
+    minoutput = do_descent(r)
+    r += 1
+    with open('find/best_{}.json'.format(iter_class), 'w') as f:
+        json.dump(minoutput, f, indent=4)
     

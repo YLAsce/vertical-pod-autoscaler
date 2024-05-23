@@ -2,9 +2,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"time"
-
+	
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/logic"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/model"
 )
@@ -38,7 +37,7 @@ func main() {
 	initialTime := time.Now()
 
 	metricsCollector := NewMetricsCollector(*memoryLimitRequestRatio)
-	start := time.Now()
+	// start := time.Now()
 	memoryOverrunSeconds := 0
 	for {
 		ok, period, cpu, memory := traceParser.ScanNext()
@@ -119,10 +118,10 @@ func main() {
 
 		}
 	}
-	elapsed := time.Since(start)
+	// _ := time.Since(start)
 
 	// 打印运行时间
-	fmt.Printf("Time: %s. Summary file: %s\n", elapsed, *metricsSummaryFile)
+	// fmt.Printf("Time: %s. Summary file: %s\n", elapsed, *metricsSummaryFile)
 	metricsCollector.Dump()
 	metricsCollector.DumpSummary()
 }
