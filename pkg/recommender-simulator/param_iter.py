@@ -3,7 +3,10 @@ import itertools
 import subprocess
 import json
 import time
+import random
 from concurrent.futures import ThreadPoolExecutor
+
+iter_class = "cpu"
 
 task_def = { # min, max, default, num
     "ap-ml-cpu-hyperparam-d":           [0.0, 1.0, 0.8571428571428571, 500],
@@ -47,8 +50,18 @@ init_args = [
 "-trace-file=trace",
 "-metrics-summary-ignore-head=1800",
 "-memory-limit-request-ratio=1.04",
-"-exit-memory-large-overrun=0"
+"-exit-memory-large-overrun=400"
 ]
+
+max_overrun = {
+    "cpu": 20000,
+    "memory": 2000,
+}
+
+max_adjust = {
+    "cpu": 1000,
+    "memory": 1000,
+}
 
 def process_convex(convex_dimension, round):
 
@@ -100,12 +113,12 @@ def process_convex(convex_dimension, round):
         try:
             with open('metrics/tmp/{}-{}_1.04.json'.format(i, convex_dimension), 'r') as f:
                 single_run_result = json.load(f)
-                if single_run_result['cpu-overrun-seconds'] > 20000:
+                if single_run_result['{}-overrun-seconds'.format(iter_class)] > max_overrun[iter_class]:
                     continue
-                if single_run_result['cpu-request-adjust-times'] > 600:
+                if single_run_result['{}-request-adjust-times'.format(iter_class)] > max_adjust[iter_class]:
                     continue
-                if single_run_result['cpu-average-gap'] < mingap:
-                    mingap = single_run_result['cpu-average-gap']
+                if single_run_result['{}-average-gap'.format(iter_class)] < mingap:
+                    mingap = single_run_result['{}-average-gap'.format(iter_class)]
                     output = {}
                     output["args"] = output_args_list[i]
                     output["result"] = single_run_result
@@ -116,12 +129,20 @@ def process_convex(convex_dimension, round):
     for k, v in minoutput['args'].items():
         task_def[k][2] = v
 
-    with open('iter/cpu_{}_{}.json'.format(round, convex_dimension), 'w') as f:
+    with open('iter/{}_{}_{}.json'.format(iter_class, round, convex_dimension), 'w') as f:
         json.dump(minoutput, f, indent=4)
 
-while(1):
-    i = 0
-    for k in task_def.keys():
-        process_convex(k, i)
-        i += 1
+keys = [key for key in task_def.keys() if iter_class in key]
 
+prev_key = ""
+
+i = 0
+while(1):
+    k = random.choice(keys)
+    if k == prev_key:
+        continue
+    prev_key = k
+    print("============Start round", i, k)
+    process_convex(k, i)
+    i += 1
+    print("============Finish round", i)
