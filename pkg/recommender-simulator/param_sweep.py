@@ -5,8 +5,8 @@ import json
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-const_cpu = False
-const_memory = True
+const_cpu = True
+const_memory = False
 
 task_def = { # min, max, default, num
     "ap-ml-cpu-hyperparam-d":       [0.0, 1.0, 0.96, 8],
