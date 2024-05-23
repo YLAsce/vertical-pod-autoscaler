@@ -117,7 +117,7 @@ def process_convex(convex_dimension, round):
         task_def[k][2] = v
 
     with open('iter/cpu_{}_{}.json'.format(round, convex_dimension), 'w') as f:
-        json.dump(minoutput, f)
+        json.dump(minoutput, f, indent=4)
 
 while(1):
     i = 0
