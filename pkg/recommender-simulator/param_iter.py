@@ -6,7 +6,7 @@ import time
 import random
 from concurrent.futures import ThreadPoolExecutor
 
-iter_class = "cpu"
+iter_class = "memory"
 
 task_def = { # min, max, default, num
     "ap-ml-cpu-hyperparam-d":           [0.0, 1.0, 0.8571428571428571, 500],
@@ -50,7 +50,7 @@ init_args = [
 "-trace-file=trace",
 "-metrics-summary-ignore-head=1800",
 "-memory-limit-request-ratio=1.04",
-"-exit-memory-large-overrun=400"
+"-exit-memory-large-overrun=2000"
 ]
 
 max_overrun = {
