@@ -113,6 +113,6 @@ for i in range(len(output_args_list)):
     except FileNotFoundError:
         continue
 
-with open('param_sweep_result.json', 'w') as f:
+with open('sweep/param_sweep_result.json', 'w') as f:
     json.dump(outputs, f)
     
