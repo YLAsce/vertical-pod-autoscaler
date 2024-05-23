@@ -57,7 +57,7 @@ for _ in range(len(timestamps) - len(cpu_request2)):
     cpu_request2.append(0.0)
     memory_request2.append(0.0)
 
-fig, (ax1, ax2) = plt.subplots(2)
+fig, (ax1, ax2) = plt.subplots(2, figsize=(14, 5))
 
 # 在第一个子图上绘制 CPU 曲线
 ax1.plot(timestamps, cpu_request, label='CPU Request ML')

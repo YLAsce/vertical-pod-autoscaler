@@ -13,6 +13,7 @@ var (
 	initialCPU              = flag.Float64("initial-cpu", 0.8, "initial cpu cores request&limit in kubernetes yaml, (same value)")
 	initialMemory           = flag.Int64("initial-memory", 600000000, "initial memory bytes request&limit in kubernetes yaml, (same value)")
 	memoryLimitRequestRatio = flag.Float64("memory-limit-request-ratio", 1.04, "memory limit = this value*memory request(recommended)")
+	exitWhenLargeOverrun    = flag.Int("exit-memory-large-overrun", 0, "exit when memory overrun > this value, to save time, 0 is disable")
 )
 
 var (
@@ -78,11 +79,13 @@ func main() {
 			curCPUUsage = curCPUSample
 			curMemoryUsage = curMemorySample
 
-			if memoryOverrun {
-				memoryOverrunSeconds += 1
-			}
-			if memoryOverrunSeconds > 400 {
-				return
+			if *exitWhenLargeOverrun > 0 {
+				if memoryOverrun {
+					memoryOverrunSeconds += 1
+				}
+				if memoryOverrunSeconds > *exitWhenLargeOverrun {
+					return
+				}
 			}
 			metricsCollector.Record(metricPoint{
 				CpuUsage:      curCPUUsage,
@@ -119,7 +122,7 @@ func main() {
 	elapsed := time.Since(start)
 
 	// 打印运行时间
-	fmt.Printf("Function took %s to execute\n", elapsed)
+	fmt.Printf("Time: %s. Summary file: %s\n", elapsed, *metricsSummaryFile)
 	metricsCollector.Dump()
 	metricsCollector.DumpSummary()
 }

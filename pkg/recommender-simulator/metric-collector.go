@@ -95,7 +95,7 @@ type MetricsSummary struct {
 }
 
 func (m *metricsCollector) DumpSummary() {
-	fmt.Printf("Start Dump Summary %s %v\n", *metricsSummaryFile, *metricsSummaryIgnoreHead)
+	// fmt.Printf("Start Dump Summary %s %v\n", *metricsSummaryFile, *metricsSummaryIgnoreHead)
 	if len(*metricsSummaryFile) == 0 {
 		return
 	}

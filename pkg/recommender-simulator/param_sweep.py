@@ -69,7 +69,8 @@ init_args = [
     "-recommender-interval=5m",
     "-trace-file=trace",
     "-metrics-summary-ignore-head=1800",
-    "-memory-limit-request-ratio=1.04"
+    "-memory-limit-request-ratio=1.04",
+    "-exit-memory-large-overrun=400"
 ]
 
 file_index = 0
