@@ -3,7 +3,7 @@ import pprint
 import sys
 import matplotlib.pyplot as plt
 
-filename = sys.argv[1]
+filename = 'metrics-mlv2-test'# sys.argv[1]
 
 timestamps = []
 

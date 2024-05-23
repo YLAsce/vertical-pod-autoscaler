@@ -106,14 +106,14 @@ func main() {
 				if ok {
 					curCPURequest = recommendedResources.Target[model.ResourceCPU]
 					curMemoryRequest = recommendedResources.Target[model.ResourceMemory]
-					// fmt.Printf("Recommendation: %+v\n", recommendedResources.Target)
+					fmt.Printf("Recommendation: %+v\n", recommendedResources.Target)
 				}
 			} else if oom {
 				recommendedResources, ok = executor.Recommend(false)
 				if ok {
 					curCPURequest = recommendedResources.Target[model.ResourceCPU]
 					curMemoryRequest = recommendedResources.Target[model.ResourceMemory]
-					// fmt.Printf("OOM Recommendation: %+v\n", recommendedResources.Target)
+					fmt.Printf("OOM Recommendation: %+v\n", recommendedResources.Target)
 				}
 			}
 
