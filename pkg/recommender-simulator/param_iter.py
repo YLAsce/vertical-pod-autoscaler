@@ -60,7 +60,7 @@ max_overrun = {
 
 max_adjust = {
     "cpu": 1000,
-    "memory": 800,
+    "memory": 1000,
 }
 
 def process_convex(convex_dimension, round):
@@ -113,9 +113,9 @@ def process_convex(convex_dimension, round):
         try:
             with open('metrics/tmp/{}-{}_1.04.json'.format(i, convex_dimension), 'r') as f:
                 single_run_result = json.load(f)
-                if single_run_result['{}-overrun-seconds'.format(iter_class)] > 20000:
+                if single_run_result['{}-overrun-seconds'.format(iter_class)] > max_overrun[iter_class]:
                     continue
-                if single_run_result['{}-request-adjust-times'.format(iter_class)] > 500:
+                if single_run_result['{}-request-adjust-times'.format(iter_class)] > max_adjust[iter_class]:
                     continue
                 if single_run_result['{}-average-gap'.format(iter_class)] < mingap:
                     mingap = single_run_result['{}-average-gap'.format(iter_class)]
@@ -130,7 +130,7 @@ def process_convex(convex_dimension, round):
         task_def[k][2] = v
 
     with open('iter/{}_{}_{}.json'.format(iter_class, round, convex_dimension), 'w') as f:
-        json.dump(minoutput, f)
+        json.dump(minoutput, f, indent=4)
 
 keys = [key for key in task_def.keys() if iter_class in key]
 
