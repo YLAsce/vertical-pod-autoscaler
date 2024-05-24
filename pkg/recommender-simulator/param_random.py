@@ -56,12 +56,12 @@ init_args = [
 
 max_overrun = {
     "cpu": 20000,
-    "memory": 500,
+    "memory": 9840,
 }
 
 max_adjust = {
     "cpu": 1000,
-    "memory": 500,
+    "memory": 100,
 }
 
 select_keys = [key for key in task_def.keys() if iter_class in key]
