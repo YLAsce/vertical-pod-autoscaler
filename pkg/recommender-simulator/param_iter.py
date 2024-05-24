@@ -55,12 +55,12 @@ init_args = [
 
 max_overrun = {
     "cpu": 20000,
-    "memory": 2000,
+    "memory": 10000,
 }
 
 max_adjust = {
     "cpu": 1000,
-    "memory": 1000,
+    "memory": 500,
 }
 
 def process_convex(convex_dimension, round):
