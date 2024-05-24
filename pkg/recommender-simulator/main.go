@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"time"
-	
+
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/logic"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/model"
 )
