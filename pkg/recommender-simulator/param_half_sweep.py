@@ -53,24 +53,24 @@ init_args = [
     "-trace-file=trace",
     "-metrics-summary-ignore-head=1800",
     "-memory-limit-request-ratio=1.04",
-    "-exit-memory-large-overrun=400"
+    "-exit-memory-large-overrun=10000"
 ]
 
 for k, v in task_def.items():
     if 'cpu' in k:
-        init_args.append("-{}={}".format(k, v))
+        init_args.append("-{}={}".format(k, v[2]))
 
 file_index = 0
 threadpool_results = []
 output_args_list = []
 with ThreadPoolExecutor(max_workers=max_workers) as executor:
-    for md in np.linspace(0.0, 1.0, 50):
-        for mwo in np.linspace(0.01, 1.0, 50):
+    for md in np.linspace(0.0, 1.0, 10):
+        for mwo in np.linspace(0.5, 1.0, 5):
             for mwu in np.linspace(0.01, 0.01, 1):
-                for mwdeltaldiff in range(3, 15):
+                for mwdeltaldiff in range(3, 8):
                     mwdeltal = max(0, mwu - 10**-mwdeltaldiff)
 
-                    for mwdeltamdiff in range(mwdeltaldiff, 15):
+                    for mwdeltamdiff in range(mwdeltaldiff, 8):
                         mwdeltam = max(0, 10**-mwdeltaldiff - 10**-mwdeltamdiff)
                         print(md, mwo, mwu, mwdeltal, mwdeltam)
                         copied_args = init_args[:]
@@ -106,7 +106,7 @@ mingap = 100000000000.0
 iter_class = "memory"
 max_overrun = {
     "cpu": 20000,
-    "memory": 8000,
+    "memory": 10000,
 }
 
 max_adjust = {
