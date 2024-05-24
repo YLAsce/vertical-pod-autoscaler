@@ -75,8 +75,8 @@ run-ml:
 		-ap-ml-cpu-num-dm=50 \
 		-ap-ml-cpu-num-mm=400 \
 		-ap-ml-memory-hyperparam-d=0.612 \
-		-ap-ml-memory-hyperparam-wdeltal=0.0099 \
-		-ap-ml-memory-hyperparam-wdeltam=0.00009 \
+		-ap-ml-memory-hyperparam-wdeltal=0.00999 \
+		-ap-ml-memory-hyperparam-wdeltam=0.000009 \
 		-ap-ml-memory-hyperparam-wo=0.9 \
 		-ap-ml-memory-hyperparam-wu=0.01 \
 		-ap-ml-memory-size-buckets-mm=1 \
@@ -84,12 +84,12 @@ run-ml:
 		-ap-ml-memory-num-mm=500 \
 		-initial-cpu=0.6 \
 		-initial-memory=600000000 \
-		-metrics-file=metrics-mlv2-test \
+		-metrics-file=metrics-mlv2-test2 \
 		-oom-bump-up-ratio=1.2 \
 		-oom-min-bump-up-bytes=100000000 \
 		-recommender-interval=5m \
 		-trace-file=trace \
-		-metrics-summary-file=metrics-summary-mlv2-test \
+		-metrics-summary-file=metrics-summary-mlv2-test2 \
 		-metrics-summary-ignore-head=1800 \
 		-memory-limit-request-ratio=1.04 \
 		-exit-memory-large-overrun=0

@@ -56,47 +56,80 @@ init_args = [
     "-exit-memory-large-overrun=400"
 ]
 
+for k, v in task_def.items():
+    if 'cpu' in k:
+        init_args.append("-{}={}".format(k, v))
+
 file_index = 0
 threadpool_results = []
 output_args_list = []
 with ThreadPoolExecutor(max_workers=max_workers) as executor:
-    for c in itertools.product(*ranges) :
-        total_tasks += 1
-        copied_args = init_args[:]
+    for md in np.linspace(0.0, 1.0, 50):
+        for mwo in np.linspace(0.01, 1.0, 50):
+            for mwu in np.linspace(0.01, 0.01, 1):
+                for mwdeltaldiff in range(3, 15):
+                    mwdeltal = max(0, mwu - 10**-mwdeltaldiff)
 
-        output_args = {}
-        for i in range(len(c)):
-            copied_args.append("-{}={}".format(names[i], c[i]))
-            output_args[names[i]] = c[i]
+                    for mwdeltamdiff in range(mwdeltaldiff, 15):
+                        mwdeltam = max(0, 10**-mwdeltaldiff - 10**-mwdeltamdiff)
+                        print(md, mwo, mwu, mwdeltal, mwdeltam)
+                        copied_args = init_args[:]
+                        copied_args.append("-{}={}".format("ap-ml-memory-hyperparam-d", md))
+                        copied_args.append("-{}={}".format("ap-ml-memory-hyperparam-wdeltal", mwdeltal))
+                        copied_args.append("-{}={}".format("ap-ml-memory-hyperparam-wdeltam", mwdeltam))
+                        copied_args.append("-{}={}".format("ap-ml-memory-hyperparam-wo", mwo))
+                        copied_args.append("-{}={}".format("ap-ml-memory-hyperparam-wu", mwu))
+                        output_args = {}
+                        output_args["ap-ml-memory-hyperparam-d"] = md
+                        output_args["ap-ml-memory-hyperparam-wdeltal"] = mwdeltal
+                        output_args["ap-ml-memory-hyperparam-wdeltam"] = mwdeltam
+                        output_args["ap-ml-memory-hyperparam-wo"] = mwo
+                        output_args["ap-ml-memory-hyperparam-wu"] = mwu
+                        
+                        output_args_list.append(output_args)
+                        copied_args.append("-metrics-summary-file=tmp/{}".format(file_index))
 
-        output_args_list.append(output_args)
-        copied_args.append("-metrics-summary-file=tmp/{}".format(file_index))
+                        threadpool_results.append(executor.submit(subprocess.run, copied_args, check=True))
+                        file_index += 1
+                        # break
 
-        print("Add Task: ARG:", c)
-        threadpool_results.append(executor.submit(subprocess.run, copied_args, check=True))
-        file_index += 1
-        # break
-
-print("++++++++++Total tasks++++++++++: ", total_tasks)
+print("++++++++++Total tasks++++++++++: ", file_index)
 
 for future in threadpool_results:
     if future.result().returncode != 0:
         print("Error return code in experiment!!!! check and rerun")
         exit(1)
 
-outputs = []
+minoutput = {}
+mingap = 100000000000.0
+
+iter_class = "memory"
+max_overrun = {
+    "cpu": 20000,
+    "memory": 8000,
+}
+
+max_adjust = {
+    "cpu": 1000,
+    "memory": 100,
+}
 
 for i in range(len(output_args_list)):
     try:
         with open('metrics/tmp/{}_1.04.json'.format(i), 'r') as f:
             single_run_result = json.load(f)
-            output = {}
-            output["args"] = output_args_list[i]
-            output["result"] = single_run_result
-            outputs.append(output)
+            if single_run_result['{}-overrun-seconds'.format(iter_class)] <= max_overrun[iter_class]:
+                    if single_run_result['{}-request-adjust-times'.format(iter_class)] <= max_adjust[iter_class]:
+                        if single_run_result['{}-average-gap'.format(iter_class)] < mingap:
+                            mingap = single_run_result['{}-average-gap'.format(iter_class)]
+                            output = {}
+                            output["args"] = output_args_list[i]
+                            output["result"] = single_run_result
+                            minoutput = output
+
     except FileNotFoundError:
         continue
 
-with open('sweep/param_sweep_result.json', 'w') as f:
-    json.dump(outputs, f)
+with open('halfsweep/half_sweep_result.json', 'w') as f:
+    json.dump(minoutput, f)
     
