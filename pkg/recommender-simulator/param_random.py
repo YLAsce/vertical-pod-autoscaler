@@ -56,12 +56,12 @@ init_args = [
 
 max_overrun = {
     "cpu": 20000,
-    "memory": 2000,
+    "memory": 500,
 }
 
 max_adjust = {
     "cpu": 1000,
-    "memory": 1000,
+    "memory": 500,
 }
 
 select_keys = [key for key in task_def.keys() if iter_class in key]
@@ -72,6 +72,7 @@ minoutput = {}
 mingap = 100000000000.0
 
 while(1):
+    print("start")
     file_index = 0
     threadpool_results = []
     output_args_list = []
@@ -83,7 +84,7 @@ while(1):
                 task_def[k] = random.uniform(0,1)
 
             for k, v in task_def.items():
-                copied_args.append("-{}={}".format(k, v[2]))
+                copied_args.append("-{}={}".format(k, v))
                 output_args[k] = v
 
             output_args_list.append(output_args)
@@ -113,6 +114,6 @@ while(1):
             os.remove('metrics/tmp/{}_1.04.json'.format(i))
         except FileNotFoundError:
             continue
-
+    print(mingap)
     with open('random/best_{}.json'.format(iter_class), 'w') as f:
         json.dump(minoutput, f, indent=4)
