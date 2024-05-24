@@ -51,17 +51,17 @@ init_args = [
 "-trace-file=trace",
 "-metrics-summary-ignore-head=1800",
 "-memory-limit-request-ratio=1.04",
-"-exit-memory-large-overrun=2000"
+"-exit-memory-large-overrun=10000"
 ]
 
 max_overrun = {
     "cpu": 20000,
-    "memory": 2000,
+    "memory": 9840,
 }
 
 max_adjust = {
     "cpu": 1000,
-    "memory": 1000,
+    "memory": 100,
 }
 
 def print_args(args):
@@ -162,16 +162,22 @@ def do_descent(round):
         if prevmingap - mingap < 1.0:
             with open('find/cur_best_{}_{}.json'.format(iter_class, round), 'w') as f:
                 json.dump(minoutput, f, indent=4)
-            return minoutput
+            return minoutput, mingap
         prevmingap = mingap
 
 r = 0
+gmingap = 100000000000.0
+gminoutput = {}
 while(1):
     for k in select_keys:
         task_def[k][2] = random.uniform(0,1)
 
-    minoutput = do_descent(r)
+    minoutput, mingap = do_descent(r)
+    if mingap < gmingap:
+        gminoutput = minoutput
+        gmingap = mingap
+
     r += 1
     with open('find/best_{}.json'.format(iter_class), 'w') as f:
-        json.dump(minoutput, f, indent=4)
+        json.dump(gminoutput, f, indent=4)
     

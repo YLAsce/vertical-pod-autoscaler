@@ -60,7 +60,7 @@ max_overrun = {
 
 max_adjust = {
     "cpu": 1000,
-    "memory": 500,
+    "memory": 100,
 }
 
 def process_convex(convex_dimension, round):

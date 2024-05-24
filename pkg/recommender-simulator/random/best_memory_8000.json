@@ -1,0 +1,23 @@
+{
+    "args": {
+        "ap-ml-cpu-hyperparam-d": 0.8571428571428571,
+        "ap-ml-cpu-hyperparam-wdeltal": 0.0,
+        "ap-ml-cpu-hyperparam-wdeltam": 0.0,
+        "ap-ml-cpu-hyperparam-wo": 0.14285714285714285,
+        "ap-ml-cpu-hyperparam-wu": 0.0,
+        "ap-ml-memory-hyperparam-d": 0.12891434594186268,
+        "ap-ml-memory-hyperparam-wdeltal": 0.011473700643622742,
+        "ap-ml-memory-hyperparam-wdeltam": 0.4424730793034166,
+        "ap-ml-memory-hyperparam-wo": 0.9474255548247077,
+        "ap-ml-memory-hyperparam-wu": 0.46981474146959057
+    },
+    "result": {
+        "cpu-average-gap": 237.61052678771577,
+        "memory-average-gap": 289695044.0873728,
+        "cpu-overrun-seconds": 15852,
+        "memory-overrun-seconds": 1549,
+        "oom-seconds": 23,
+        "cpu-request-adjust-times": 143,
+        "memory-request-adjust-times": 46
+    }
+}

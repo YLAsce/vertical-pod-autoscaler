@@ -56,7 +56,7 @@ init_args = [
 
 max_overrun = {
     "cpu": 20000,
-    "memory": 9840,
+    "memory": 8000,
 }
 
 max_adjust = {
@@ -115,5 +115,5 @@ while(1):
         except FileNotFoundError:
             continue
     print(mingap)
-    with open('random/best_{}.json'.format(iter_class), 'w') as f:
+    with open('random/best_{}_8000.json'.format(iter_class), 'w') as f:
         json.dump(minoutput, f, indent=4)
