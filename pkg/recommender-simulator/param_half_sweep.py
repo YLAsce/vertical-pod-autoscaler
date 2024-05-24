@@ -53,7 +53,11 @@ init_args = [
     "-trace-file=trace",
     "-metrics-summary-ignore-head=1800",
     "-memory-limit-request-ratio=1.04",
+<<<<<<< HEAD
+    "-exit-memory-large-overrun=5000"
+=======
     "-exit-memory-large-overrun=10000"
+>>>>>>> 299e1ef109b00eaf309775e98cd44c5ff4688909
 ]
 
 for k, v in task_def.items():
@@ -64,6 +68,15 @@ file_index = 0
 threadpool_results = []
 output_args_list = []
 with ThreadPoolExecutor(max_workers=max_workers) as executor:
+<<<<<<< HEAD
+    for md in np.linspace(0.0, 1.0, 20):
+        for mwo in np.linspace(0.0, 1.0, 20):
+            for mwu in np.linspace(0.01, 0.01, 1):
+                for mwdeltaldiff in range(3, 10):
+                    mwdeltal = max(0, mwu - 10**-mwdeltaldiff)
+
+                    for mwdeltamdiff in range(mwdeltaldiff, 10):
+=======
     for md in np.linspace(0.0, 1.0, 10):
         for mwo in np.linspace(0.5, 1.0, 5):
             for mwu in np.linspace(0.01, 0.01, 1):
@@ -71,6 +84,7 @@ with ThreadPoolExecutor(max_workers=max_workers) as executor:
                     mwdeltal = max(0, mwu - 10**-mwdeltaldiff)
 
                     for mwdeltamdiff in range(mwdeltaldiff, 8):
+>>>>>>> 299e1ef109b00eaf309775e98cd44c5ff4688909
                         mwdeltam = max(0, 10**-mwdeltaldiff - 10**-mwdeltamdiff)
                         print(md, mwo, mwu, mwdeltal, mwdeltam)
                         copied_args = init_args[:]
@@ -130,6 +144,6 @@ for i in range(len(output_args_list)):
     except FileNotFoundError:
         continue
 
-with open('halfsweep/half_sweep_result.json', 'w') as f:
+with open('halfsweep/half_sweep_result_2.json', 'w') as f:
     json.dump(minoutput, f)
     

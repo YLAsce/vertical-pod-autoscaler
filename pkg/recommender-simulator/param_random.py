@@ -56,12 +56,12 @@ init_args = [
 
 max_overrun = {
     "cpu": 20000,
-    "memory": 8000,
+    "memory": 10000,
 }
 
 max_adjust = {
     "cpu": 1000,
-    "memory": 100,
+    "memory": 500,
 }
 
 select_keys = [key for key in task_def.keys() if iter_class in key]
@@ -115,5 +115,5 @@ while(1):
         except FileNotFoundError:
             continue
     print(mingap)
-    with open('random/best_{}_8000.json'.format(iter_class), 'w') as f:
+    with open('random/best_{}.json'.format(iter_class), 'w') as f:
         json.dump(minoutput, f, indent=4)
