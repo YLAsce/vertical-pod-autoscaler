@@ -61,3 +61,8 @@ wdm=0时：也不行
 recommender代码可能有问题：Figure_Google_trace_ml那个图，用五个0.6跑出来的：是因为反复的OOM，触发了OOM规则，才使结果很好的
 观察代码，histogram更新没有问题，正常更新
 OOM规则是否每次都触发了？
+
+
+
+
+跟rule相比，ml的总是突变，因为ml中含有delta函数，而rule的是基于指数衰减的
