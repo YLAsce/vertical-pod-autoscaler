@@ -44,5 +44,5 @@ overrun限制有两个档次：8000的和10000的。adjust限制始终是100
 CONVEX========
 固定所有维度到先前sweep到的最优解，然后探索每一个维度的影响
 
-最后一种：用Q learning，状态是五个hyperparam，action fixed，现在要学习的是输出如何反过来影响hyperparam的调节。也就是Q值
+最后一种：用Q learning(SARSA)，状态是五个hyperparam，action fixed，现在要学习的是输出如何反过来影响hyperparam的调节。也就是Q值
 仍然有问题：state space过大且连续，本质上和上面是同一个问题。没绕开

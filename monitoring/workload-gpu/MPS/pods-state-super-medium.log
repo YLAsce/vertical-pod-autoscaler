@@ -1,0 +1,7 @@
+NAME                                  READY   STATUS    RESTARTS   AGE
+pytorch-gpu-pod                       1/1     Running   0          6m8s
+pytorch-gpu-pod-big                   0/1     Error     0          93s
+workload-autopilot-79c45bbdbd-9rqkg   1/1     Running   0          36m
+workload-autopilot-79c45bbdbd-svgbh   1/1     Running   0          37m
+workload-test-866c77459b-gpk8b        1/1     Running   0          23d
+workload-test-866c77459b-xk9tl        1/1     Running   0          23d

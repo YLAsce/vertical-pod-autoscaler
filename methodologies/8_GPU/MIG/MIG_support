@@ -1,0 +1,47 @@
+https://en.wikipedia.org/wiki/Category:Nvidia_microarchitectures
+
+Tesla不支持MIG，
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 550.54.14              Driver Version: 550.54.14      CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla P100-PCIE-16GB           On  |   00000000:01:00.0 Off |                    0 |
+| N/A   25C    P0             25W /  250W |       0MiB /  16384MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+注意到MIG那里的N/A
+
+https://en.wikipedia.org/wiki/Category:Nvidia_microarchitectures
+https://en.wikipedia.org/wiki/List_of_Nvidia_graphics_processing_units
+https://docs.nvidia.com/datacenter/tesla/mig-user-guide/index.html#supported-gpus
+
+
+https://blog.realvarez.com/get-more-out-of-gpus-with-nvidia-multi-instance-gpu/ 这篇文章提到如何创建mixed strategy的GPU
+
+kubectl describe configmaps default-mig-parted-config -n kube-system 获取node不同的strategy信息
+
+kubectl describe nodes scw-k8s-mlintra-pool-gpu-e0cd6d0fd0cf42b6acdfe | grep "nvidia.com/" 查看nodelabel的可选值
+
+
+
+MIG single mode OK
+MIG mixed mode OK 测试成功！！！
+要先配置以下东西：
+kubectl edit clusterpolicies.nvidia.com/cluster-policy -n kube-system 这个把其中的mig mode改成mixed
+然后再patch node为balanced
+
+
+
+配置MIG之前建立的所有用gpu的pod如果不删除，配置MIG不会成功！！！

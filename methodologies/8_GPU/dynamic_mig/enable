@@ -1,0 +1,11 @@
+ kubectl edit clusterpolicies.nvidia.com/cluster-policy -n kube-system
+ 把migmanager.enabled设为false
+
+ kubectl label nodes scw-k8s-mlintra-pool-gpu-5d8ccb2c2bab4aa88db86 "nos.nebuly.com/gpu-partitioning=mig"
+
+
+
+ https://github.com/nebuly-ai/nos/blob/main/docs/en/docs/dynamic-gpu-partitioning/partitioning-modes-comparison.md
+ 各种方式的比较
+
+ NOS的太复杂了。。配置失败

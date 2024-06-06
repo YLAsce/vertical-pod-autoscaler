@@ -1,0 +1,85 @@
+yuqiangma@YuqiangtekiMacBook-Pro dynamic_mig % k get pods
+NAME                                  READY   STATUS             RESTARTS     AGE
+deployment-1-b9fc98bfb-5j7xq          0/1     Pending            0            9s
+deployment-1-b9fc98bfb-86qvh          0/1     CrashLoopBackOff   1 (5s ago)   9s
+deployment-1-b9fc98bfb-9466s          0/1     CrashLoopBackOff   1 (5s ago)   9s
+deployment-1-b9fc98bfb-bzfsw          0/1     Pending            0            9s
+deployment-1-b9fc98bfb-cw25r          0/1     Pending            0            9s
+workload-autopilot-79c45bbdbd-54gsw   1/1     Running            0            68m
+workload-autopilot-79c45bbdbd-w4rln   1/1     Running            0            67m
+workload-test-866c77459b-gpk8b        1/1     Running            0            24d
+workload-test-866c77459b-xk9tl        1/1     Running            0            24d
+
+
+
+
+yuqiangma@YuqiangtekiMacBook-Pro dynamic_mig % k describe pod deployment-1-b9fc98bfb-86qvh
+Name:             deployment-1-b9fc98bfb-86qvh
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             scw-k8s-mlintra-pool-gpu-5d8ccb2c2bab4aa88db86/172.16.4.7
+Start Time:       Mon, 03 Jun 2024 20:46:03 +0200
+Labels:           app=dummy
+                  pod-template-hash=b9fc98bfb
+Annotations:      <none>
+Status:           Running
+IP:               100.64.4.172
+IPs:
+  IP:           100.64.4.172
+Controlled By:  ReplicaSet/deployment-1-b9fc98bfb
+Containers:
+  sleepy:
+    Container ID:  containerd://5a74227f4db6d39f4ee94b5c47dc1e92c418c9f473446191553722f825bd1bfe
+    Image:         busybox:latest
+    Image ID:      docker.io/library/busybox@sha256:5eef5ed34e1e1ff0a4ae850395cbf665c4de6b4b83a32a0bc7bcb998e24e7bbb
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      sleep
+      120
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       StartError
+      Message:      failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error running hook #0: error running hook: exit status 1, stdout: , stderr: nvidia-container-cli.real: device error: MIG-0438fe47-fdcb-5b16-9b52-eda717566cfb: unknown device: unknown
+      Exit Code:    128
+      Started:      Thu, 01 Jan 1970 01:00:00 +0100
+      Finished:     Mon, 03 Jun 2024 20:46:07 +0200
+    Ready:          False
+    Restart Count:  1
+    Limits:
+      nvidia.com/mig-1g.10gb:  1
+    Requests:
+      nvidia.com/mig-1g.10gb:  1
+    Environment:               <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-sc2p5 (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       False 
+  ContainersReady             False 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-sc2p5:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                From               Message
+  ----     ------     ----               ----               -------
+  Normal   Scheduled  17s                default-scheduler  Successfully assigned default/deployment-1-b9fc98bfb-86qvh to scw-k8s-mlintra-pool-gpu-5d8ccb2c2bab4aa88db86
+  Normal   Pulled     17s                kubelet            Successfully pulled image "busybox:latest" in 704ms (704ms including waiting)
+  Normal   Created    15s (x2 over 17s)  kubelet            Created container sleepy
+  Normal   Pulled     15s                kubelet            Successfully pulled image "busybox:latest" in 683ms (683ms including waiting)
+  Warning  Failed     14s (x2 over 16s)  kubelet            Error: failed to create containerd task: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error running hook #0: error running hook: exit status 1, stdout: , stderr: nvidia-container-cli.real: device error: MIG-0438fe47-fdcb-5b16-9b52-eda717566cfb: unknown device: unknown
+  Warning  BackOff    13s (x2 over 14s)  kubelet            Back-off restarting failed container sleepy in pod deployment-1-b9fc98bfb-86qvh_default(322c9fe1-b48f-446b-84f1-8898a488fda5)
+  Normal   Pulling    1s (x3 over 17s)   kubelet            Pulling image "busybox:latest"
