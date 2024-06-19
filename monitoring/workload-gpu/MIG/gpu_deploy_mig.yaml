@@ -18,7 +18,8 @@ spec:
         b = torch.randn(1000, 1000).cuda()
         while True:
           c = torch.matmul(a, b)
-          time.sleep(1)
+          time.sleep(30)
+          exit(0)
   restartPolicy: Never
   nodeSelector:
       nvidia.com/gpu.product : NVIDIA-H100-PCIe

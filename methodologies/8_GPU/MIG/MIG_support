@@ -38,6 +38,8 @@ kubectl describe nodes scw-k8s-mlintra-pool-gpu-e0cd6d0fd0cf42b6acdfe | grep "nv
 
 MIG single mode OK
 MIG mixed mode OK 测试成功！！！
+
+kubectl label nodes scw-k8s-mlintra-pool-gpu-fdfd0b35ee7b44eb8aa24 nvidia.com/mig.config=all-balanced --overwrite
 要先配置以下东西：
 kubectl edit clusterpolicies.nvidia.com/cluster-policy -n kube-system 这个把其中的mig mode改成mixed
 然后再patch node为balanced

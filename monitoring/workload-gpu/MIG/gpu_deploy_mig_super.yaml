@@ -14,8 +14,8 @@ spec:
       - |
         import torch
         import time
-        a = torch.randn(100000, 100000).cuda()
-        b = torch.randn(100000, 100000).cuda()
+        a = torch.randn(50000, 50000).cuda()
+        b = torch.randn(50000, 50000).cuda()
         while True:
           c = torch.matmul(a, b)
           time.sleep(1)
