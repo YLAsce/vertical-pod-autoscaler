@@ -6,8 +6,8 @@ import sys
 # target_path = 'metrics/turnaround-ml'
 
 
-folder_path = 'metrics/' + sys.argv(1)
-target_path = 'metrics/' + sys.argv(2)
+folder_path = 'metrics/' + sys.argv[1]
+target_path = 'metrics/' + sys.argv[2]
 
 nodesize_cpu = nodesize_mem = 0.0
 firsttime = 0
@@ -21,7 +21,7 @@ with open(folder_path + '/metricsinfo.info', 'r') as file:
     line = file.readline().strip()
     firsttime = int(line)
 
-print('Loaded CPU size %f, Mem size %f'.format(nodesize_cpu, nodesize_mem))
+print('Loaded CPU size {}, Mem size {}'.format(nodesize_cpu, nodesize_mem))
 
 
 
@@ -51,11 +51,11 @@ print(pulse_cpu, pulse_mem)
 
 with open(target_path + '/pulse_cpu.info', 'w') as file:
     for k,v in pulse_cpu.items():
-        file.write('%d %f\n'.format(k, v))
+        file.write('{} {}\n'.format(k, v))
 
 with open(target_path + '/pulse_mem.info', 'w') as file:
     for k,v in pulse_mem.items():
-        file.write('%d %f\n'.format(k, v))
+        file.write('{} {}\n'.format(k, v))
 
 cur_state = [0]*len(datas)
 cur_timestamp = 0
@@ -75,8 +75,8 @@ with open(target_path + '/workload_cpu.info', 'w') as filecpu, open(target_path 
                         cur_state[i] += 1
         if not remaining:
             break
-        filecpu.write('%d %f\n'.format(cur_timestamp, cur_assigned_cpu))
-        filemem.write('%d %f\n'.format(cur_timestamp, cur_assigned_mem))
+        filecpu.write('{} {}\n'.format(cur_timestamp, cur_assigned_cpu))
+        filemem.write('{} {}\n'.format(cur_timestamp, cur_assigned_mem))
 
         cur_timestamp += 1
         if cur_timestamp % 1000 == 0:
