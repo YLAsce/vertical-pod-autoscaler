@@ -24,6 +24,17 @@ type TraceInfo struct {
 	traceData     []*TraceDatapoint
 }
 
+func (t *TraceInfo) Max() model.Resources {
+	result := make(model.Resources)
+	result[model.ResourceCPU] = model.ResourceAmount(0)
+	result[model.ResourceMemory] = model.ResourceAmount(0)
+	for _, d := range t.traceData {
+		result[model.ResourceCPU] = model.ResourceAmountMax(result[model.ResourceCPU], d.cpuUsage)
+		result[model.ResourceMemory] = model.ResourceAmountMax(result[model.ResourceMemory], d.memoryUsage)
+	}
+	return result
+}
+
 func (t *TraceInfo) GetTraceData(initialTime time.Time) {
 	traceFile, err := os.Open(t.traceFilePath)
 	if err != nil {

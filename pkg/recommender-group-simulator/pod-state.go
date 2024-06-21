@@ -54,7 +54,7 @@ func NewPodState(traceInfo *TraceInfo, name string, memoryLimitRequest float64, 
 	}
 }
 
-func (p *PodState) Record(t time.Time) {
+func (p *PodState) Record(t time.Time, isConst bool) {
 	p.IsAlive = false
 	p.CpuOverrun = false
 	p.MemoryOverrun = false
@@ -93,7 +93,7 @@ func (p *PodState) Record(t time.Time) {
 			curMemorySample = 0
 			curCPUSample = 0
 			p.Oom = true
-		} else {
+		} else if !isConst {
 			p.aggregateContainerState.AddSample(&model.ContainerUsageSample{
 				MeasureStart: t,
 				Usage:        curCPUSample,

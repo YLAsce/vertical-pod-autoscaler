@@ -2,7 +2,7 @@ import os
 import matplotlib.pyplot as plt
 import pandas as pd
 
-folder_path = 'metrics/group-ml'
+folder_path = 'metrics/group-const'
 
 nodesize_cpu = nodesize_mem = 0.0
 nodenum = 0

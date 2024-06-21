@@ -2,3 +2,9 @@ bin/*
 metrics/*.data
 metrics/tmp/*
 *.log
+metrics/turnaround/workload_cpu.info
+metrics/turnaround/workload_mem.info
+metrics/turnaround-ml/workload_cpu.info
+metrics/turnaround-ml/workload_mem.info
+metrics/turnaround-const/workload_cpu.info
+metrics/turnaround-const/workload_mem.info

@@ -35,6 +35,7 @@ var (
 type ClusterState struct {
 	podStateMap            map[string]*PodState
 	podResourceRecommender logic.PodResourceRecommender
+	constRecommender       *ConstRecommender
 	nameToAggregate        model.ContainerNameToAggregateStateMap
 	nodePool               *NodePool
 }
@@ -51,6 +52,7 @@ func NewClusterState(traceInfoMap map[string]*TraceInfo) *ClusterState {
 	clusterState := ClusterState{
 		podStateMap:            make(map[string]*PodState),
 		podResourceRecommender: logic.CreatePodResourceRecommender(*cpuHistogramMaxValue, *memoryHistogramMaxValue, 5*time.Minute, *cpuLastSamplesN, *memoryLastSamplesN, *isML),
+		constRecommender:       CreateConstRecommender(traceInfoMap),
 		nameToAggregate:        make(model.ContainerNameToAggregateStateMap),
 		nodePool:               NewNodePool(model.CPUAmountFromCores(*nodeSizeCPU), model.MemoryAmountFromBytes(float64(*nodeSizeMemory))),
 	}
@@ -81,10 +83,10 @@ func NewClusterState(traceInfoMap map[string]*TraceInfo) *ClusterState {
 	return &clusterState
 }
 
-func (c *ClusterState) Record(t time.Time) bool {
+func (c *ClusterState) Record(t time.Time, isConst bool) bool {
 	hasOom := false
 	for _, podState := range c.podStateMap {
-		podState.Record(t)
+		podState.Record(t, isConst)
 		if podState.Oom {
 			hasOom = true
 		}
@@ -98,13 +100,18 @@ func (c *ClusterState) CollectMetrics(t time.Time) {
 	}
 }
 
-func (c *ClusterState) Recommend(t time.Time, algorithmRun bool) {
-	if algorithmRun {
+func (c *ClusterState) Recommend(t time.Time, algorithmRun bool, isConst bool) {
+	if algorithmRun && (!isConst) {
 		for _, podState := range c.podStateMap {
 			podState.aggregateContainerState.HistogramAggregate(t)
 		}
 	}
-	recommendedResources := c.podResourceRecommender.GetRecommendedPodResources(c.nameToAggregate, algorithmRun)
+	var recommendedResources logic.RecommendedPodResources
+	if isConst {
+		recommendedResources = c.constRecommender.GetRecommendedPodResources(c.nameToAggregate)
+	} else {
+		recommendedResources = c.podResourceRecommender.GetRecommendedPodResources(c.nameToAggregate, algorithmRun)
+	}
 	for name, resources := range recommendedResources {
 		c.podStateMap[name].UpdateRequest(resources)
 	}
