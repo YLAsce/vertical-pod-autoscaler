@@ -35,7 +35,7 @@ type vpaAnnotationsMap map[string]string
 // Map from VPA condition type to condition.
 type vpaConditionsMap map[vpa_types.VerticalPodAutoscalerConditionType]vpa_types.VerticalPodAutoscalerCondition
 
-func (conditionsMap *vpaConditionsMap) Set( //NICO false position
+func (conditionsMap *vpaConditionsMap) Set(
 	conditionType vpa_types.VerticalPodAutoscalerConditionType,
 	status bool, reason string, message string) *vpaConditionsMap {
 	oldCondition, alreadyPresent := (*conditionsMap)[conditionType]
@@ -265,7 +265,6 @@ func (vpa *Vpa) UpdateConditions(podsMatched bool) {
 	if vpa.HasRecommendation() {
 		vpa.Conditions.Set(vpa_types.RecommendationProvided, true, "", "")
 	} else {
-		reason = "NoPodsMatched"
 		vpa.Conditions.Set(vpa_types.RecommendationProvided, false, reason, msg)
 	}
 
@@ -283,7 +282,7 @@ func (vpa *Vpa) AsStatus() *vpa_types.VerticalPodAutoscalerStatus {
 	return status
 }
 
-// HasMatchedPods returns true if there are are currently active pods in the
+// HasMatchedPods returns true if there are currently active pods in the
 // cluster matching this VPA, based on conditions. UpdateConditions should be
 // called first.
 func (vpa *Vpa) HasMatchedPods() bool {

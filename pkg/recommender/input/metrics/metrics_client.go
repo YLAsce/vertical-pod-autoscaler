@@ -65,15 +65,14 @@ func NewMetricsClient(source PodMetricsLister, namespace, clientName string) Met
 
 func (c *metricsClient) GetContainersMetrics() ([]*ContainerMetricsSnapshot, error) {
 	var metricsSnapshots []*ContainerMetricsSnapshot
-	// 这里是源头
+
 	podMetricsList, err := c.source.List(context.TODO(), c.namespace, metav1.ListOptions{})
 	recommender_metrics.RecordMetricsServerResponse(err, c.clientName)
 	if err != nil {
 		return nil, err
 	}
-	klog.V(5).Infof("%v podMetrics retrieved for all namespaces", len(podMetricsList.Items))
+	klog.V(3).Infof("%v podMetrics retrieved for all namespaces", len(podMetricsList.Items))
 	for _, podMetrics := range podMetricsList.Items {
-		// klog.V(3).Infof("[NICO]    %s", fmt.Sprintf("%+v", podMetrics))
 		metricsSnapshotsForPod := createContainerMetricsSnapshots(podMetrics)
 		metricsSnapshots = append(metricsSnapshots, metricsSnapshotsForPod...)
 	}
@@ -90,6 +89,7 @@ func createContainerMetricsSnapshots(podMetrics v1beta1.PodMetrics) []*Container
 
 func newContainerMetricsSnapshot(containerMetrics v1beta1.ContainerMetrics, podMetrics v1beta1.PodMetrics) *ContainerMetricsSnapshot {
 	usage := calculateUsage(containerMetrics.Usage)
+
 	return &ContainerMetricsSnapshot{
 		ID: model.ContainerID{
 			ContainerName: containerMetrics.Name,
@@ -107,7 +107,6 @@ func newContainerMetricsSnapshot(containerMetrics v1beta1.ContainerMetrics, podM
 func calculateUsage(containerUsage k8sapiv1.ResourceList) model.Resources {
 	cpuQuantity := containerUsage[k8sapiv1.ResourceCPU]
 	cpuMillicores := cpuQuantity.MilliValue()
-	// klog.V(4).Infof("[NICO]CPU usage: %+v, %+v", cpuQuantity, cpuMillicores)
 
 	memoryQuantity := containerUsage[k8sapiv1.ResourceMemory]
 	memoryBytes := memoryQuantity.Value()

@@ -509,7 +509,6 @@ func DefaultKubernetesUserAgent() string {
 // running inside a pod running on kubernetes. It will return ErrNotInCluster
 // if called from a process not running in a kubernetes environment.
 func InClusterConfig() (*Config, error) {
-	// 在集群内部配置是固定的 10.0.0.1:443
 	const (
 		tokenFile  = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 		rootCAFile = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"

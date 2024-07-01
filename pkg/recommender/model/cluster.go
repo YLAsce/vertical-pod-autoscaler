@@ -51,9 +51,6 @@ type ClusterState struct {
 	// Observed VPAs. Used to check if there are updates needed.
 	ObservedVpas []*vpa_types.VerticalPodAutoscaler
 
-	// If the cluster observed an OOM to process
-	OOMToDo bool
-
 	// All container aggregations where the usage samples are stored.
 	aggregateStateMap aggregateContainerStatesMap
 	// Map with all label sets used by the aggregations. It serves as a cache
@@ -105,7 +102,6 @@ func NewClusterState(gcInterval time.Duration) *ClusterState {
 		Pods:                          make(map[PodID]*PodState),
 		Vpas:                          make(map[VpaID]*Vpa),
 		EmptyVPAs:                     make(map[VpaID]time.Time),
-		OOMToDo:                       false,
 		aggregateStateMap:             make(aggregateContainerStatesMap),
 		labelSetMap:                   make(labelSetMap),
 		lastAggregateContainerStateGC: time.Unix(0, 0),
@@ -214,9 +210,6 @@ func (cluster *ClusterState) AddOrUpdateContainer(containerID ContainerID, reque
 // object. Requires the container as well as the parent pod to be added to the
 // ClusterState first. Otherwise an error is returned.
 func (cluster *ClusterState) AddSample(sample *ContainerUsageSampleWithKey) error {
-	// if sample.Container.ContainerName == "workload" {
-	// 	klog.V(4).Infof("NICO ADD SAMPLE in %+v", *sample)
-	// }
 	pod, podExists := cluster.Pods[sample.Container.PodID]
 	if !podExists {
 		return NewKeyError(sample.Container.PodID)
@@ -228,23 +221,7 @@ func (cluster *ClusterState) AddSample(sample *ContainerUsageSampleWithKey) erro
 	if !containerState.AddSample(&sample.ContainerUsageSample) {
 		return fmt.Errorf("sample discarded (invalid or out of order)")
 	}
-	// if sample.Container.ContainerName == "workload" {
-	// 	klog.V(4).Infof("NICO ADD SAMPLE after %s: %v", sample.Container.ContainerName, sample.Usage)
-	// }
 	return nil
-}
-
-func (cluster *ClusterState) HistogramAggregate(now time.Time) {
-	for _, aggregation := range cluster.aggregateStateMap {
-		// klog.V(4).Infof("NICO Start Aggregate %+v", name)
-		aggregation.HistogramAggregate(now)
-	}
-	// NICO Below is not correct!! The containers with the same name in different pods will be calculated twice...
-	// for _, pod := range cluster.Pods {
-	// 	for _, container := range pod.Containers {
-	// 		container.HistogramAggregate(now)
-	// 	}
-	// }
 }
 
 // RecordOOM adds info regarding OOM event in the model as an artificial memory sample.
@@ -257,10 +234,10 @@ func (cluster *ClusterState) RecordOOM(containerID ContainerID, timestamp time.T
 	if !containerExists {
 		return NewKeyError(containerID.ContainerName)
 	}
-
-	containerState.RecordOOM(timestamp, requestedMemory)
-	klog.V(4).Infof("NICO Cluster recorded OOM event")
-	cluster.OOMToDo = true
+	err := containerState.RecordOOM(timestamp, requestedMemory)
+	if err != nil {
+		return fmt.Errorf("error while recording OOM for %v, Reason: %v", containerID, err)
+	}
 	return nil
 }
 
@@ -352,7 +329,7 @@ func (cluster *ClusterState) MakeAggregateStateKey(pod *PodState, containerName 
 func (cluster *ClusterState) aggregateStateKeyForContainerID(containerID ContainerID) AggregateStateKey {
 	pod, podExists := cluster.Pods[containerID.PodID]
 	if !podExists {
-		panic(fmt.Sprintf("Pod not present in the ClusterState: %v", containerID.PodID))
+		panic(fmt.Sprintf("Pod not present in the ClusterState: %s/%s", containerID.PodID.Namespace, containerID.PodID.PodName))
 	}
 	return cluster.MakeAggregateStateKey(pod, containerID.ContainerName)
 }
@@ -408,7 +385,7 @@ func (cluster *ClusterState) garbageCollectAggregateCollectionStates(now time.Ti
 }
 
 // RateLimitedGarbageCollectAggregateCollectionStates removes obsolete AggregateCollectionStates from the ClusterState.
-// It performs clean up only if more than `gcInterval` passed since the last time it performed a clean up.
+// It performs clean up only if more than `gcInterval` passed since the last time it performed a cleanup.
 // AggregateCollectionState is obsolete in following situations:
 // 1) It has no samples and there are no more contributive pods - a pod is contributive in any of following situations:
 //
@@ -456,7 +433,7 @@ func (cluster *ClusterState) RecordRecommendation(vpa *Vpa, now time.Time) error
 	} else {
 		if lastLogged.Add(RecommendationMissingMaxDuration).Before(now) {
 			cluster.EmptyVPAs[vpa.ID] = now
-			return fmt.Errorf("VPA %v/%v is missing recommendation for more than %v", vpa.ID.Namespace, vpa.ID.VpaName, RecommendationMissingMaxDuration)
+			return fmt.Errorf("VPA %s/%s is missing recommendation for more than %v", vpa.ID.Namespace, vpa.ID.VpaName, RecommendationMissingMaxDuration)
 		}
 	}
 	return nil
@@ -514,7 +491,7 @@ type aggregateStateKey struct {
 	labelSetMap *labelSetMap
 }
 
-// Labels returns the namespace for the aggregateStateKey.
+// Namespace returns the namespace for the aggregateStateKey.
 func (k aggregateStateKey) Namespace() string {
 	return k.namespace
 }

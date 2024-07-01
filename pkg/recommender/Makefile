@@ -1,7 +1,7 @@
-all: docker-build docker-push replace-ml
+all: build
 
-TAG?=ml-v2fix1
-REGISTRY?=yuqiang302
+TAG?=dev
+REGISTRY?=staging-k8s.gcr.io
 FLAGS=
 TEST_ENVVAR=LD_FLAGS=-s GO111MODULE=on
 ENVVAR=CGO_ENABLED=0 $(TEST_ENVVAR)
@@ -11,7 +11,7 @@ FULL_COMPONENT=vpa-${COMPONENT}
 # localhost registries need --insecure for some docker commands.
 INSECURE=$(subst localhost,--insecure,$(findstring localhost,$(REGISTRY)))
 
-ALL_ARCHITECTURES?=amd64 # arm arm64 ppc64le s390x
+ALL_ARCHITECTURES?=amd64 arm arm64 ppc64le s390x
 export DOCKER_CLI_EXPERIMENTAL=enabled
 
 build: clean
@@ -37,7 +37,7 @@ ifndef TAG
 	ERR = $(error TAG is undefined)
 	$(ERR)
 endif
-	docker buildx build --pull --load --platform linux/$* -t ${REGISTRY}/${FULL_COMPONENT}-$*:${TAG} --build-arg ARCH=$* -f ./Dockerfile ../../
+	docker buildx build --pull --load --platform linux/$* -t ${REGISTRY}/${FULL_COMPONENT}-$*:${TAG} -f ./Dockerfile ../../
 
 .PHONY: docker-push
 docker-push: $(addprefix do-push-,$(ALL_ARCHITECTURES)) push-multi-arch;
@@ -90,21 +90,3 @@ format:
 	test -z "$$(find . -path ./vendor -prune -type f -o -name '*.go' -exec gofmt -s -w {} + | tee /dev/stderr)"
 
 .PHONY: all build test-unit clean format release
-
-.PHONY: replace-rule
-replace-rule:
-	sed -i '' '23s/.*/        image: docker.io\/${REGISTRY}\/${FULL_COMPONENT}:${TAG}/' recommender-deployment-autopilot.yaml
-
-.PHONY: replace-ml
-replace-ml:
-	sed -i '' '23s/.*/        image: docker.io\/${REGISTRY}\/${FULL_COMPONENT}:${TAG}/' recommender-deployment-autopilot-ml.yaml
-
-.PHONY: restart-rule
-restart-rule:
-	kubectl delete -f recommender-deployment-autopilot.yaml
-	kubectl apply -f recommender-deployment-autopilot.yaml
-
-.PHONY: restart-ml
-restart-ml:
-	kubectl delete -f recommender-deployment-autopilot-ml.yaml
-	kubectl apply -f recommender-deployment-autopilot-ml.yaml

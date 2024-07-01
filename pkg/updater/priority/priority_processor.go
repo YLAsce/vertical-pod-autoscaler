@@ -40,7 +40,6 @@ func NewProcessor() PriorityProcessor {
 type defaultPriorityProcessor struct {
 }
 
-// 核心逻辑在这里
 func (*defaultPriorityProcessor) GetUpdatePriority(pod *apiv1.Pod, _ *vpa_types.VerticalPodAutoscaler,
 	recommendation *vpa_types.RecommendedPodResources) PodPriority {
 	outsideRecommendedRange := false
@@ -58,12 +57,10 @@ func (*defaultPriorityProcessor) GetUpdatePriority(pod *apiv1.Pod, _ *vpa_types.
 				annotations.VpaObservedContainersLabel, pod.GetAnnotations()[annotations.VpaObservedContainersLabel], podContainer.Name)
 			continue
 		}
-		//对每个container获取推荐
 		recommendedRequest := vpa_api_util.GetRecommendationForContainer(podContainer.Name, recommendation)
 		if recommendedRequest == nil {
 			continue
 		}
-		//现在的实际资源小于Lower bound或者大于Upper bound，则更新
 		for resourceName, recommended := range recommendedRequest.Target {
 			totalRecommendedPerResource[resourceName] += recommended.MilliValue()
 			lowerBound, hasLowerBound := recommendedRequest.LowerBound[resourceName]
@@ -87,16 +84,14 @@ func (*defaultPriorityProcessor) GetUpdatePriority(pod *apiv1.Pod, _ *vpa_types.
 			}
 		}
 	}
-
 	resourceDiff := 0.0
-
 	for resource, totalRecommended := range totalRecommendedPerResource {
 		totalRequest := math.Max(float64(totalRequestPerResource[resource]), 1.0)
 		resourceDiff += math.Abs(totalRequest-float64(totalRecommended)) / totalRequest
 	}
 	return PodPriority{
-		OutsideRecommendedRange: outsideRecommendedRange, //只要有一个container的一个当前资源请求在推荐的limit之外
-		ScaleUp:                 scaleUp,                 //只要有一个container的一个当前资源的推荐target大于当前请求
-		ResourceDiff:            resourceDiff,            //对每个资源算所有container的总和的diff。然后把这些diff相加
+		OutsideRecommendedRange: outsideRecommendedRange,
+		ScaleUp:                 scaleUp,
+		ResourceDiff:            resourceDiff,
 	}
 }

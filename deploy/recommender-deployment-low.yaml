@@ -26,12 +26,11 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: registry.k8s.io/autoscaling/vpa-recommender:1.0.0
+        image: registry.k8s.io/autoscaling/vpa-recommender:1.1.2
         imagePullPolicy: Always
         args:
           - --recommender-name=frugal
           - --target-cpu-percentile=0.50
-          - --v=1
         resources:
           limits:
             cpu: 200m

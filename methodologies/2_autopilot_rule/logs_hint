@@ -1,3 +1,0 @@
-no_oom的那个，原始的版本能接受OOM信号，找cluster_feeder.go:445] OOM detected
-autopilot的那个不可以，观察打印出来的histogram的max value，逐渐都变成0了，因为crash了之后OOM所以不能唤起
-aggregation 0s的那个，同一时间aggregate了两次，第二次为空的histogram，所以duration被副职为0了，同时跳过了一个max window iterator。能看到

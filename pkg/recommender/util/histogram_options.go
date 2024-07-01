@@ -33,36 +33,21 @@ type HistogramOptions interface {
 	// Returns the start of the bucket with a given index. If the index is
 	// outside the [0..NumBuckets() - 1] range, the result is undefined.
 	GetBucketStart(bucket int) float64
-
-	// Returns the end of the bucket with a given index.
-	GetBucketEnd(bucket int) float64
 	// Returns the minimum weight for a bucket to be considered non-empty.
-	Epsilon() float64 // Epsilon is unused in Autopilot...
-}
-
-func NewFixedHistogramOptions(bucketEnds []float64) (HistogramOptions, error) {
-	if len(bucketEnds) < 1 {
-		return nil, errors.New("fixed options array too short")
-	}
-	for i := 1; i < len(bucketEnds); i++ {
-		if bucketEnds[i] <= 0 || bucketEnds[i] <= bucketEnds[i-1] {
-			return nil, errors.New("fixed options array should be increasing and positive")
-		}
-	}
-	return &fixedHistogramOptions{bucketEnds: bucketEnds}, nil
+	Epsilon() float64
 }
 
 // NewLinearHistogramOptions returns HistogramOptions describing a histogram
 // with a given number of fixed-size buckets, with the first bucket start at 0.0
-// and the last bucket END larger or equal to maxValue.
+// and the last bucket start larger or equal to maxValue.
 // Requires maxValue > 0, bucketSize > 0, epsilon > 0.
 func NewLinearHistogramOptions(
-	maxValue float64, bucketNum int, epsilon float64) (HistogramOptions, error) {
-	if maxValue <= 0.0 || bucketNum <= 0 || epsilon <= 0.0 {
-		return nil, errors.New("maxValue and bucketNum must both be positive")
+	maxValue float64, bucketSize float64, epsilon float64) (HistogramOptions, error) {
+	if maxValue <= 0.0 || bucketSize <= 0.0 || epsilon <= 0.0 {
+		return nil, errors.New("maxValue and bucketSize must both be positive")
 	}
-	bucketSize := maxValue / float64(bucketNum)
-	return &linearHistogramOptions{bucketNum, bucketSize, epsilon}, nil
+	numBuckets := int(math.Ceil(maxValue/bucketSize)) + 1
+	return &linearHistogramOptions{numBuckets, bucketSize, epsilon}, nil
 }
 
 // NewExponentialHistogramOptions returns HistogramOptions describing a
@@ -85,14 +70,10 @@ func NewExponentialHistogramOptions(
 	return &exponentialHistogramOptions{numBuckets, firstBucketSize, ratio, epsilon}, nil
 }
 
-type fixedHistogramOptions struct {
-	bucketEnds []float64
-}
-
 type linearHistogramOptions struct {
 	numBuckets int
 	bucketSize float64
-	epsilon    float64 // Epsilon is unused in Autopilot...
+	epsilon    float64
 }
 
 type exponentialHistogramOptions struct {
@@ -100,40 +81,6 @@ type exponentialHistogramOptions struct {
 	firstBucketSize float64
 	ratio           float64
 	epsilon         float64
-}
-
-func (o *fixedHistogramOptions) NumBuckets() int {
-	return len(o.bucketEnds)
-}
-
-func (o *fixedHistogramOptions) FindBucket(value float64) int {
-	for i, e := range o.bucketEnds {
-		if value <= e {
-			return i
-		}
-	}
-	return len(o.bucketEnds) - 1
-}
-
-func (o *fixedHistogramOptions) GetBucketStart(bucket int) float64 {
-	if bucket < 0 || bucket >= len(o.bucketEnds) {
-		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, len(o.bucketEnds)-1))
-	}
-	if bucket == 0 {
-		return 0.0
-	}
-	return o.bucketEnds[bucket-1]
-}
-
-func (o *fixedHistogramOptions) GetBucketEnd(bucket int) float64 {
-	if bucket < 0 || bucket >= len(o.bucketEnds) {
-		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, len(o.bucketEnds)-1))
-	}
-	return o.bucketEnds[bucket]
-}
-
-func (o *fixedHistogramOptions) Epsilon() float64 {
-	panic("not implemented Epsilon in Autopilot")
 }
 
 func (o *linearHistogramOptions) NumBuckets() int {
@@ -156,13 +103,6 @@ func (o *linearHistogramOptions) GetBucketStart(bucket int) float64 {
 		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, o.numBuckets-1))
 	}
 	return float64(bucket) * o.bucketSize
-}
-
-func (o *linearHistogramOptions) GetBucketEnd(bucket int) float64 {
-	if bucket < 0 || bucket >= o.numBuckets {
-		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, o.numBuckets-1))
-	}
-	return float64(bucket+1) * o.bucketSize
 }
 
 func (o *linearHistogramOptions) Epsilon() float64 {
@@ -199,14 +139,6 @@ func (o *exponentialHistogramOptions) GetBucketStart(bucket int) float64 {
 		return 0.0
 	}
 	return o.firstBucketSize * (math.Pow(o.ratio, float64(bucket)) - 1) / (o.ratio - 1)
-}
-
-func (o *exponentialHistogramOptions) GetBucketEnd(bucket int) float64 {
-	if bucket < 0 || bucket >= o.numBuckets {
-		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, o.numBuckets-1))
-	}
-
-	return o.firstBucketSize * (math.Pow(o.ratio, float64(bucket+1)) - 1) / (o.ratio - 1)
 }
 
 func (o *exponentialHistogramOptions) Epsilon() float64 {

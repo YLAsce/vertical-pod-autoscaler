@@ -1,6 +1,0 @@
-第一轮筛选：CPU memory 分别做，每个参数做6个splits
-观察结果，筛选出overrun seconds和adjust times符合要求的，按照gap排序
-观察到cpu有三个参数有用，memory有4个参数有用
-然后对cpu的三个参数做sweep，每个26个splits
-对memory的四个参数做sweep，每个11个splits
-扫描出的近似的最优点，对每一维参数做sweep，观察convexity。其他维的参数固定为上述最优参数

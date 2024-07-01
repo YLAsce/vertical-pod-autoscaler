@@ -139,12 +139,12 @@ func (u *updater) RunOnce(ctx context.Context) {
 	for _, vpa := range vpaList {
 		if vpa_api_util.GetUpdateMode(vpa) != vpa_types.UpdateModeRecreate &&
 			vpa_api_util.GetUpdateMode(vpa) != vpa_types.UpdateModeAuto {
-			klog.V(3).Infof("skipping VPA object %v because its mode is not \"Recreate\" or \"Auto\"", vpa.Name)
+			klog.V(3).Infof("skipping VPA object %s because its mode is not \"Recreate\" or \"Auto\"", klog.KObj(vpa))
 			continue
 		}
 		selector, err := u.selectorFetcher.Fetch(vpa)
 		if err != nil {
-			klog.V(3).Infof("skipping VPA object %v because we cannot fetch selector", vpa.Name)
+			klog.V(3).Infof("skipping VPA object %s because we cannot fetch selector", klog.KObj(vpa))
 			continue
 		}
 
@@ -198,7 +198,6 @@ func (u *updater) RunOnce(ctx context.Context) {
 
 	// NOTE: this loop assumes that controlledPods are filtered
 	// to contain only Pods controlled by a VPA in auto or recreate mode
-	// pod级别的限制。如何读取container级别的数据？
 	for vpa, livePods := range controlledPods {
 		vpaSize := len(livePods)
 		controlledPodsCounter.Add(vpaSize, vpaSize)
@@ -215,13 +214,13 @@ func (u *updater) RunOnce(ctx context.Context) {
 			}
 			err := u.evictionRateLimiter.Wait(ctx)
 			if err != nil {
-				klog.Warningf("evicting pod %v failed: %v", pod.Name, err)
+				klog.Warningf("evicting pod %s failed: %v", klog.KObj(pod), err)
 				return
 			}
-			klog.V(2).Infof("evicting pod %v", pod.Name)
+			klog.V(2).Infof("evicting pod %s", klog.KObj(pod))
 			evictErr := evictionLimiter.Evict(pod, u.eventRecorder)
 			if evictErr != nil {
-				klog.Warningf("evicting pod %v failed: %v", pod.Name, evictErr)
+				klog.Warningf("evicting pod %s failed: %v", klog.KObj(pod), evictErr)
 			} else {
 				withEvicted = true
 				metrics_updater.AddEvictedPod(vpaSize)

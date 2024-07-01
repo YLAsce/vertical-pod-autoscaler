@@ -1,6 +1,0 @@
-monitoring:
-https://blog.kubecost.com/blog/nvidia-gpu-usage/
-
-显存监控
-https://www.cnblogs.com/jiangkejie/p/11430673.html
-torch.cuda.empty_cache() 和charles讨论一下

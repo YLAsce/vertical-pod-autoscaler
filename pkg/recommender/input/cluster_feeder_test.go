@@ -32,7 +32,7 @@ import (
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/input/history"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/input/spec"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/recommender/model"
-	controllerfetcher "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
+	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/controller_fetcher"
 	target_mock "k8s.io/autoscaler/vertical-pod-autoscaler/pkg/target/mock"
 	"k8s.io/autoscaler/vertical-pod-autoscaler/pkg/utils/test"
 )
@@ -513,7 +513,7 @@ func TestClusterStateFeeder_InitFromHistoryProvider(t *testing.T) {
 	if !assert.NotNil(t, containerState) {
 		return
 	}
-	// assert.Equal(t, t0, containerState.LastCPUSampleStart)
+	assert.Equal(t, t0, containerState.LastCPUSampleStart)
 	if !assert.Contains(t, pod1State.Containers, containerMem) {
 		return
 	}
@@ -521,5 +521,50 @@ func TestClusterStateFeeder_InitFromHistoryProvider(t *testing.T) {
 	if !assert.NotNil(t, containerState) {
 		return
 	}
-	// assert.Equal(t, memAmount, containerState.GetMaxMemoryPeak())
+	assert.Equal(t, memAmount, containerState.GetMaxMemoryPeak())
+}
+
+func TestFilterVPAs(t *testing.T) {
+	recommenderName := "test-recommender"
+	defaultRecommenderName := "default-recommender"
+
+	vpa1 := &vpa_types.VerticalPodAutoscaler{
+		Spec: vpa_types.VerticalPodAutoscalerSpec{
+			Recommenders: []*vpa_types.VerticalPodAutoscalerRecommenderSelector{
+				{Name: defaultRecommenderName},
+			},
+		},
+	}
+	vpa2 := &vpa_types.VerticalPodAutoscaler{
+		Spec: vpa_types.VerticalPodAutoscalerSpec{
+			Recommenders: []*vpa_types.VerticalPodAutoscalerRecommenderSelector{
+				{Name: recommenderName},
+			},
+		},
+	}
+	vpa3 := &vpa_types.VerticalPodAutoscaler{
+		Spec: vpa_types.VerticalPodAutoscalerSpec{
+			Recommenders: []*vpa_types.VerticalPodAutoscalerRecommenderSelector{
+				{Name: "another-recommender"},
+			},
+		},
+	}
+
+	allVpaCRDs := []*vpa_types.VerticalPodAutoscaler{vpa1, vpa2, vpa3}
+
+	feeder := &clusterStateFeeder{
+		recommenderName: recommenderName,
+	}
+
+	// Set expected results
+	expectedResult := []*vpa_types.VerticalPodAutoscaler{vpa2}
+
+	// Run the filterVPAs function
+	result := filterVPAs(feeder, allVpaCRDs)
+
+	if len(result) != len(expectedResult) {
+		t.Fatalf("expected %d VPAs, got %d", len(expectedResult), len(result))
+	}
+
+	assert.ElementsMatch(t, expectedResult, result)
 }

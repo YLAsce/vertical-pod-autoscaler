@@ -99,7 +99,7 @@ func (e *percentileEstimator) GetResourceEstimation(s *model.AggregateContainerS
 		model.ResourceCPU: model.CPUAmountFromCores(
 			s.AggregateCPUUsage.Percentile(e.cpuPercentile)),
 		model.ResourceMemory: model.MemoryAmountFromBytes(
-			s.AggregateCPUUsage.Percentile(e.memoryPercentile)),
+			s.AggregateMemoryPeaks.Percentile(e.memoryPercentile)),
 	}
 }
 
@@ -149,8 +149,6 @@ func (e *marginEstimator) GetResourceEstimation(s *model.AggregateContainerState
 
 func (e *minResourcesEstimator) GetResourceEstimation(s *model.AggregateContainerState) model.Resources {
 	originalResources := e.baseEstimator.GetResourceEstimation(s)
-	// klog.V(4).Infof("[NICO]RecoriginalResources: %+v", originalResources)
-	// klog.V(4).Infof("[NICO]RecMinResources: %+v", e.minResources)
 	newResources := make(model.Resources)
 	for resource, resourceAmount := range originalResources {
 		if resourceAmount < e.minResources[resource] {

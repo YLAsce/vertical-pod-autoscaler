@@ -1,2 +1,0 @@
-autopilot ml 使用内存：100*100（model个数）*2*400* 2（cpu,mem）*2*(pods)*8 = 256000000 bytes = 256M
-所以可能没有那么多的model

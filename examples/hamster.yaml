@@ -13,8 +13,8 @@ spec:
   # recommenders field can be unset when using the default recommender.
   # When using an alternative recommender, the alternative recommender's name
   # can be specified as the following in a list.
-  recommenders: 
-    - name: yuqiang
+  # recommenders: 
+  #   - name: 'alternative'
   targetRef:
     apiVersion: "apps/v1"
     kind: Deployment
@@ -23,11 +23,11 @@ spec:
     containerPolicies:
       - containerName: '*'
         minAllowed:
-          cpu: 30m
-          memory: 1Mi
+          cpu: 100m
+          memory: 50Mi
         maxAllowed:
-          cpu: 700m
-          memory: 100Mi
+          cpu: 1
+          memory: 500Mi
         controlledResources: ["cpu", "memory"]
 ---
 apiVersion: apps/v1
@@ -54,13 +54,7 @@ spec:
             requests:
               cpu: 100m
               memory: 50Mi
-            limits:
-              cpu: 100m
-              memory: 50Mi
           command: ["/bin/sh"]
           args:
             - "-c"
             - "while true; do timeout 0.5s yes >/dev/null; sleep 0.5s; done"
-            
-            # - "while true; do timeout 0.5s yes >/dev/null; sleep 0.5s; done"
-
