@@ -125,11 +125,11 @@ func (e *podsEvictionRestrictionImpl) CanEvict(pod *apiv1.Pod) bool {
 func (e *podsEvictionRestrictionImpl) Evict(podToEvict *apiv1.Pod, eventRecorder record.EventRecorder) error {
 	cr, present := e.podToReplicaCreatorMap[getPodID(podToEvict)]
 	if !present {
-		return fmt.Errorf("pod not suitable for eviction %s/%s: not in replicated pods map", podToEvict.Namespace, podToEvict.Name)
+		return fmt.Errorf("pod not suitable for eviction %v : not in replicated pods map", podToEvict.Name)
 	}
 
 	if !e.CanEvict(podToEvict) {
-		return fmt.Errorf("cannot evict pod %s/%s: eviction budget exceeded", podToEvict.Namespace, podToEvict.Name)
+		return fmt.Errorf("cannot evict pod %v : eviction budget exceeded", podToEvict.Name)
 	}
 
 	eviction := &policyv1.Eviction{
@@ -199,7 +199,7 @@ func (f *podsEvictionRestrictionFactoryImpl) NewPodsEvictionRestriction(pods []*
 	for _, pod := range pods {
 		creator, err := getPodReplicaCreator(pod)
 		if err != nil {
-			klog.Errorf("failed to obtain replication info for pod %s: %v", klog.KObj(pod), err)
+			klog.Errorf("failed to obtain replication info for pod %s: %v", pod.Name, err)
 			continue
 		}
 		if creator == nil {
@@ -216,8 +216,8 @@ func (f *podsEvictionRestrictionFactoryImpl) NewPodsEvictionRestriction(pods []*
 	required := f.minReplicas
 	if vpa.Spec.UpdatePolicy != nil && vpa.Spec.UpdatePolicy.MinReplicas != nil {
 		required = int(*vpa.Spec.UpdatePolicy.MinReplicas)
-		klog.V(3).Infof("overriding minReplicas from global %v to per-VPA %v for VPA %s",
-			f.minReplicas, required, klog.KObj(vpa))
+		klog.V(3).Infof("overriding minReplicas from global %v to per-VPA %v for VPA %v/%v",
+			f.minReplicas, required, vpa.Namespace, vpa.Name)
 	}
 
 	for creator, replicas := range livePods {
