@@ -39,9 +39,45 @@ const (
 	ResourceCPU ResourceName = "cpu"
 	// ResourceMemory represents memory, in bytes. (500Gi = 500GiB = 500 * 1024 * 1024 * 1024).
 	ResourceMemory ResourceName = "memory"
+	// GPU Streaming Multiprocessor in milli GIs (in MIG)
+	ResourceGPUSM ResourceName = "gpusm"
+	// GPU Memory in bytes
+	ResourceGPUMemory ResourceName = "gpumemory"
 	// MaxResourceAmount is the maximum allowed value of resource amount.
 	MaxResourceAmount = ResourceAmount(1e14)
 )
+
+func GPUSMAmountFromGIs(gis float64) ResourceAmount {
+	return resourceAmountFromFloat(gis * 1000.0)
+}
+
+func GIsFromGPUSMAmount(gpusmAmount ResourceAmount) float64 {
+	return float64(gpusmAmount) / 1000.0
+}
+
+func IntGPUSMAmountFromGIs(gis int64) ResourceAmount {
+	return ResourceAmount(gis * 1000)
+}
+
+func IntGIsFromGPUSMAmount(gpusmAmount ResourceAmount) int64 {
+	return int64(gpusmAmount) / 1000
+}
+
+func GPUMemoryAmountFromBytes(bytes float64) ResourceAmount {
+	return resourceAmountFromFloat(bytes)
+}
+
+func BytesFromGPUMemoryAmount(gpumemoryAmount ResourceAmount) float64 {
+	return float64(gpumemoryAmount)
+}
+
+func IntGPUMemoryAmountFromBytes(bytes int64) ResourceAmount {
+	return ResourceAmount(bytes)
+}
+
+func IntBytesFromGPUMemoryAmount(gpumemoryAmount ResourceAmount) int64 {
+	return int64(gpumemoryAmount)
+}
 
 // CPUAmountFromCores converts CPU cores to a ResourceAmount.
 func CPUAmountFromCores(cores float64) ResourceAmount {

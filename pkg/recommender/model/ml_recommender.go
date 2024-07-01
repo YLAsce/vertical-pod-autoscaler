@@ -24,6 +24,7 @@ func NewCPURecommender(backHisto util.AutopilotHisto) *Recommender {
 		modelPool:               make([]*Model, numModels),
 		combinedOLULLmPrimePool: make([]*CombinedOLULLmPrime, *numDmCPU),
 		numModels:               numModels,
+		numDm:                   *numDmCPU,
 		wo:                      *woCPU,
 		wu:                      *wuCPU,
 		wdm:                     *wdmCPU,
@@ -51,6 +52,7 @@ func NewMemoryRecommender(backHisto util.AutopilotHisto) *Recommender {
 		modelPool:               make([]*Model, numModels),
 		combinedOLULLmPrimePool: make([]*CombinedOLULLmPrime, *numDmMemory),
 		numModels:               numModels,
+		numDm:                   *numDmMemory,
 		wo:                      *woMemory,
 		wu:                      *wuMemory,
 		wdm:                     *wdmMemory,
@@ -72,10 +74,67 @@ func NewMemoryRecommender(backHisto util.AutopilotHisto) *Recommender {
 	return &ret
 }
 
+func NewGPUSMRecommender(backHisto util.AutopilotHisto) *Recommender {
+	numModels := (*numDmGPUS) * (*numMmGPUS)
+	ret := Recommender{
+		modelPool:               make([]*Model, numModels),
+		combinedOLULLmPrimePool: make([]*CombinedOLULLmPrime, *numDmGPUS),
+		numModels:               numModels,
+		numDm:                   *numDmGPUM,
+		wo:                      *woGPUS,
+		wu:                      *wuGPUS,
+		wdm:                     *wdmGPUS,
+		wdl:                     *wdlGPUS,
+		selectedModelId:         -1,
+		backHisto:               backHisto,
+		recommendation:          ResourceAmount(-1),
+		recommendationId:        -1,
+	}
+	for i := 0; i <= *numDmGPUS-1; i++ {
+		ret.combinedOLULLmPrimePool[i] = NewCombinedOLULLmPrime(backHisto.GetMaxIdL() + 1)
+	}
+
+	for i := 0; i <= *numDmGPUS-1; i++ {
+		for j := 0; j <= *numMmGPUS-1; j++ {
+			ret.modelPool[i*(*numMmGPUS)+j] = NewGPUSModel(backHisto, ret.combinedOLULLmPrimePool[i], j)
+		}
+	}
+	return &ret
+}
+
+func NewGPUMemoryRecommender(backHisto util.AutopilotHisto) *Recommender {
+	numModels := (*numDmGPUM) * (*numMmGPUM)
+	ret := Recommender{
+		modelPool:               make([]*Model, numModels),
+		combinedOLULLmPrimePool: make([]*CombinedOLULLmPrime, *numDmGPUM),
+		numModels:               numModels,
+		numDm:                   *numDmGPUM,
+		wo:                      *woGPUM,
+		wu:                      *wuGPUM,
+		wdm:                     *wdmGPUM,
+		wdl:                     *wdlGPUM,
+		selectedModelId:         -1,
+		backHisto:               backHisto,
+		recommendation:          ResourceAmount(-1),
+		recommendationId:        -1,
+	}
+	for i := 0; i <= *numDmGPUM-1; i++ {
+		ret.combinedOLULLmPrimePool[i] = NewCombinedOLULLmPrime(backHisto.GetMaxIdL() + 1)
+	}
+
+	for i := 0; i <= *numDmGPUM-1; i++ {
+		for j := 0; j <= *numMmGPUM-1; j++ {
+			ret.modelPool[i*(*numMmGPUM)+j] = NewGPUMModel(backHisto, ret.combinedOLULLmPrimePool[i], j)
+		}
+	}
+	return &ret
+}
+
 type Recommender struct {
 	modelPool               []*Model
 	combinedOLULLmPrimePool []*CombinedOLULLmPrime
 	numModels               int
+	numDm                   int
 	wo                      float64
 	wu                      float64
 	wdm                     float64
@@ -92,8 +151,8 @@ type Recommender struct {
 func (r *Recommender) CalculateOnce() {
 	//复杂度 O(dM*bucketNum)
 	//在外部更新所有pool中的mL和uL, 更新Dm*Mm次优化到更新Dm次
-	for i := 0; i <= *numDmCPU-1; i++ {
-		dm := float64(i) / float64(*numDmCPU-1)
+	for i := 0; i <= r.numDm-1; i++ {
+		dm := float64(i) / float64(r.numDm-1)
 		for idL := 0; idL <= r.backHisto.GetMaxIdL(); idL++ {
 			r.combinedOLULLmPrimePool[i].OL[idL] = (1.0-dm)*r.combinedOLULLmPrimePool[i].OL[idL] + dm*float64(r.backHisto.NumSamplesWithValueMoreThan(idL))
 			r.combinedOLULLmPrimePool[i].UL[idL] = (1.0-dm)*r.combinedOLULLmPrimePool[i].UL[idL] + dm*float64(r.backHisto.NumSamplesWithValueLessThan(idL))

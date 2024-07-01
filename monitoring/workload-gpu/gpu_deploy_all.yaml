@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pytorch-gpu-pod-mig
+spec:
+  containers:
+  - name: pytorch-gpu-container-mig
+    image: pytorch/pytorch:latest
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+    command: ["python", "-c"]
+    args:
+      - |
+        import torch
+        import time
+        a = torch.randn(10000, 10000).cuda()
+        b = torch.randn(10000, 10000).cuda()
+        while True:
+          start_time = time.time()
+          c = torch.matmul(a, b)
+          end_time = time.time()
+          print(end_time - start_time)
+          # time.sleep(3)
+  restartPolicy: Never

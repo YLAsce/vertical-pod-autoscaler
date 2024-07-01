@@ -166,7 +166,7 @@ ax4.legend()
 ax5.legend()
 ax6.legend()
 
-fig.savefig('{}/graph_turnaround.png'.format(target_path))
+fig.savefig('{}/graph_turnaround_full.png'.format(target_path))
 
 
 plt.show()

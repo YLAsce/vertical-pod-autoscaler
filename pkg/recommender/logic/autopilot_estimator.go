@@ -23,6 +23,37 @@ type AutopilotResourceEstimator interface {
 	GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error)
 }
 
+type AutopilotGPUResourceEstimator interface {
+	GetResourceEstimation(containerName string, s *model.AggregateGPUState) (model.Resources, error)
+}
+
+type mlGPUEstimator struct {
+	smLastSamplesN, memoryLastSamplesN int
+}
+
+func NewMLGPUEstimator(smLastSamplesN, memoryLastSamplesN int) AutopilotGPUResourceEstimator {
+	return &mlGPUEstimator{
+		smLastSamplesN:     smLastSamplesN,
+		memoryLastSamplesN: memoryLastSamplesN,
+	}
+}
+
+func (e *mlGPUEstimator) GetResourceEstimation(containerName string, s *model.AggregateGPUState) (model.Resources, error) {
+	s.MLRecommenderSM.CalculateOnce()
+	s.MLRecommenderMemory.CalculateOnce()
+	SMResult := s.MLRecommenderSM.GetRecommendation()
+	MemoryResult := s.MLRecommenderMemory.GetRecommendation()
+
+	var err error = nil
+	if s.AggregateSMUsage.AggregateNums() <= e.smLastSamplesN || s.AggregateMemoryUsage.AggregateNums() <= e.memoryLastSamplesN {
+		err = errors.New("Too early for ML to give recommendation, wait for 5N time")
+	}
+	return model.Resources{
+		model.ResourceGPUSM:     SMResult,
+		model.ResourceGPUMemory: MemoryResult,
+	}, err
+}
+
 type mlEstimator struct {
 	cpuLastSamplesN, memoryLastSamplesN int
 }

@@ -40,6 +40,18 @@ type HistogramOptions interface {
 	Epsilon() float64 // Epsilon is unused in Autopilot...
 }
 
+func NewFixedHistogramOptions(bucketEnds []float64) (HistogramOptions, error) {
+	if len(bucketEnds) < 1 {
+		return nil, errors.New("fixed options array too short")
+	}
+	for i := 1; i < len(bucketEnds); i++ {
+		if bucketEnds[i] <= 0 || bucketEnds[i] <= bucketEnds[i-1] {
+			return nil, errors.New("fixed options array should be increasing and positive")
+		}
+	}
+	return &fixedHistogramOptions{bucketEnds: bucketEnds}, nil
+}
+
 // NewLinearHistogramOptions returns HistogramOptions describing a histogram
 // with a given number of fixed-size buckets, with the first bucket start at 0.0
 // and the last bucket END larger or equal to maxValue.
@@ -73,6 +85,10 @@ func NewExponentialHistogramOptions(
 	return &exponentialHistogramOptions{numBuckets, firstBucketSize, ratio, epsilon}, nil
 }
 
+type fixedHistogramOptions struct {
+	bucketEnds []float64
+}
+
 type linearHistogramOptions struct {
 	numBuckets int
 	bucketSize float64
@@ -84,6 +100,40 @@ type exponentialHistogramOptions struct {
 	firstBucketSize float64
 	ratio           float64
 	epsilon         float64
+}
+
+func (o *fixedHistogramOptions) NumBuckets() int {
+	return len(o.bucketEnds)
+}
+
+func (o *fixedHistogramOptions) FindBucket(value float64) int {
+	for i, e := range o.bucketEnds {
+		if value <= e {
+			return i
+		}
+	}
+	return len(o.bucketEnds) - 1
+}
+
+func (o *fixedHistogramOptions) GetBucketStart(bucket int) float64 {
+	if bucket < 0 || bucket >= len(o.bucketEnds) {
+		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, len(o.bucketEnds)-1))
+	}
+	if bucket == 0 {
+		return 0.0
+	}
+	return o.bucketEnds[bucket-1]
+}
+
+func (o *fixedHistogramOptions) GetBucketEnd(bucket int) float64 {
+	if bucket < 0 || bucket >= len(o.bucketEnds) {
+		panic(fmt.Sprintf("index %d out of range [0..%d]", bucket, len(o.bucketEnds)-1))
+	}
+	return o.bucketEnds[bucket]
+}
+
+func (o *fixedHistogramOptions) Epsilon() float64 {
+	panic("not implemented Epsilon in Autopilot")
 }
 
 func (o *linearHistogramOptions) NumBuckets() int {

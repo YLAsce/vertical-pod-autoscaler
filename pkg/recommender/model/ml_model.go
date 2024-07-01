@@ -44,6 +44,46 @@ func NewMemoryModel(backHisto util.AutopilotHisto, combinedOLULLmPrime *Combined
 	}
 }
 
+func NewGPUSModel(backHisto util.AutopilotHisto, combinedOLULLmPrime *CombinedOLULLmPrime, mmIdNums int) *Model {
+	return &Model{
+		usageHistogram:      backHisto,
+		combinedOLULLmPrime: combinedOLULLmPrime,
+
+		mmIdNums: mmIdNums,
+
+		wo:  *woGPUS,
+		wu:  *wuGPUS,
+		wdl: *wdlGPUS,
+		d:   *dGPUS,
+
+		lmId: -1,
+		lm:   0.0,
+		cm:   0.0,
+
+		resourceAmountFunction: GPUSMAmountFromGIs,
+	}
+}
+
+func NewGPUMModel(backHisto util.AutopilotHisto, combinedOLULLmPrime *CombinedOLULLmPrime, mmIdNums int) *Model {
+	return &Model{
+		usageHistogram:      backHisto,
+		combinedOLULLmPrime: combinedOLULLmPrime,
+
+		mmIdNums: mmIdNums,
+
+		wo:  *woGPUM,
+		wu:  *wuGPUM,
+		wdl: *wdlGPUM,
+		d:   *dGPUM,
+
+		lmId: -1,
+		lm:   0.0,
+		cm:   0.0,
+
+		resourceAmountFunction: GPUMemoryAmountFromBytes,
+	}
+}
+
 type Model struct {
 	usageHistogram      util.AutopilotHisto
 	combinedOLULLmPrime *CombinedOLULLmPrime //oL uL minSubLid改为外部传入结构体指针，节省内存,避免重复计算，CPU和内存都优化了mM倍

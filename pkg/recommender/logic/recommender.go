@@ -55,6 +55,53 @@ type RecommendedContainerResources struct {
 	UpperBound model.Resources
 }
 
+// --------
+type PodGPURecommender interface {
+	GetRecommendedPodResources(containerNameToAggregateGPUMap model.ContainerNameToAggregateGPUMap) RecommendedPodResources
+}
+type podGPURecommender struct {
+	targetEstimator AutopilotGPUResourceEstimator
+}
+
+func (r *podGPURecommender) GetRecommendedPodResources(containerNameToAggregateGPUMap model.ContainerNameToAggregateGPUMap) RecommendedPodResources {
+
+	var recommendation = make(RecommendedPodResources)
+	if len(containerNameToAggregateGPUMap) == 0 {
+		return recommendation
+	}
+
+	// In Autopilot, recommender can refuse to give result, this can avoid code start problem
+	for containerName, aggregatedGPUState := range containerNameToAggregateGPUMap {
+		estimation, err := r.estimateGPUResources(containerName, aggregatedGPUState)
+		if err != nil {
+			klog.V(3).Infof("NICONICO Cannot give valid pod recommendation. Reason: %s", err.Error())
+		} else {
+			recommendation[containerName] = estimation
+		}
+	}
+	return recommendation
+}
+
+func (r *podGPURecommender) estimateGPUResources(containerName string, s *model.AggregateGPUState) (RecommendedContainerResources, error) {
+	res, err := r.targetEstimator.GetResourceEstimation(containerName, s)
+	// The same target, lower bound and upper bound
+	return RecommendedContainerResources{
+		res,
+		res,
+		res,
+	}, err
+}
+
+func CreatePodGPURecommender(smLastSamplesN, memoryLastSamplesN int) PodGPURecommender {
+	targetEstimator := NewMLGPUEstimator(smLastSamplesN, memoryLastSamplesN)
+	return &podGPURecommender{
+		targetEstimator: targetEstimator,
+	}
+
+}
+
+// --------------
+
 type podResourceRecommender struct {
 	targetEstimator  AutopilotResourceEstimator
 	oomPostProcessor *OOMPostProcessor
