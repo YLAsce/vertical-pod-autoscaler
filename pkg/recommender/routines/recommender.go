@@ -173,6 +173,7 @@ func (r *recommender) MaintainCheckpoints(ctx context.Context, minCheckpointsPer
 
 // 1 second
 func (r *recommender) CollectOnce() {
+	r.clusterStateFeeder.LoadVPAs()
 	r.clusterStateFeeder.LoadPods()
 
 	r.clusterStateFeeder.LoadRealTimeMetrics()
@@ -180,7 +181,7 @@ func (r *recommender) CollectOnce() {
 
 // 5 minute
 func (r *recommender) SetupOnce() {
-	r.clusterStateFeeder.LoadVPAs()
+	// r.clusterStateFeeder.LoadVPAs()
 }
 
 func (r *recommender) RecommendOnce(algorithmRun bool) {

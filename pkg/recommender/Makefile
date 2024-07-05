@@ -1,6 +1,6 @@
 all: docker-build docker-push replace-ml
 
-TAG?=ml-v3gpu1
+TAG?=ml-v3gpu-shortvpa
 REGISTRY?=yuqiang302
 FLAGS=
 TEST_ENVVAR=LD_FLAGS=-s GO111MODULE=on
