@@ -352,6 +352,8 @@ func (ah *autopilotHisto) Aggregate(operationTime time.Time) {
 	maxVal := 0.0
 	if maxBucket >= 0 {
 		maxVal = ah.options.GetBucketEnd(maxBucket)
+	} else {
+		return
 	}
 	ah.cumulativeMaxWindow[ah.cumulativeMaxHeadPosition] = maxVal
 	ah.cumulativeMaxHeadPosition = (ah.cumulativeMaxHeadPosition + 1) % ah.lastSamplesN
