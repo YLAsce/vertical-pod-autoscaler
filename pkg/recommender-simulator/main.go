@@ -101,6 +101,7 @@ func main() {
 			var ok bool
 			if loopCounter%300 == 0 { // 5min
 				executor.HistogramAggregate(curTime)
+				executor.HistogramAggregate(curTime.Add(time.Microsecond))
 				recommendedResources, ok = executor.Recommend(true)
 				if ok {
 					curCPURequest = recommendedResources.Target[model.ResourceCPU]

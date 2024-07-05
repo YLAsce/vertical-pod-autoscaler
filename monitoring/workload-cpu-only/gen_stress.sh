@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 component="workload-cpu-only"
 # while true; do
 #     sleep 100

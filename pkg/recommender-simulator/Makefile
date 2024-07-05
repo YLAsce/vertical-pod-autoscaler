@@ -43,7 +43,7 @@ run-rule:
 		-ap-ml-memory-num-mm=500 \
 		-initial-cpu=0.6 \
 		-initial-memory=600000000 \
-		-metrics-file=metrics-rule \
+		-metrics-file=metrics-rule1 \
 		-oom-bump-up-ratio=1.2 \
 		-oom-min-bump-up-bytes=100000000 \
 		-recommender-interval=5m \

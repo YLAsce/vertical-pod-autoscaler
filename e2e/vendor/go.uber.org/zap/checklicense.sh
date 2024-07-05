@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env bash -e
 
 ERROR_COUNT=0
 while read -r file

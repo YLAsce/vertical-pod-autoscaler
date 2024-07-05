@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env bash -e
 #
 # This script rebuilds the generated code for the protocol buffers.
 # To run this you will need protoc and goprotobuf installed;

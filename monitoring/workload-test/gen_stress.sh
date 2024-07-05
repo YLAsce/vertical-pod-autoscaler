@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 component=$1
 # while true; do
 #     sleep 100

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu -o pipefail
 
 # Small convenience script for running the tests with various combinations of

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex  # Exit on error; debugging enabled.
 set -o pipefail  # Fail a pipe if any sub-command fails.
