@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:ml-v3gpu
+        image: docker.io/yuqiang302/vpa-recommender:ml-v3gpu1
         imagePullPolicy: Always
         args:
           - --recommender-name=autopilot
