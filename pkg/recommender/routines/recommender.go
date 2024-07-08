@@ -126,8 +126,9 @@ func (r *recommender) UpdateVPAs(algorithmRun bool) {
 			metrics_recommender.ObserveRecommendationLatency(vpa.Created)
 		}
 		//更新显示的condition
-		hasMatchingPods := vpa.PodCount > 0
-		vpa.UpdateConditions(hasMatchingPods)
+		// hasMatchingPods := vpa.PodCount > 0
+		// 这里强制推荐为True
+		vpa.UpdateConditions(true)
 
 		// 更新cluster state，谁是空的vpa
 		if err := r.clusterState.RecordRecommendation(vpa, time.Now()); err != nil {
@@ -135,7 +136,7 @@ func (r *recommender) UpdateVPAs(algorithmRun bool) {
 			if klog.V(4).Enabled() {
 				klog.Infof("VPA dump")
 				klog.Infof("%+v", vpa)
-				klog.Infof("HasMatchingPods: %v", hasMatchingPods)
+				klog.Infof("HasMatchingPods: %v", true)
 				klog.Infof("PodCount: %v", vpa.PodCount)
 				pods := r.clusterState.GetMatchingPods(vpa)
 				klog.Infof("MatchingPods: %+v", pods)
