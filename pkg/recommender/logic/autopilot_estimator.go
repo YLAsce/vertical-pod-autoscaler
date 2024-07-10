@@ -113,7 +113,9 @@ func NewAutopilotEstimator(cpuRecommendPolicy string, memoryRecommendPolicy stri
 }
 
 func (e *autopilotEstimator) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
+	klog.V(3).Info("Start Estimate CPU:" + containerName)
 	rawCPUResult, err1 := e.cpuEstimator.GetRawEstimation(s.AggregateCPUUsage)
+	klog.V(3).Info("Start Estimate RAM:" + containerName)
 	rawMemoryResult, err2 := e.memoryEstimator.GetRawEstimation(s.AggregateMemoryUsage)
 	return model.Resources{
 		model.ResourceCPU:    model.CPUAmountFromCores(rawCPUResult),
@@ -253,6 +255,8 @@ func NewAutopilotAverageEstimator(N int) AutopilotSingleEstimator {
 func (e *autopilotAverageEstimator) GetRawEstimation(h util.AutopilotHisto) (float64, error) {
 	var err error = nil
 	if h.AggregateNums() <= e.N || !h.HasValidAggregation() {
+		klog.V(3).Infof("Average Err: %v, %v, %v", h.AggregateNums(), e.N, h.HasValidAggregation())
+		klog.V(3).Infof(h.String())
 		err = errors.New("Average: No enough valid aggregations, estimation could be small")
 	}
 	return h.Average(), err
@@ -273,6 +277,8 @@ func NewAutopilotPercentileEstimator(percentileInt int, N int) AutopilotSingleEs
 func (e *autopilotPercentileEstimator) GetRawEstimation(h util.AutopilotHisto) (float64, error) {
 	var err error = nil
 	if h.AggregateNums() <= e.N || !h.HasValidAggregation() {
+		klog.V(3).Infof("Percentile Err: %v, %v, %v", h.AggregateNums(), e.N, h.HasValidAggregation())
+		klog.V(3).Infof(h.String())
 		err = errors.New("Percentile: No enough valid aggregations, estimation could be small")
 	}
 	return h.Percentile(e.percentile), err

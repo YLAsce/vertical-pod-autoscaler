@@ -335,7 +335,7 @@ func selectsRecommender(selectors []*vpa_types.VerticalPodAutoscalerRecommenderS
 
 // Filter VPA objects whose specified recommender names are not default
 func filterVPAs(feeder *clusterStateFeeder, allVpaCRDs []*vpa_types.VerticalPodAutoscaler) []*vpa_types.VerticalPodAutoscaler {
-	klog.V(3).Infof("Start selecting the vpaCRDs.")
+	// klog.V(3).Infof("Start selecting the vpaCRDs.")
 	var vpaCRDs []*vpa_types.VerticalPodAutoscaler
 	for _, vpaCRD := range allVpaCRDs {
 		if feeder.recommenderName == DefaultRecommenderName {
@@ -380,7 +380,7 @@ func (feeder *clusterStateFeeder) LoadVPAs() {
 		}
 
 		selector, conditions := feeder.getSelector(vpaCRD)
-		klog.V(4).Infof("Using selector %s for VPA %s/%s", selector.String(), vpaCRD.Namespace, vpaCRD.Name)
+		// klog.V(4).Infof("Using selector %s for VPA %s/%s", selector.String(), vpaCRD.Namespace, vpaCRD.Name)
 
 		if feeder.clusterState.AddOrUpdateVpa(vpaCRD, selector) == nil {
 			// Successfully added VPA to the model.
