@@ -422,10 +422,6 @@ func (feeder *clusterStateFeeder) LoadPods() {
 			klog.V(3).Infof("Deleting Pod %v", key)
 			feeder.clusterState.DeletePod(key)
 		}
-
-		if !feeder.matchesVPA(pods[key]) {
-
-		}
 	}
 	for _, pod := range pods {
 		if feeder.memorySaveMode && !feeder.matchesVPA(pod) {
