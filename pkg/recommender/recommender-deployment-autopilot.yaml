@@ -24,6 +24,7 @@ spec:
         imagePullPolicy: Always
         args:
           - --recommender-name=autopilot
+          - --ap-algorithm=rule
           - --recommender-interval=5m
           - --metrics-interval=1s
           - --oom-bump-up-ratio=1.2
