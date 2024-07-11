@@ -265,7 +265,7 @@ func (vpa *Vpa) UpdateConditions(podsMatched bool) {
 	if vpa.HasRecommendation() {
 		vpa.Conditions.Set(vpa_types.RecommendationProvided, true, "", "")
 	} else {
-		reason = "NoPodsMatched"
+		reason = "ColdStartWaiting"
 		vpa.Conditions.Set(vpa_types.RecommendationProvided, false, reason, msg)
 	}
 

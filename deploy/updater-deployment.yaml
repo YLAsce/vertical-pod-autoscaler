@@ -22,6 +22,10 @@ spec:
         - name: updater
           image: registry.k8s.io/autoscaling/vpa-updater:1.0.0
           imagePullPolicy: Always
+          args:
+            - --updater-interval=30s
+            - --min-replicas=1
+            - --eviction-tolerance=1
           env:
             - name: NAMESPACE
               valueFrom:

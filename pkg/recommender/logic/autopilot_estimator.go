@@ -39,6 +39,7 @@ func NewMLGPUEstimator(smLastSamplesN, memoryLastSamplesN int) AutopilotGPUResou
 }
 
 func (e *mlGPUEstimator) GetResourceEstimation(containerName string, s *model.AggregateGPUState) (model.Resources, error) {
+	klog.V(5).Infof("Algorithm Enter GPU" + containerName)
 	s.MLRecommenderSM.CalculateOnce()
 	s.MLRecommenderMemory.CalculateOnce()
 	SMResult := s.MLRecommenderSM.GetRecommendation()
@@ -66,6 +67,7 @@ func NewMLEstimator(cpuLastSamplesN, memoryLastSamplesN int) AutopilotResourceEs
 }
 
 func (e *mlEstimator) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
+	klog.V(5).Infof("Algorithm Enter ML" + containerName)
 	s.MLRecommenderCPU.CalculateOnce()
 	s.MLRecommenderMemory.CalculateOnce()
 	CPUResult := s.MLRecommenderCPU.GetRecommendation()
@@ -113,7 +115,10 @@ func NewAutopilotEstimator(cpuRecommendPolicy string, memoryRecommendPolicy stri
 }
 
 func (e *autopilotEstimator) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
+	klog.V(5).Infof("Algorithm Enter Autopilot" + containerName)
+	klog.V(3).Info("Start Estimate CPU:" + containerName)
 	rawCPUResult, err1 := e.cpuEstimator.GetRawEstimation(s.AggregateCPUUsage)
+	klog.V(3).Info("Start Estimate RAM:" + containerName)
 	rawMemoryResult, err2 := e.memoryEstimator.GetRawEstimation(s.AggregateMemoryUsage)
 	return model.Resources{
 		model.ResourceCPU:    model.CPUAmountFromCores(rawCPUResult),
@@ -143,6 +148,7 @@ func calMarginedValue(curValue, histogramMaxValue model.ResourceAmount) model.Re
 }
 
 func (e *autopilotSafetyMarginEstimator) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
+	klog.V(5).Infof("Algorithm Enter SafetyMargin" + containerName)
 	originalResources, err := e.baseEstimator.GetResourceEstimation(containerName, s)
 	// klog.V(4).Infof("NICONICO Resource input in Margin: %+v", originalResources)
 	return model.Resources{
@@ -175,6 +181,7 @@ func WithAutopilotFluctuationReducer(fluctuationReducerDuration, recommenderInte
 }
 
 func (e *autopilotFluctuationReducer) GetResourceEstimation(containerName string, s *model.AggregateContainerState) (model.Resources, error) {
+	klog.V(5).Infof("Algorithm Enter FluctionReducer" + containerName)
 	originalResources, err := e.baseEstimator.GetResourceEstimation(containerName, s)
 	klog.V(4).Infof("NICONICO Resource input in Fluctuation: %+v", originalResources)
 	klog.V(4).Infof("NICONICO Resource status in Fluctuation: %+v", e.buffer)
@@ -253,6 +260,8 @@ func NewAutopilotAverageEstimator(N int) AutopilotSingleEstimator {
 func (e *autopilotAverageEstimator) GetRawEstimation(h util.AutopilotHisto) (float64, error) {
 	var err error = nil
 	if h.AggregateNums() <= e.N || !h.HasValidAggregation() {
+		klog.V(3).Infof("Average Err: %v, %v, %v", h.AggregateNums(), e.N, h.HasValidAggregation())
+		klog.V(3).Infof(h.String())
 		err = errors.New("Average: No enough valid aggregations, estimation could be small")
 	}
 	return h.Average(), err
@@ -273,6 +282,8 @@ func NewAutopilotPercentileEstimator(percentileInt int, N int) AutopilotSingleEs
 func (e *autopilotPercentileEstimator) GetRawEstimation(h util.AutopilotHisto) (float64, error) {
 	var err error = nil
 	if h.AggregateNums() <= e.N || !h.HasValidAggregation() {
+		klog.V(3).Infof("Percentile Err: %v, %v, %v", h.AggregateNums(), e.N, h.HasValidAggregation())
+		klog.V(3).Infof(h.String())
 		err = errors.New("Percentile: No enough valid aggregations, estimation could be small")
 	}
 	return h.Percentile(e.percentile), err

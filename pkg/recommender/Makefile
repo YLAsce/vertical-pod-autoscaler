@@ -1,6 +1,6 @@
 all: docker-build docker-push replace-ml
 
-TAG?=ml-v3gpu-shortvpa
+TAG?=ml-demo-shortvpa-fix10-log
 REGISTRY?=yuqiang302
 FLAGS=
 TEST_ENVVAR=LD_FLAGS=-s GO111MODULE=on
@@ -108,3 +108,9 @@ restart-rule:
 restart-ml:
 	kubectl delete -f recommender-deployment-autopilot-ml.yaml
 	kubectl apply -f recommender-deployment-autopilot-ml.yaml
+
+.PHONY: swap
+swap:
+	mv ~/.kube ~/.kube_bak2
+	mv ~/.kube_bak ~/.kube
+	mv ~/.kube_bak2 ~/.kube_bak
