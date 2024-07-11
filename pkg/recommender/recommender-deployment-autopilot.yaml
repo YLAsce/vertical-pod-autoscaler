@@ -46,7 +46,7 @@ spec:
           - --ap-ml-memory-num-dm=50
           - --ap-ml-memory-num-mm=500
           - --ap-ml-memory-size-buckets-mm=1
-          - --v=6
+          - --v=3
         resources:
           limits:
             cpu: 120m
