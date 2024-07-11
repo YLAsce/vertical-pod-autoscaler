@@ -74,6 +74,7 @@ func (r *podGPURecommender) GetRecommendedPodResources(containerNameToAggregateG
 	for containerName, aggregatedGPUState := range containerNameToAggregateGPUMap {
 		estimation, err := r.estimateGPUResources(containerName, aggregatedGPUState)
 		if err != nil {
+			klog.V(3).Infof("ENTERED GPU")
 			klog.V(3).Infof("NICONICO Cannot give valid pod recommendation. Reason: %s", err.Error())
 		} else {
 			recommendation[containerName] = estimation
@@ -130,6 +131,8 @@ func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggre
 		estimation, err := r.estimateContainerResources(containerName, aggregatedContainerState, algorithmRun)
 		klog.V(4).Infof("NICONICO ESTIMATE %+v", estimation)
 		if err != nil {
+			klog.V(5).Infof("ENTERED CPURAM")
+			klog.V(3).Infof("ENTERED CPURAM OK")
 			klog.V(3).Infof("NICONICO Cannot give valid pod recommendation. Reason: %s", err.Error())
 		} else {
 			recommendation[containerName] = estimation
@@ -157,8 +160,11 @@ func (r *podResourceRecommender) estimateContainerResources(containerName string
 	// 	FilterControlledResources(r.lowerBoundEstimator.GetResourceEstimation(s), s.GetControlledResources()),
 	// 	FilterControlledResources(r.upperBoundEstimator.GetResourceEstimation(s), s.GetControlledResources()),
 	// }
+	klog.V(5).Infof("Algorithm enter scope" + containerName)
 	if algorithmRun {
+		klog.V(5).Infof("Algorithm run container %v %+v", containerName, r.targetEstimator)
 		baseEstimation, err0 := r.targetEstimator.GetResourceEstimation(containerName, s)
+		klog.V(5).Infof("Algorithm run container end %+v, %v", baseEstimation, containerName)
 		r.oomPostProcessor.RecordBaseEstimation(containerName, baseEstimation, err0)
 		// fmt.Printf("Base: %+v\n", baseEstimation)
 	}
@@ -198,6 +204,7 @@ func CreatePodResourceRecommender(cpuHistogramMaxValue, memoryHistogramMaxValue 
 	targetEstimator := NewAutopilotEstimator(*cpuRecommendPolicy, *memRecommendPolicy, cpuLastSamplesN, memoryLastSamplesN)
 	targetEstimator = WithAutopilotSafetyMargin(cpuHistogramMaxValue, memoryHistogramMaxValue, targetEstimator)
 	targetEstimator = WithAutopilotFluctuationReducer(*fluctuationReducerDuration, recommenderInterval, targetEstimator)
+	klog.V(5).Infof("INIT Rule Success")
 	return &podResourceRecommender{
 		targetEstimator:  targetEstimator,
 		oomPostProcessor: oomPostProcessor,

@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:ml-demo-shortvpa-fix10
+        image: docker.io/yuqiang302/vpa-recommender:ml-demo-shortvpa-fix10-log
         imagePullPolicy: Always
         args:
           - --recommender-name=autopilot
@@ -45,7 +45,7 @@ spec:
           - --ap-ml-memory-num-dm=50
           - --ap-ml-memory-num-mm=500
           - --ap-ml-memory-size-buckets-mm=1
-          - --v=4
+          - --v=6
         resources:
           limits:
             cpu: 120m
