@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:ml-demo-shortvpa-fix10-log
+        image: docker.io/yuqiang302/vpa-recommender:ml-demo-shortvpa-fix10-cache1
         imagePullPolicy: Always
         args:
           - --recommender-name=ml
@@ -59,11 +59,11 @@ spec:
           - --ap-ml-memory-size-buckets-mm=1
         resources:
           limits:
+            cpu: 240m
+            memory: 1000Mi
+          requests:
             cpu: 120m
             memory: 500Mi
-          requests:
-            cpu: 60m
-            memory: 100Mi
         ports:
         - name: prometheus
           containerPort: 8942

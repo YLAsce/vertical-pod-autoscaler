@@ -87,9 +87,9 @@ func (r *recommender) UpdateVPAs(algorithmRun bool) {
 	// defer cnt.Observe()
 
 	// 只有在OOM或者算法需要执行的时候，才走这个流程
-	if !(r.clusterState.OOMToDo || algorithmRun) {
-		return
-	}
+	// if !(r.clusterState.OOMToDo || algorithmRun) {
+	// 	return
+	// }
 
 	for _, observedVpa := range r.clusterState.ObservedVpas {
 		key := model.VpaID{
@@ -101,13 +101,14 @@ func (r *recommender) UpdateVPAs(algorithmRun bool) {
 			continue
 		}
 		containerNameToAggregateStateMap, hasOOMAmongContainers := GetContainerNameToAggregateStateMapAndOOMStatus(vpa)
-		if !(hasOOMAmongContainers || algorithmRun) {
-			continue
+		updateCache := false
+		if hasOOMAmongContainers || algorithmRun {
+			updateCache = true
 		}
 
 		klog.V(4).Infof("Execute Update VPA, Reason: ClusterOOMTODO? %v, VPAOOMTodo? %v, Algorithm? %v", r.clusterState.OOMToDo, hasOOMAmongContainers, algorithmRun)
 
-		resources := r.podResourceRecommender.GetRecommendedPodResources(containerNameToAggregateStateMap, algorithmRun)
+		resources := r.podResourceRecommender.GetRecommendedPodResources(containerNameToAggregateStateMap, algorithmRun, updateCache)
 		// 这里获得推荐结果了，是个map，map[string]RecommendedContainerResources
 
 		had := vpa.HasRecommendation() //VPA中已经有recommendation了吗？

@@ -137,7 +137,7 @@ func main() {
 		*oomBumpUpRatio, *oomMinBumpUp,
 		*recommenderInterval, *recommenderInterval,
 		*cpuLastSamplesN, *memoryLastSamplesN,
-		cpuMaxAssignable/2.0, *cpuHistogramBucketNum, memoryMaxAssignable/2.0, *memoryHistogramBucketNum))
+		cpuMaxAssignable, *cpuHistogramBucketNum, memoryMaxAssignable, *memoryHistogramBucketNum))
 
 	healthCheck := metrics.NewHealthCheck(*metricsFetcherInterval*5, true)
 	metrics.Initialize(*address, healthCheck)

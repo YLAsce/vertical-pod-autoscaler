@@ -36,9 +36,11 @@ var (
 	fluctuationReducerDuration = flag.Duration("ap-fluctuation-reducer-duration", defaultFluctuationReducerDuration, "Period for fluctuation reducer, to choose the max value of recommendation in this period.")
 )
 
+var recommendCache RecommendedPodResources = make(RecommendedPodResources)
+
 // PodResourceRecommender computes resource recommendation for a Vpa object.
 type PodResourceRecommender interface {
-	GetRecommendedPodResources(containerNameToAggregateStateMap model.ContainerNameToAggregateStateMap, algorithmRun bool) RecommendedPodResources
+	GetRecommendedPodResources(containerNameToAggregateStateMap model.ContainerNameToAggregateStateMap, algorithmRun, updateCache bool) RecommendedPodResources
 }
 
 // RecommendedPodResources is a Map from container name to recommended resources.
@@ -111,7 +113,7 @@ type podResourceRecommender struct {
 	// upperBoundEstimator ResourceEstimator
 }
 
-func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggregateStateMap model.ContainerNameToAggregateStateMap, algorithmRun bool) RecommendedPodResources {
+func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggregateStateMap model.ContainerNameToAggregateStateMap, algorithmRun, updateCache bool) RecommendedPodResources {
 
 	// klog.V(4).Info("NICONICO============================================")
 	// for name, state := range containerNameToAggregateStateMap {
@@ -128,14 +130,21 @@ func (r *podResourceRecommender) GetRecommendedPodResources(containerNameToAggre
 
 	// In Autopilot, recommender can refuse to give result, this can avoid code start problem
 	for containerName, aggregatedContainerState := range containerNameToAggregateStateMap {
-		estimation, err := r.estimateContainerResources(containerName, aggregatedContainerState, algorithmRun)
-		klog.V(4).Infof("NICONICO ESTIMATE %+v", estimation)
-		if err != nil {
-			klog.V(5).Infof("ENTERED CPURAM")
-			klog.V(3).Infof("ENTERED CPURAM OK")
-			klog.V(3).Infof("NICONICO Cannot give valid pod recommendation. Reason: %s", err.Error())
+		if updateCache {
+			estimation, err := r.estimateContainerResources(containerName, aggregatedContainerState, algorithmRun)
+			klog.V(4).Infof("NICONICO ESTIMATE %+v", estimation)
+			if err != nil {
+				klog.V(5).Infof("ENTERED CPURAM")
+				klog.V(3).Infof("ENTERED CPURAM OK")
+				klog.V(3).Infof("NICONICO Cannot give valid pod recommendation. Reason: %s", err.Error())
+			} else {
+				recommendCache[containerName] = estimation
+			}
+		}
+		if v, exist := recommendCache[containerName]; exist {
+			recommendation[containerName] = v
 		} else {
-			recommendation[containerName] = estimation
+			klog.V(5).Info("Key not exist yet " + containerName)
 		}
 	}
 	return recommendation
