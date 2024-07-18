@@ -178,7 +178,9 @@ func newPodClients(kubeClient kube_client.Interface, resourceEventHandler cache.
 	// yet.
 	// Succeeded and Failed failed pods don't generate any usage anymore but we
 	// don't necessarily want to immediately delete them.
-	selector := fields.ParseSelectorOrDie("status.phase!=" + string(apiv1.PodPending))
+	// selector := fields.ParseSelectorOrDie("status.phase!=" + string(apiv1.PodPending))
+	//NICO 这里不排除pending的pod
+	selector := fields.Everything()
 	podListWatch := cache.NewListWatchFromClient(kubeClient.CoreV1().RESTClient(), "pods", namespace, selector)
 	indexer, controller := cache.NewIndexerInformer(
 		podListWatch,
