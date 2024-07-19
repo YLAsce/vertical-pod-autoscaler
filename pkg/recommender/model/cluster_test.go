@@ -87,7 +87,7 @@ func TestClusterAddSample(t *testing.T) {
 	// Create a pod with a single container.
 	cluster := NewClusterState(testGcPeriod)
 	cluster.AddOrUpdatePod(testPodID, testLabels, apiv1.PodRunning)
-	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest, 1))
 
 	// Add a usage sample to the container.
 	assert.NoError(t, cluster.AddSample(makeTestUsageSample()))
@@ -103,7 +103,7 @@ func TestClusterGCAggregateContainerStateDeletesOld(t *testing.T) {
 	vpa := addTestVpa(cluster)
 	addTestPod(cluster)
 
-	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest, 1))
 	usageSample := makeTestUsageSample()
 
 	// Add a usage sample to the container.
@@ -126,7 +126,7 @@ func TestClusterGCAggregateContainerStateDeletesOldEmpty(t *testing.T) {
 	vpa := addTestVpa(cluster)
 	addTestPod(cluster)
 
-	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest, 1))
 	// No usage samples added.
 
 	assert.NotEmpty(t, cluster.aggregateStateMap)
@@ -162,7 +162,7 @@ func TestClusterGCAggregateContainerStateDeletesEmptyInactiveWithoutController(t
 		err: nil,
 	}
 
-	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest, 1))
 	// No usage samples added.
 
 	assert.NotEmpty(t, cluster.aggregateStateMap)
@@ -191,7 +191,7 @@ func TestClusterGCAggregateContainerStateLeavesEmptyInactiveWithController(t *te
 	// Controller Fetcher returns existing controller, meaning that there is a corresponding controller alive.
 	controller := testControllerFetcher
 
-	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest, 1))
 	// No usage samples added.
 
 	assert.NotEmpty(t, cluster.aggregateStateMap)
@@ -217,7 +217,7 @@ func TestClusterGCAggregateContainerStateLeavesValid(t *testing.T) {
 	vpa := addTestVpa(cluster)
 	addTestPod(cluster)
 
-	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest, 1))
 	usageSample := makeTestUsageSample()
 
 	// Add a usage sample to the container.
@@ -240,7 +240,7 @@ func TestAddSampleAfterAggregateContainerStateGCed(t *testing.T) {
 	pod := addTestPod(cluster)
 	addTestContainer(t, cluster)
 
-	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest, 1))
 	usageSample := makeTestUsageSample()
 
 	// Add a usage sample to the container.
@@ -282,7 +282,7 @@ func TestClusterGCRateLimiting(t *testing.T) {
 	cluster.RateLimitedGarbageCollectAggregateCollectionStates(sampleExpireTime, testControllerFetcher)
 	vpa := addTestVpa(cluster)
 	addTestPod(cluster)
-	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest, 1))
 
 	// Add a usage sample to the container.
 	assert.NoError(t, cluster.AddSample(usageSample))
@@ -305,7 +305,7 @@ func TestClusterRecordOOM(t *testing.T) {
 	// Create a pod with a single container.
 	cluster := NewClusterState(testGcPeriod)
 	cluster.AddOrUpdatePod(testPodID, testLabels, apiv1.PodRunning)
-	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(testContainerID, testRequest, 1))
 
 	// RecordOOM
 	assert.NoError(t, cluster.RecordOOM(testContainerID, time.Unix(0, 0), ResourceAmount(10)))
@@ -325,7 +325,7 @@ func TestMissingKeys(t *testing.T) {
 	err = cluster.RecordOOM(testContainerID, time.Unix(0, 0), ResourceAmount(10))
 	assert.EqualError(t, err, "KeyError: {namespace-1 pod-1}")
 
-	err = cluster.AddOrUpdateContainer(testContainerID, testRequest)
+	err = cluster.AddOrUpdateContainer(testContainerID, testRequest, 1)
 	assert.EqualError(t, err, "KeyError: {namespace-1 pod-1}")
 }
 
@@ -355,7 +355,7 @@ func addTestPod(cluster *ClusterState) *PodState {
 }
 
 func addTestContainer(t *testing.T, cluster *ClusterState) *ContainerState {
-	err := cluster.AddOrUpdateContainer(testContainerID, testRequest)
+	err := cluster.AddOrUpdateContainer(testContainerID, testRequest, 1)
 	assert.NoError(t, err)
 	return cluster.GetContainer(testContainerID)
 }
@@ -643,9 +643,9 @@ func TestTwoPodsWithSameLabels(t *testing.T) {
 	cluster := NewClusterState(testGcPeriod)
 	cluster.AddOrUpdatePod(podID1, testLabels, apiv1.PodRunning)
 	cluster.AddOrUpdatePod(podID2, testLabels, apiv1.PodRunning)
-	err := cluster.AddOrUpdateContainer(containerID1, testRequest)
+	err := cluster.AddOrUpdateContainer(containerID1, testRequest, 1)
 	assert.NoError(t, err)
-	err = cluster.AddOrUpdateContainer(containerID2, testRequest)
+	err = cluster.AddOrUpdateContainer(containerID2, testRequest, 1)
 	assert.NoError(t, err)
 
 	// Expect only one aggregation to be created.
@@ -662,9 +662,9 @@ func TestTwoPodsWithDifferentNamespaces(t *testing.T) {
 	cluster := NewClusterState(testGcPeriod)
 	cluster.AddOrUpdatePod(podID1, testLabels, apiv1.PodRunning)
 	cluster.AddOrUpdatePod(podID2, testLabels, apiv1.PodRunning)
-	err := cluster.AddOrUpdateContainer(containerID1, testRequest)
+	err := cluster.AddOrUpdateContainer(containerID1, testRequest, 1)
 	assert.NoError(t, err)
-	err = cluster.AddOrUpdateContainer(containerID2, testRequest)
+	err = cluster.AddOrUpdateContainer(containerID2, testRequest, 1)
 	assert.NoError(t, err)
 
 	// Expect two separate aggregations to be created.
@@ -682,13 +682,13 @@ func TestEmptySelector(t *testing.T) {
 	// Create a pod with labels. Add a container.
 	cluster.AddOrUpdatePod(testPodID, testLabels, apiv1.PodRunning)
 	containerID1 := ContainerID{testPodID, "foo"}
-	assert.NoError(t, cluster.AddOrUpdateContainer(containerID1, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(containerID1, testRequest, 1))
 
 	// Create a pod without labels. Add a container.
 	anotherPodID := PodID{"namespace-1", "pod-2"}
 	cluster.AddOrUpdatePod(anotherPodID, emptyLabels, apiv1.PodRunning)
 	containerID2 := ContainerID{anotherPodID, "foo"}
-	assert.NoError(t, cluster.AddOrUpdateContainer(containerID2, testRequest))
+	assert.NoError(t, cluster.AddOrUpdateContainer(containerID2, testRequest, 1))
 
 	// Both pods should be matched by the VPA.
 	assert.Contains(t, vpa.aggregateContainerStates, cluster.aggregateStateKeyForContainerID(containerID1))
@@ -908,7 +908,7 @@ func TestVPAWithMatchingPods(t *testing.T) {
 			for _, podDesc := range tc.pods {
 				cluster.AddOrUpdatePod(podDesc.id, podDesc.labels, podDesc.phase)
 				containerID := ContainerID{testPodID, "foo"}
-				assert.NoError(t, cluster.AddOrUpdateContainer(containerID, testRequest))
+				assert.NoError(t, cluster.AddOrUpdateContainer(containerID, testRequest, 1))
 			}
 			assert.Equal(t, tc.expectedMatch, cluster.Vpas[vpa.ID].PodCount)
 		})
@@ -920,7 +920,7 @@ func TestVPAWithMatchingPods(t *testing.T) {
 			for _, podDesc := range tc.pods {
 				cluster.AddOrUpdatePod(podDesc.id, podDesc.labels, podDesc.phase)
 				containerID := ContainerID{testPodID, "foo"}
-				assert.NoError(t, cluster.AddOrUpdateContainer(containerID, testRequest))
+				assert.NoError(t, cluster.AddOrUpdateContainer(containerID, testRequest, 1))
 			}
 			vpa := addVpa(cluster, testVpaID, testAnnotations, tc.vpaSelector, testTargetRef)
 			assert.Equal(t, tc.expectedMatch, cluster.Vpas[vpa.ID].PodCount)

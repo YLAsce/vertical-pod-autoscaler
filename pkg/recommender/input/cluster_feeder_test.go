@@ -436,7 +436,7 @@ func TestClusterStateFeeder_LoadPods(t *testing.T) {
 				clusterState:   clusterState,
 			}
 
-			feeder.LoadPods()
+			feeder.LoadPods(1)
 			assert.Len(t, feeder.clusterState.Pods, tc.TrackedPods, "number of pods is not %d", tc.TrackedPods)
 
 			feeder = clusterStateFeeder{
@@ -445,7 +445,7 @@ func TestClusterStateFeeder_LoadPods(t *testing.T) {
 				clusterState:   clusterState,
 			}
 
-			feeder.LoadPods()
+			feeder.LoadPods(1)
 			assert.Len(t, feeder.clusterState.Pods, len(tc.PodLabels), "number of pods is not %d", len(tc.PodLabels))
 		})
 	}

@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:ml-demo-shortvpa-fix10-cache1
+        image: docker.io/yuqiang302/vpa-recommender:ml-demo-withidle-1
         imagePullPolicy: Always
         args:
           - --recommender-name=ml
@@ -57,6 +57,7 @@ spec:
           - --ap-ml-memory-num-dm=50
           - --ap-ml-memory-num-mm=500
           - --ap-ml-memory-size-buckets-mm=1
+          - --idle-percentage=0.1
         resources:
           limits:
             cpu: 240m

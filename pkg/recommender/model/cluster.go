@@ -195,14 +195,14 @@ func (cluster *ClusterState) DeletePod(podID PodID) {
 // adds it to the parent pod in the ClusterState object, if not yet present.
 // Requires the pod to be added to the ClusterState first. Otherwise an error is
 // returned.
-func (cluster *ClusterState) AddOrUpdateContainer(containerID ContainerID, request Resources) error {
+func (cluster *ClusterState) AddOrUpdateContainer(containerID ContainerID, request Resources, idlePercentage float64) error {
 	pod, podExists := cluster.Pods[containerID.PodID]
 	if !podExists {
 		return NewKeyError(containerID.PodID)
 	}
 	if container, containerExists := pod.Containers[containerID.ContainerName]; !containerExists {
 		cluster.findOrCreateAggregateContainerState(containerID)
-		pod.Containers[containerID.ContainerName] = NewContainerState(request, NewContainerStateAggregatorProxy(cluster, containerID))
+		pod.Containers[containerID.ContainerName] = NewContainerState(request, NewContainerStateAggregatorProxy(cluster, containerID), idlePercentage)
 	} else {
 		// Container aleady exists. Possibly update the request.
 		container.Request = request

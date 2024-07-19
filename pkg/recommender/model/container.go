@@ -58,10 +58,17 @@ type ContainerState struct {
 	// lastMemorySampleStart time.Time
 	// Aggregation to add usage samples to.
 	aggregator ContainerStateAggregator
+
+	memoryPeak ResourceAmount
+	cpuPeak    ResourceAmount
+	memoryPrev ResourceAmount
+	cpuPrev    ResourceAmount
+
+	idlePercentage float64
 }
 
 // NewContainerState returns a new ContainerState.
-func NewContainerState(request Resources, aggregator ContainerStateAggregator) *ContainerState {
+func NewContainerState(request Resources, aggregator ContainerStateAggregator, idlePercentage float64) *ContainerState {
 	return &ContainerState{
 		Request: request,
 		// LastCPUSampleStart:    time.Time{},
@@ -69,6 +76,12 @@ func NewContainerState(request Resources, aggregator ContainerStateAggregator) *
 		WindowEnd:    time.Time{},
 		// lastMemorySampleStart: time.Time{},
 		aggregator: aggregator,
+
+		memoryPeak:     ResourceAmount(0),
+		cpuPeak:        ResourceAmount(0),
+		memoryPrev:     ResourceAmount(0),
+		cpuPrev:        ResourceAmount(0),
+		idlePercentage: idlePercentage,
 	}
 }
 
@@ -82,7 +95,14 @@ func (container *ContainerState) addCPUSample(sample *ContainerUsageSample) bool
 		return false // Discard invalid, In Autopilot Keep duplicate or out-of-order samples here.
 	}
 	container.observeQualityMetrics(sample.Usage, false, corev1.ResourceCPU)
+
+	if sample.Usage < ResourceAmount(container.idlePercentage*float64(container.cpuPeak)) {
+		sample.Usage = container.cpuPrev
+	}
 	container.aggregator.AddSample(sample)
+	container.cpuPeak = ResourceAmountMax(sample.Usage, container.cpuPeak)
+	container.cpuPrev = sample.Usage
+
 	// Discard time sequence...
 	// container.LastCPUSampleStart = sample.MeasureStart
 	return true
@@ -137,7 +157,12 @@ func (container *ContainerState) addMemorySample(sample *ContainerUsageSample) b
 		return false // Discard invalid, In Autopilot Keep duplicate or out-of-order samples here.
 	}
 	// container.observeQualityMetrics(sample.Usage, isOOM, corev1.ResourceMemory)
+	if sample.Usage < ResourceAmount(container.idlePercentage*float64(container.memoryPeak)) {
+		sample.Usage = container.memoryPrev
+	}
 	container.aggregator.AddSample(sample)
+	container.memoryPeak = ResourceAmountMax(sample.Usage, container.memoryPeak)
+	container.memoryPrev = sample.Usage
 
 	container.memoryRecent = sample.Usage
 

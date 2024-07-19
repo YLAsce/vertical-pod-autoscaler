@@ -1,6 +1,6 @@
 all: docker-build docker-push replace-ml
 
-TAG?=ml-demo-shortvpa-fix10-cache1
+TAG?=ml-demo-withidle-1
 REGISTRY?=yuqiang302
 FLAGS=
 TEST_ENVVAR=LD_FLAGS=-s GO111MODULE=on

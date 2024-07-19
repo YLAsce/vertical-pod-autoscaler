@@ -65,7 +65,7 @@ type ClusterStateFeeder interface {
 	LoadVPAs()
 
 	// LoadPods updates clusterState with current specification of Pods and their Containers.
-	LoadPods()
+	LoadPods(idlePercentage float64)
 
 	// LoadRealTimeMetrics updates clusterState with current usage metrics of containers.
 	LoadRealTimeMetrics()
@@ -229,7 +229,7 @@ func (feeder *clusterStateFeeder) InitFromHistoryProvider(historyProvider histor
 				PodID:         podID,
 				ContainerName: containerName,
 			}
-			if err = feeder.clusterState.AddOrUpdateContainer(containerID, nil); err != nil {
+			if err = feeder.clusterState.AddOrUpdateContainer(containerID, nil, 1); err != nil {
 				klog.Warningf("Failed to add container %+v. Reason: %+v", containerID, err)
 			}
 			klog.V(4).Infof("Adding %d samples for container %v", len(sampleList), containerID)
@@ -408,7 +408,7 @@ func (feeder *clusterStateFeeder) LoadVPAs() {
 }
 
 // LoadPods loads pod into the cluster state.
-func (feeder *clusterStateFeeder) LoadPods() {
+func (feeder *clusterStateFeeder) LoadPods(idlePercentage float64) {
 	podSpecs, err := feeder.specClient.GetPodSpecs()
 	if err != nil {
 		klog.Errorf("Cannot get SimplePodSpecs. Reason: %+v", err)
@@ -429,7 +429,7 @@ func (feeder *clusterStateFeeder) LoadPods() {
 		}
 		feeder.clusterState.AddOrUpdatePod(pod.ID, pod.PodLabels, pod.Phase)
 		for _, container := range pod.Containers {
-			if err = feeder.clusterState.AddOrUpdateContainer(container.ID, container.Request); err != nil {
+			if err = feeder.clusterState.AddOrUpdateContainer(container.ID, container.Request, idlePercentage); err != nil {
 				klog.Warningf("Failed to add container %+v. Reason: %+v", container.ID, err)
 			}
 		}

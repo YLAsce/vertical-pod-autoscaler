@@ -36,6 +36,7 @@ import (
 var (
 	checkpointsWriteTimeout = flag.Duration("checkpoints-timeout", time.Minute, `Timeout for writing checkpoints since the start of the recommender's main loop`)
 	minCheckpointsPerRun    = flag.Int("min-checkpoints", 10, "Minimum number of checkpoints to write per recommender's main loop")
+	idlePercentage          = flag.Float64("idle-percentage", 0.1, "Usage under this percentage will be raised up to previous usage")
 )
 
 // Recommender recommend resources for certain containers, based on utilization periodically got from metrics api.
@@ -176,7 +177,7 @@ func (r *recommender) MaintainCheckpoints(ctx context.Context, minCheckpointsPer
 // 1 second
 func (r *recommender) CollectOnce() {
 	r.clusterStateFeeder.LoadVPAs()
-	r.clusterStateFeeder.LoadPods()
+	r.clusterStateFeeder.LoadPods(*idlePercentage)
 
 	r.clusterStateFeeder.LoadRealTimeMetrics()
 }
@@ -235,7 +236,7 @@ func (r *recommender) RunOnce() {
 	r.clusterStateFeeder.LoadVPAs()
 	timer.ObserveStep("LoadVPAs")
 
-	r.clusterStateFeeder.LoadPods()
+	r.clusterStateFeeder.LoadPods(*idlePercentage)
 	timer.ObserveStep("LoadPods")
 
 	// 把实时的container级别数据传入到feeder.clusterState
