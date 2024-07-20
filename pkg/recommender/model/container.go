@@ -97,6 +97,7 @@ func (container *ContainerState) addCPUSample(sample *ContainerUsageSample) bool
 	container.observeQualityMetrics(sample.Usage, false, corev1.ResourceCPU)
 
 	if sample.Usage < ResourceAmount(container.idlePercentage*float64(container.cpuPeak)) {
+		klog.V(5).Infof("NICO sample CPU is idle, %v %v %v %v", sample.Usage, container.cpuPeak, container.cpuPrev, container.idlePercentage)
 		sample.Usage = container.cpuPrev
 	}
 	container.aggregator.AddSample(sample)
@@ -158,6 +159,7 @@ func (container *ContainerState) addMemorySample(sample *ContainerUsageSample) b
 	}
 	// container.observeQualityMetrics(sample.Usage, isOOM, corev1.ResourceMemory)
 	if sample.Usage < ResourceAmount(container.idlePercentage*float64(container.memoryPeak)) {
+		klog.V(5).Infof("NICO sample MEM is idle, %v %v %v %v", sample.Usage, container.memoryPeak, container.memoryPrev, container.idlePercentage)
 		sample.Usage = container.memoryPrev
 	}
 	container.aggregator.AddSample(sample)

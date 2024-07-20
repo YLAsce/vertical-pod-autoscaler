@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534 # nobody
       containers:
       - name: recommender
-        image: docker.io/yuqiang302/vpa-recommender:ml-demo-withidle-1
+        image: docker.io/yuqiang302/vpa-recommender:ml-demo-withidle-2
         imagePullPolicy: Always
         args:
           - --recommender-name=autopilot
@@ -46,7 +46,7 @@ spec:
           - --ap-ml-memory-num-dm=50
           - --ap-ml-memory-num-mm=500
           - --ap-ml-memory-size-buckets-mm=1
-          - --v=3
+          - --v=5
           - --idle-percentage=0.1
         resources:
           limits:

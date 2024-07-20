@@ -23,7 +23,7 @@ spec:
           image: registry.k8s.io/autoscaling/vpa-updater:1.0.0
           imagePullPolicy: Always
           args:
-            - --updater-interval=30s
+            - --updater-interval=1s
             - --min-replicas=1
             - --eviction-tolerance=1
           env:
