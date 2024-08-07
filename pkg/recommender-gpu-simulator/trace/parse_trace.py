@@ -16,10 +16,10 @@ init_file_path = 'init.json'
 
 scale_daemons_cpu = 3
 scale_daemons_mem = 30
-num_daemons = 1
+num_daemons = 3
 scale_serverless_cpu = 3
 scale_serverless_mem = 30
-num_serverless = 40
+num_serverless = 50
 
 init_map = {}
 sum_time = []

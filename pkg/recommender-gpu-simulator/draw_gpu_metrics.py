@@ -2,7 +2,7 @@ import os
 import matplotlib.pyplot as plt
 import pandas as pd
 
-folder_path = 'metrics/gpu-const'
+folder_path = 'metrics/gpu-ml'
 
 nodenum = 0
 firsttime = 0
@@ -94,7 +94,7 @@ for file_name in os.listdir(folder_path):
 
 length = len(base_data[0])
 
-y_line1 = pd.Series([4]*length)
+y_line1 = pd.Series([1]*length)
 for i in range(nodenum):
     axes[i].plot(base_data[0]['ts'], y_line1, label='Node size')
 

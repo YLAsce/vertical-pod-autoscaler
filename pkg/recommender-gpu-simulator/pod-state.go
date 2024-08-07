@@ -177,6 +177,19 @@ func convertRequestId(id int) int {
 	panic("illegal ID")
 }
 
+func convertRequestId2(id int) float64 {
+	if id == 2 {
+		return 0.5
+	}
+	if id == 1 {
+		return 1.0 / 3.0
+	}
+	if id == 0 {
+		return 1.0 / 7.0
+	}
+	panic("illegal ID")
+}
+
 func (p *PodState) CollectMetrics(t time.Time) {
 	if !p.IsAlive {
 		return
@@ -187,7 +200,7 @@ func (p *PodState) CollectMetrics(t time.Time) {
 		MemoryOverrun: p.MemoryOverrun,
 		SMOverrun:     p.SMOverrun,
 		Ts:            t,
-		RequestId:     convertRequestId(p.CurRequestId),
+		RequestId:     convertRequestId2(p.CurRequestId),
 		NodeId:        p.nodePool.AssignNode(p.name),
 	})
 }

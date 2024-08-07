@@ -55,8 +55,8 @@ run-rule:
 		-nodepool-folder=group
 
 run-ml:
-	# rm metrics/group-ml/*.csv
-	# rm metrics/group-ml/*.info
+	rm metrics/gpu-ml/*.csv
+	rm metrics/gpu-ml/*.info
 	bin/recommender-gpu-simulator \
 		-ap-algorithm-ml=true \
 		-ap-ml-gpus-hyperparam-d=0.8571428571428571 \
@@ -79,8 +79,8 @@ run-ml:
 
 
 run-const:
-	# rm metrics/group-const/*.csv
-	# rm metrics/group-const/*.info
+	rm metrics/gpu-const/*.csv
+	rm metrics/gpu-const/*.info
 	bin/recommender-gpu-simulator \
 		-ap-algorithm-ml=true \
 		-ap-ml-gpus-hyperparam-d=0.8571428571428571 \

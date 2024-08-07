@@ -24,7 +24,7 @@ type metricPoint struct {
 	SMOverrun     bool
 	Ts            time.Time
 	NodeId        int
-	RequestId     int
+	RequestId     float64
 }
 
 func bool2int(b bool) int {
@@ -35,7 +35,7 @@ func bool2int(b bool) int {
 }
 
 func (m *metricPoint) String() string {
-	return fmt.Sprintf("%v,%d,%d,%d,%d", m.Ts.Unix(), bool2int(m.SMOverrun), bool2int(m.MemoryOverrun), m.NodeId, m.RequestId)
+	return fmt.Sprintf("%v,%d,%d,%d,%f", m.Ts.Unix(), bool2int(m.SMOverrun), bool2int(m.MemoryOverrun), m.NodeId, m.RequestId)
 }
 
 type MetricsCollector struct {

@@ -1,14 +1,22 @@
 {
     "daemon_0": {
-        "gpusm": 2,
+        "gpusm": 1,
+        "gpumemory": 20000000000
+    },
+    "daemon_1": {
+        "gpusm": 1,
         "gpumemory": 10000000000
+    },
+    "daemon_2": {
+        "gpusm": 1,
+        "gpumemory": 20000000000
     },
     "serverless_0": {
         "gpusm": 1,
         "gpumemory": 20000000000
     },
     "serverless_1": {
-        "gpusm": 2,
+        "gpusm": 1,
         "gpumemory": 10000000000
     },
     "serverless_2": {
@@ -16,19 +24,19 @@
         "gpumemory": 20000000000
     },
     "serverless_3": {
-        "gpusm": 2,
+        "gpusm": 1,
         "gpumemory": 20000000000
     },
     "serverless_4": {
-        "gpusm": 1,
+        "gpusm": 2,
         "gpumemory": 10000000000
     },
     "serverless_5": {
         "gpusm": 1,
-        "gpumemory": 10000000000
+        "gpumemory": 20000000000
     },
     "serverless_6": {
-        "gpusm": 1,
+        "gpusm": 2,
         "gpumemory": 10000000000
     },
     "serverless_7": {
@@ -36,19 +44,19 @@
         "gpumemory": 10000000000
     },
     "serverless_8": {
-        "gpusm": 2,
-        "gpumemory": 20000000000
+        "gpusm": 1,
+        "gpumemory": 10000000000
     },
     "serverless_9": {
-        "gpusm": 2,
-        "gpumemory": 20000000000
+        "gpusm": 1,
+        "gpumemory": 10000000000
     },
     "serverless_10": {
-        "gpusm": 2,
+        "gpusm": 1,
         "gpumemory": 20000000000
     },
     "serverless_11": {
-        "gpusm": 1,
+        "gpusm": 3,
         "gpumemory": 10000000000
     },
     "serverless_12": {
@@ -60,7 +68,7 @@
         "gpumemory": 20000000000
     },
     "serverless_14": {
-        "gpusm": 3,
+        "gpusm": 1,
         "gpumemory": 10000000000
     },
     "serverless_15": {
@@ -68,12 +76,12 @@
         "gpumemory": 20000000000
     },
     "serverless_16": {
-        "gpusm": 1,
+        "gpusm": 2,
         "gpumemory": 10000000000
     },
     "serverless_17": {
         "gpusm": 1,
-        "gpumemory": 20000000000
+        "gpumemory": 10000000000
     },
     "serverless_18": {
         "gpusm": 1,
@@ -85,11 +93,11 @@
     },
     "serverless_20": {
         "gpusm": 1,
-        "gpumemory": 10000000000
+        "gpumemory": 20000000000
     },
     "serverless_21": {
-        "gpusm": 2,
-        "gpumemory": 20000000000
+        "gpusm": 3,
+        "gpumemory": 10000000000
     },
     "serverless_22": {
         "gpusm": 1,
@@ -100,28 +108,28 @@
         "gpumemory": 10000000000
     },
     "serverless_24": {
-        "gpusm": 2,
+        "gpusm": 1,
         "gpumemory": 10000000000
     },
     "serverless_25": {
-        "gpusm": 1,
+        "gpusm": 2,
         "gpumemory": 20000000000
     },
     "serverless_26": {
-        "gpusm": 2,
+        "gpusm": 1,
         "gpumemory": 10000000000
     },
     "serverless_27": {
         "gpusm": 1,
-        "gpumemory": 10000000000
+        "gpumemory": 20000000000
     },
     "serverless_28": {
         "gpusm": 2,
-        "gpumemory": 10000000000
+        "gpumemory": 20000000000
     },
     "serverless_29": {
-        "gpusm": 2,
-        "gpumemory": 20000000000
+        "gpusm": 3,
+        "gpumemory": 10000000000
     },
     "serverless_30": {
         "gpusm": 1,
@@ -129,38 +137,78 @@
     },
     "serverless_31": {
         "gpusm": 1,
-        "gpumemory": 10000000000
+        "gpumemory": 20000000000
     },
     "serverless_32": {
         "gpusm": 1,
-        "gpumemory": 10000000000
+        "gpumemory": 20000000000
     },
     "serverless_33": {
         "gpusm": 1,
-        "gpumemory": 20000000000
+        "gpumemory": 10000000000
     },
     "serverless_34": {
         "gpusm": 1,
         "gpumemory": 10000000000
     },
     "serverless_35": {
-        "gpusm": 3,
-        "gpumemory": 10000000000
+        "gpusm": 1,
+        "gpumemory": 20000000000
     },
     "serverless_36": {
         "gpusm": 1,
         "gpumemory": 10000000000
     },
     "serverless_37": {
+        "gpusm": 1,
+        "gpumemory": 10000000000
+    },
+    "serverless_38": {
         "gpusm": 2,
         "gpumemory": 20000000000
     },
-    "serverless_38": {
+    "serverless_39": {
+        "gpusm": 1,
+        "gpumemory": 10000000000
+    },
+    "serverless_40": {
         "gpusm": 1,
         "gpumemory": 20000000000
     },
-    "serverless_39": {
+    "serverless_41": {
+        "gpusm": 1,
+        "gpumemory": 20000000000
+    },
+    "serverless_42": {
+        "gpusm": 1,
+        "gpumemory": 10000000000
+    },
+    "serverless_43": {
+        "gpusm": 1,
+        "gpumemory": 20000000000
+    },
+    "serverless_44": {
+        "gpusm": 1,
+        "gpumemory": 10000000000
+    },
+    "serverless_45": {
+        "gpusm": 2,
+        "gpumemory": 20000000000
+    },
+    "serverless_46": {
         "gpusm": 3,
         "gpumemory": 10000000000
+    },
+    "serverless_47": {
+        "gpusm": 1,
+        "gpumemory": 20000000000
+    },
+    "serverless_48": {
+        "gpusm": 1,
+        "gpumemory": 10000000000
+    },
+    "serverless_49": {
+        "gpusm": 1,
+        "gpumemory": 20000000000
     }
 }
