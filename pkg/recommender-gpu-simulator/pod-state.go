@@ -166,13 +166,13 @@ func (p *PodState) Record(t time.Time, isConst bool) {
 
 func convertRequestId(id int) int {
 	if id == 2 {
-		return 4
+		return 21
 	}
 	if id == 1 {
-		return 2
+		return 14
 	}
 	if id == 0 {
-		return 1
+		return 6
 	}
 	panic("illegal ID")
 }

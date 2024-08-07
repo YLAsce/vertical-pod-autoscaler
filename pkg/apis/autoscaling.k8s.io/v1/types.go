@@ -381,6 +381,7 @@ type VerticalPodAutoscalerCheckpointSpec struct {
 	ContainerName string `json:"containerName,omitempty" protobuf:"bytes,2,opt,name=containerName"`
 }
 
+// //NICO checkpoint here
 // VerticalPodAutoscalerCheckpointStatus contains data of the checkpoint.
 type VerticalPodAutoscalerCheckpointStatus struct {
 	// The time when the status was last refreshed.

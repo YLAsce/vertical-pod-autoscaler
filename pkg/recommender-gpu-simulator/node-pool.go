@@ -71,7 +71,7 @@ func (n *NodePool) batchAssignNode() {
 	curNodeSize := 0
 	curNodeMode := 0
 	for _, s := range kvSlice {
-		if curNodeMode != s.Value || curNodeSize == 4 {
+		if curNodeMode != s.Value || curNodeSize == 42 {
 			curNode++
 			curNodeSize = 0
 			curNodeMode = s.Value
